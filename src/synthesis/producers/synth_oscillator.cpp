@@ -537,6 +537,8 @@ namespace vital {
       first_mod_oscillator_(nullptr), second_mod_oscillator_(nullptr), sample_(nullptr),
       fourier_frames1_(), fourier_frames2_() {
     pan_amplitude_ = 0.0f;
+    for (int i = 0; i < kNumPolyPhase; ++i)
+      noise_gains_[i] = 0.0f;
     center_amplitude_ = 0.0f;
     detuned_amplitude_ = 0.0f;
     distortion_phase_ = 0.0f;
@@ -607,18 +609,14 @@ namespace vital {
     }
   }
 
-  void SynthOscillator::setPhaseIncMults() {
-    poly_float range = input(kDetuneRange)->at(0);
-    poly_float cents = range * input(kUnisonDetune)->at(0);
-    poly_float power = input(kDetunePower)->at(0);
-    int stack_style = std::roundf(input(kStackStyle)->at(0)[0]);
+  void SynthOscillator::computeUnisonDetunings(int unison, poly_float cents, poly_float power, int stack_style,
+                                               poly_float* detunings) {
     const mono_float* stack_settings = kStackMultipliers[stack_style];
-
-    mono_float divisor = utils::max(1.0f, unison_ - 1.0f);
-    int bump = (unison_ % 2 == 0) ? 1 : 0;
+    mono_float divisor = utils::max(1.0f, unison - 1.0f);
+    int bump = (unison % 2 == 0) ? 1 : 0;
 
     poly_mask sharp_flat_mask = constants::kLeftMask;
-    int num_updates = active_oscillators_ / 2;
+    int num_updates = (unison + (unison % 2)) / 2;
     for (int i = 0; i < num_updates; ++i) {
       mono_float t = (2 * i + bump) / divisor;
       poly_float adjusted_t = futils::powerScale(t, power);
@@ -626,11 +624,42 @@ namespace vital {
 
       poly_float up_ratio = utils::centsToRatio(oscillator_cents);
       poly_float down_ratio = poly_float(1.0f) / up_ratio;
-      detunings_[i] = utils::maskLoad(up_ratio, down_ratio, sharp_flat_mask) * stack_settings[i];
+      detunings[i] = utils::maskLoad(up_ratio, down_ratio, sharp_flat_mask) * stack_settings[i];
+      sharp_flat_mask = ~sharp_flat_mask;
+    }
+  }
+
+  void SynthOscillator::computeUnisonAmplitudes(int unison, poly_float blend,
+                                                poly_float* center_amplitude, poly_float* detuned_amplitude) {
+    if (unison <= 2) {
+      *center_amplitude = 1.0f;
+      *detuned_amplitude = 0.0f;
+      return;
+    }
+
+    poly_float center = utils::interpolate(1.0f, kCenterLowAmplitude, blend);
+    poly_float detuned_blend = -blend + 1.0f;
+    detuned_blend *= detuned_blend;
+    poly_float detuned = utils::interpolate(kDetunedHighAmplitude, 0.0f, detuned_blend);
+
+    int half_oscillators = (unison + (unison % 2)) / 2;
+    poly_float square_sums = center * center + detuned * detuned * (half_oscillators - 1);
+    poly_float adjustment = poly_float(1.0f) / utils::sqrt(square_sums);
+    *center_amplitude = adjustment * center;
+    *detuned_amplitude = adjustment * detuned;
+  }
+
+  void SynthOscillator::setPhaseIncMults() {
+    poly_float range = input(kDetuneRange)->at(0);
+    poly_float cents = range * input(kUnisonDetune)->at(0);
+    poly_float power = input(kDetunePower)->at(0);
+    int stack_style = std::roundf(input(kStackStyle)->at(0)[0]);
+    computeUnisonDetunings(unison_, cents, power, stack_style, detunings_);
+
+    int num_updates = active_oscillators_ / 2;
+    for (int i = 0; i < num_updates; ++i) {
       from_phase_inc_mults_[i] = phase_inc_mults_[i];
       phase_inc_mults_[i] = detunings_[i];
-
-      sharp_flat_mask = ~sharp_flat_mask;
     }
   }
 
@@ -714,23 +743,7 @@ namespace vital {
   }
 
   force_inline void SynthOscillator::setAmplitude() {
-    if (unison_ <= 2) {
-      center_amplitude_ = 1.0f;
-      detuned_amplitude_ = 0.0f;
-      return;
-    }
-
-    poly_float blend = input(kBlend)->at(0);
-    poly_float center = utils::interpolate(1.0f, kCenterLowAmplitude, blend);
-    poly_float detuned_blend = -blend + 1.0f;
-    detuned_blend *= detuned_blend;
-    poly_float detuned = utils::interpolate(kDetunedHighAmplitude, 0.0f, detuned_blend);
-
-    int half_oscillators = active_oscillators_ / 2;
-    poly_float square_sums = center * center + detuned * detuned * (half_oscillators - 1);
-    poly_float adjustment = poly_float(1.0f) / utils::sqrt(square_sums);
-    center_amplitude_ = adjustment * center;
-    detuned_amplitude_ = adjustment * detuned;
+    computeUnisonAmplitudes(unison_, input(kBlend)->at(0), &center_amplitude_, &detuned_amplitude_);
   }
 
   void SynthOscillator::setWaveBuffers(poly_float phase_inc, int index) {
@@ -1201,6 +1214,11 @@ namespace vital {
   }
 
   void SynthOscillator::process(int num_samples) {
+    if (static_cast<int>(input(kSource)->at(0)[0]) == kNoiseSource) {
+      processNoise(num_samples);
+      return;
+    }
+
     wavetable_->markUsed();
     int wavetable_version = wavetable_->getActiveVersion();
     if (wavetable_version != wavetable_version_) {
@@ -1510,5 +1528,73 @@ namespace vital {
     poly_float* audio_out = output(kRaw)->buffer;
     stereoBlend(audio_out, num_samples, reset_mask);
     levelOutput(output(kLevelled)->buffer, audio_out, num_samples, reset_mask);
+  }
+
+  // Unison works as for wavetables: each unison pair's sharp voice plays left and its flat voice right,
+  // with the same detune, stacking and center/detuned blend. Detuning moves each voice's focus band.
+  // Phase, frequency morph, distortion and wavetable controls do not apply to noise.
+  void SynthOscillator::processNoise(int num_samples) {
+    poly_mask active_voice_mask = poly_float::equal(input(kActiveVoices)->at(0), 1.0f);
+    poly_mask reset_mask = getResetMask(kReset);
+    poly_mask all_mask = poly_float::equal(0.0f, 0.0f);
+
+    unison_ = utils::clamp(roundf(input(kUnisonVoices)->at(0)[0]), 1.0f, kMaxUnison);
+    setActiveOscillators(unison_ + (unison_ % 2));
+    int num_noises = active_oscillators_ / 2;
+    setAmplitude();
+    setPhaseIncMults();
+
+    // Each pair's gain glides to its target, so changing the unison count fades pairs in and out
+    // instead of switching them mid-signal. New notes start at their targets.
+    mono_float max_step = num_samples / (kNoiseUnisonFadeSeconds * getSampleRate());
+    poly_float gain_starts[kNumPolyPhase];
+    poly_float gain_ends[kNumPolyPhase];
+    for (int i = 0; i < kNumPolyPhase; ++i) {
+      poly_float target = 0.0f;
+      if (i < num_noises)
+        target = i == 0 ? center_amplitude_ : detuned_amplitude_;
+
+      poly_float start = utils::maskLoad(noise_gains_[i], target, reset_mask);
+      gain_starts[i] = start;
+      gain_ends[i] = start + utils::clamp(target - start, -max_step, max_step);
+      noise_gains_[i] = gain_ends[i];
+
+      if (poly_float::notEqual(start, 0.0f).anyMask() || poly_float::notEqual(gain_ends[i], 0.0f).anyMask()) {
+        noises_[i].setSampleRate(getSampleRate(), getOversampleAmount());
+        // A pair fading in from silence starts with clear filters and snapped parameters.
+        poly_mask noise_reset_mask = poly_float::notEqual(start, 0.0f).anyMask() ? reset_mask : all_mask;
+        if (noise_reset_mask.anyMask())
+          noises_[i].reset(noise_reset_mask);
+      }
+    }
+
+    bool midi_track = poly_float::notEqual(input(kMidiTrack)->at(0), 0.0f).anyMask();
+    poly_float midi = kNoMidiTrackDefault;
+    if (midi_track)
+      midi = input(kMidiNote)->at(0);
+    int last = num_samples - 1;
+    midi += input(kTranspose)->at(last) + input(kTune)->at(last);
+
+    poly_float* audio_out = output(kRaw)->buffer;
+    utils::zeroBuffer(audio_out, num_samples);
+    poly_float color = input(kNoiseColor)->at(0);
+    poly_float focus = input(kNoiseFocus)->at(0);
+    poly_float frequency = utils::midiNoteToFrequency(midi);
+    for (int i = 0; i < kNumPolyPhase; ++i) {
+      bool audible = poly_float::notEqual(gain_starts[i], 0.0f).anyMask() ||
+                     poly_float::notEqual(gain_ends[i], 0.0f).anyMask();
+      if (audible) {
+        noises_[i].addTo(audio_out, num_samples, color, focus, frequency * phase_inc_mults_[i],
+                         gain_starts[i], gain_ends[i]);
+      }
+    }
+
+    for (int i = 0; i < num_samples; ++i)
+      audio_out[i] = audio_out[i] & active_voice_mask;
+
+    if (reset_mask.anyMask())
+      clearOutputBufferForReset(reset_mask, kReset, kRaw);
+
+    processBlend(num_samples, reset_mask);
   }
 } // namespace vital

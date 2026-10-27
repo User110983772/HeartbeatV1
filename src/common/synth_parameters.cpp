@@ -517,6 +517,13 @@ namespace vital {
       ValueDetails::kIndexed, false, "", "Destination", strings::kDestinationNames },
     { "view_2d", 0x000402, 0.0, 2.0, 1.0, 0.0, 1.0,
       ValueDetails::kIndexed, false, "", "View 2D", strings::kOffOnNames },
+    // Newer than every Vital parameter so it sorts last and existing host parameter indices are kept.
+    { "source", 0x010007, 0.0, SynthOscillator::kNumSources - 1, 0.0, 0.0, 1.0,
+      ValueDetails::kIndexed, false, "", "Source", strings::kOscillatorSourceNames },
+    { "noise_color", 0x010007, 0.0, 1.0, 0.5, 0.0, 100.0,
+      ValueDetails::kLinear, false, "%", "Noise Color", nullptr },
+    { "noise_focus", 0x010007, 0.0, 1.0, 0.0, 0.0, 100.0,
+      ValueDetails::kLinear, false, "%", "Noise Focus", nullptr },
   };
 
   const ValueDetails ValueDetailsLookup::mod_parameter_list[] = {

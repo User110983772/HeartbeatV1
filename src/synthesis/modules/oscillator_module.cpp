@@ -37,6 +37,7 @@ namespace vital {
     Value* spectral_unison = createBaseControl(prefix_ + "_spectral_unison");
     Value* stack_style = createBaseControl(prefix_ + "_stack_style");
     Value* transpose_quantize = createBaseControl(prefix_ + "_transpose_quantize");
+    Value* source = createBaseControl(prefix_ + "_source");
 
     Input* reset = input(kReset);
 
@@ -61,6 +62,8 @@ namespace vital {
     Output* spectral_morph_spread = createPolyModControl(prefix_ + "_spectral_morph_spread");
     Value* spectral_morph_type = createBaseControl(prefix_ + "_spectral_morph_type");
     Output* spectral_morph_amount = createPolyModControl(prefix_ + "_spectral_morph_amount");
+    Output* noise_color = createPolyModControl(prefix_ + "_noise_color");
+    Output* noise_focus = createPolyModControl(prefix_ + "_noise_focus");
 
     oscillator_->useInput(input(kReset), SynthOscillator::kReset);
     oscillator_->useInput(input(kRetrigger), SynthOscillator::kRetrigger);
@@ -71,6 +74,7 @@ namespace vital {
     oscillator_->plug(smooth_interpolation, SynthOscillator::kSmoothlyInterpolate);
     oscillator_->plug(spectral_unison, SynthOscillator::kSpectralUnison);
     oscillator_->plug(transpose_quantize, SynthOscillator::kTransposeQuantize);
+    oscillator_->plug(source, SynthOscillator::kSource);
     oscillator_->plug(transpose, SynthOscillator::kTranspose);
     oscillator_->plug(tune, SynthOscillator::kTune);
     oscillator_->plug(stack_style, SynthOscillator::kStackStyle);
@@ -92,6 +96,8 @@ namespace vital {
     oscillator_->plug(spectral_morph_spread, SynthOscillator::kUnisonSpectralMorphSpread);
     oscillator_->plug(spectral_morph_type, SynthOscillator::kSpectralMorphType);
     oscillator_->plug(spectral_morph_amount, SynthOscillator::kSpectralMorphAmount);
+    oscillator_->plug(noise_color, SynthOscillator::kNoiseColor);
+    oscillator_->plug(noise_focus, SynthOscillator::kNoiseFocus);
     oscillator_->useOutput(output(kRaw), SynthOscillator::kRaw);
     oscillator_->useOutput(output(kLevelled), SynthOscillator::kLevelled);
 

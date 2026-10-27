@@ -23,6 +23,7 @@
 #include "synthesis/lookups/wave_frame_test.cpp"
 #include "synthesis/producers/synth_oscillator_test.cpp"
 #include "synthesis/producers/sample_source_test.cpp"
+#include "synthesis/producers/noise_source_test.cpp"
 #include "synthesis/effects/distortion_test.cpp"
 #include "synthesis/effects/compressor_test.cpp"
 #include "synthesis/effects/phaser_test.cpp"

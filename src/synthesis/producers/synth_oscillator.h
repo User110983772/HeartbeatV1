@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "noise_source.h"
 #include "spectral_morph.h"
 #include "synth_constants.h"
 #include "utils.h"
@@ -88,6 +89,9 @@ namespace vital {
         kActiveVoices,
         kReset,
         kRetrigger,
+        kSource,
+        kNoiseColor,
+        kNoiseFocus,
         kNumInputs
       };
 
@@ -95,6 +99,12 @@ namespace vital {
         kRaw,
         kLevelled,
         kNumOutputs
+      };
+
+      enum Source {
+        kWavetableSource,
+        kNoiseSource,
+        kNumSources
       };
 
       enum SpectralMorph {
@@ -154,6 +164,7 @@ namespace vital {
       }
 
       static constexpr int kMaxUnison = 16;
+      static constexpr mono_float kNoiseUnisonFadeSeconds = 0.02f;
       static constexpr int kPolyPhasePerVoice = kMaxUnison / poly_float::kSize;
       static constexpr int kNumPolyPhase = kMaxUnison / 2;
       static constexpr int kNumBuffers = kNumPolyPhase * poly_float::kSize;
@@ -206,6 +217,11 @@ namespace vital {
                                               poly_int distorted_phase);
       static poly_float interpolate(const mono_float* buffers, const poly_int indices);
       static bool usesDistortionPhase(DistortionType distortion_type);
+      // Per unison pair frequency ratios; each lane is one voice's left or right unison voice.
+      static void computeUnisonDetunings(int unison, poly_float cents, poly_float power, int stack_style,
+                                         poly_float* detunings);
+      static void computeUnisonAmplitudes(int unison, poly_float blend,
+                                          poly_float* center_amplitude, poly_float* detuned_amplitude);
 
       SynthOscillator(Wavetable* wavetable);
 
@@ -235,6 +251,7 @@ namespace vital {
       void processChunk(poly_float current_center_amplitude, poly_float current_detuned_amplitude);
 
       void processBlend(int num_samples, poly_mask reset_mask);
+      void processNoise(int num_samples);
 
       void loadVoiceBlock(VoiceBlock& voice_block, int index, poly_mask active_mask);
 
@@ -297,6 +314,9 @@ namespace vital {
       poly_float last_distortion_values_[kNumPolyPhase];
       VoiceBlock voice_block_;
       utils::RandomGenerator random_generator_;
+      // One generator per unison pair; each lane is one voice's left (sharp) or right (flat) unison voice.
+      NoiseSource noises_[kNumPolyPhase];
+      poly_float noise_gains_[kNumPolyPhase];
 
       int transpose_quantize_;
       poly_float last_quantized_transpose_;

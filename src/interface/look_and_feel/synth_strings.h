@@ -315,6 +315,11 @@ namespace strings {
     "RM <- Sample"
   };
 
+  const std::string kOscillatorSourceNames[] = {
+    "Wavetable",
+    "Noise",
+  };
+
   const std::string kSpectralMorphNames[] = {
     "None",
     "Vocode",
