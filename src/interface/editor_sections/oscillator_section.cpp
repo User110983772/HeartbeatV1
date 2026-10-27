@@ -1150,7 +1150,8 @@ void OscillatorSection::loadDefaultWavetable() {
     parent->loadDefaultWavetable(index_);
   wavetable_->setLoadingWavetable(false);
 
-  preset_selector_->setText("Init");
+  if (parent)
+    preset_selector_->setText(parent->getWavetableName(index_));
 }
 
 void OscillatorSection::resynthesizeToWavetable() {

@@ -161,10 +161,91 @@ void WavetableCreator::clear() {
   full_normalize_ = true;
 }
 
+
+namespace {
+  // Rotates a frame by a fractional number of samples: the result's sample 0 is the input's sample `offset`.
+  void rotate(vital::WaveFrame* frame, float offset) {
+    constexpr int kSize = vital::WaveFrame::kWaveformSize;
+    frame->toFrequencyDomain();
+    for (int i = 0; i < vital::WaveFrame::kNumRealComplex; ++i)
+      frame->frequency_domain[i] *= std::polar(1.0f, vital::kPi * 2.0f * i * offset / kSize);
+    frame->toTimeDomain();
+  }
+
+  // Moves a rising zero crossing of the DC-free, band-limited shape to sample 0, choosing the crossing that
+  // puts the fundamental closest to sine phase so every shape starts like a sine and blends without
+  // cancelling. Square and pulse only cross zero at their edges, so they start mid-edge.
+  void alignToRisingZeroCrossing(vital::WaveFrame* frame) {
+    constexpr int kSize = vital::WaveFrame::kWaveformSize;
+    constexpr int kRefinements = 3;
+    frame->toFrequencyDomain();
+    frame->toTimeDomain();
+    float mean = 0.0f;
+    for (int i = 0; i < kSize; ++i)
+      mean += frame->time_domain[i];
+    mean /= kSize;
+    for (int i = 0; i < kSize; ++i)
+      frame->time_domain[i] -= mean;
+
+    std::unique_ptr<vital::WaveFrame> candidate = std::make_unique<vital::WaveFrame>();
+    float best_offset = 0.0f;
+    float best_score = -1.0e30f;
+    for (int i = 0; i < kSize; ++i) {
+      float from = frame->time_domain[i];
+      float to = frame->time_domain[(i + 1) % kSize];
+      if (from > 0.0f || to <= 0.0f)
+        continue;
+
+      float offset = i + from / (from - to);
+      candidate->copy(frame);
+      rotate(candidate.get(), offset);
+      float score = 0.0f;
+      for (int s = 0; s < kSize; ++s)
+        score += candidate->time_domain[s] * sinf(vital::kPi * 2.0f * s / kSize);
+      if (score > best_score) {
+        best_score = score;
+        best_offset = offset;
+      }
+    }
+
+    rotate(frame, best_offset);
+
+    // Linear interpolation only estimates where a steep edge crosses zero; converge on the crossing.
+    for (int r = 0; r < kRefinements; ++r) {
+      float before = frame->time_domain[kSize - 1];
+      float at = frame->time_domain[0];
+      float after = frame->time_domain[1];
+      float offset = at <= 0.0f ? -at / (after - at) : -1.0f + -before / (at - before);
+      rotate(frame, offset);
+    }
+  }
+}
+
 void WavetableCreator::loadDefaultCreator() {
-  wavetable_->setName("Init");
+  // Heartbeat's default table blends through the basic shapes, starting from a saw. Every frame starts
+  // on a rising zero crossing.
+  static constexpr vital::PredefinedWaveFrames::Shape kDefaultShapes[] = {
+    vital::PredefinedWaveFrames::kSaw, vital::PredefinedWaveFrames::kPulse,
+    vital::PredefinedWaveFrames::kSquare, vital::PredefinedWaveFrames::kTriangle,
+    vital::PredefinedWaveFrames::kSaturatedSin, vital::PredefinedWaveFrames::kSin
+  };
+  static constexpr int kNumDefaultShapes = sizeof(kDefaultShapes) / sizeof(kDefaultShapes[0]);
+
+  wavetable_->setName("Basic Shapes");
   WavetableGroup* new_group = new WavetableGroup();
-  new_group->loadDefaultGroup();
+  WaveSource* wave_source = new WaveSource();
+  for (int i = 0; i < kNumDefaultShapes; ++i) {
+    int position = ((vital::kNumOscillatorWaveFrames - 1) * i) / (kNumDefaultShapes - 1);
+    wave_source->insertNewKeyframe(position);
+    vital::WaveFrame* frame = wave_source->getKeyframe(i)->wave_frame();
+    frame->copy(vital::PredefinedWaveFrames::getWaveFrame(kDefaultShapes[i]));
+    alignToRisingZeroCrossing(frame);
+  }
+  // Time-domain blending keeps every in-between frame at zero on sample 0 as well; spectral morphing
+  // interpolates phases and would not.
+  wave_source->setInterpolationMode(WaveSource::kTime);
+
+  new_group->addComponent(wave_source);
   addGroup(new_group);
 }
 
