@@ -24,6 +24,7 @@
 #include "wavetable_3d.h"
 
 class IncrementerButtons;
+class NoiseViewer;
 class OpenGlShapeButton;
 class PresetSelector;
 class SaveSection;
@@ -56,6 +57,7 @@ class OscillatorSection : public SynthSection, public PresetSelector::Listener,
       wavetable_->setDirty();
     }
     void buttonClicked(Button* clicked_button) override;
+    void sliderValueChanged(Slider* moved_slider) override;
     void setAllValues(vital::control_map& controls) override;
 
     void textEditorReturnKeyPressed(TextEditor& text_editor) override;
@@ -75,6 +77,7 @@ class OscillatorSection : public SynthSection, public PresetSelector::Listener,
     int getDistortion() const { return current_distortion_type_; }
     void setSpectralMorphSelected(int selection);
     void setDestinationSelected(int selection);
+    void setSourceSelected(int selection);
     void toggleFilterInput(int filter_index, bool on);
 
     void loadBrowserState();
@@ -112,6 +115,12 @@ class OscillatorSection : public SynthSection, public PresetSelector::Listener,
     void setupDistortion();
     void setupDestination();
     void setDistortionPhaseVisible(bool visible);
+    void setupSource();
+    void setSourceControlsActive();
+    void setNoiseTitle();
+    int getSourceButtonWidth() const;
+    void notifySourceChange();
+    bool isNoise() const;
     void notifySpectralMorphTypeChange();
     void notifyDistortionTypeChange();
     void notifyDestinationChange();
@@ -125,6 +134,8 @@ class OscillatorSection : public SynthSection, public PresetSelector::Listener,
     std::string spectral_morph_control_name_;
     std::string destination_control_name_;
     std::string quantize_control_name_;
+    std::string source_control_name_;
+    int current_source_;
     int current_distortion_type_;
     int current_spectral_morph_type_;
     int current_destination_;
@@ -138,6 +149,11 @@ class OscillatorSection : public SynthSection, public PresetSelector::Listener,
     std::unique_ptr<PresetSelector> preset_selector_;
     std::unique_ptr<Wavetable3d> wavetable_;
     std::unique_ptr<UnisonViewer> unison_viewer_;
+    std::unique_ptr<NoiseViewer> noise_viewer_;
+    std::unique_ptr<SynthButton> source_button_;
+    std::unique_ptr<PlainTextComponent> noise_title_;
+    std::unique_ptr<SynthSlider> noise_color_;
+    std::unique_ptr<SynthSlider> noise_focus_;
 
     std::unique_ptr<TransposeQuantizeButton> transpose_quantize_button_;
     std::unique_ptr<SynthSlider> transpose_;

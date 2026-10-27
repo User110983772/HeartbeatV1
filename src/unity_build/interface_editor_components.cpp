@@ -41,6 +41,7 @@
 #include "compressor_editor.cpp"
 #include "filter_response.cpp"
 #include "sample_viewer.cpp"
+#include "noise_viewer.cpp"
 #include "text_selector.cpp"
 #include "modulation_meter.cpp"
 #include "tempo_selector.cpp"

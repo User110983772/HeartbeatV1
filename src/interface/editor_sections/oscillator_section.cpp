@@ -23,6 +23,7 @@
 #include "fonts.h"
 #include "full_interface.h"
 #include "load_save.h"
+#include "noise_viewer.h"
 #include "preset_selector.h"
 #include "producers_module.h"
 #include "synth_strings.h"
@@ -133,6 +134,22 @@ namespace {
     "uk-UA",
     "vi-VN"
   };
+
+  const std::string kSourceButtonText[vital::SynthOscillator::kNumSources] = {
+    "WT",
+    "NOISE",
+  };
+
+  // Nearest pure color for the NoiseSource color control: 0 brown, 0.25 pink, 0.5 white, 1 violet.
+  std::string getNoiseColorName(float color) {
+    if (color < 0.125f)
+      return "Brown";
+    if (color < 0.375f)
+      return "Pink";
+    if (color < 0.75f)
+      return "White";
+    return "Violet";
+  }
 
   const std::string kUrlPrefix = "";
   const std::string kLanguageUrlQuery = "&language=";
@@ -393,6 +410,21 @@ OscillatorSection::OscillatorSection(Authentication* auth,
   spectral_morph_amount_->setKnobSizeScale(1.5f);
   spectral_morph_amount_->setPopupPrefix("Spectral Morph: ");
 
+  noise_color_ = std::make_unique<SynthSlider>("osc_" + number + "_noise_color");
+  addSlider(noise_color_.get());
+  noise_color_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+  noise_color_->setKnobSizeScale(1.5f);
+  noise_color_->setBipolar();
+  noise_color_->setDoubleClickReturnValue(true, 0.5f);
+  noise_color_->setPopupPrefix("Noise Color: ");
+
+  noise_focus_ = std::make_unique<SynthSlider>("osc_" + number + "_noise_focus");
+  addSlider(noise_focus_.get());
+  noise_focus_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+  noise_focus_->setKnobSizeScale(1.5f);
+  noise_focus_->setDoubleClickReturnValue(true, 0.0f);
+  noise_focus_->setPopupPrefix("Noise Focus: ");
+
   spectral_morph_type_selector_ = std::make_unique<ShapeButton>("Spectral Morph", Colour(0xff666666),
                                                                  Colour(0xffaaaaaa), Colour(0xff888888));
   addAndMakeVisible(spectral_morph_type_selector_.get());
@@ -458,6 +490,18 @@ OscillatorSection::OscillatorSection(Authentication* auth,
   dimension_button_->setShowOnColors(false);
   dimension_button_->setLookAndFeel(TextLookAndFeel::instance());
 
+  source_control_name_ = "osc_" + number + "_source";
+  current_source_ = vital::SynthOscillator::kWavetableSource;
+  source_button_ = std::make_unique<SynthButton>("Source");
+  addAndMakeVisible(source_button_.get());
+  addOpenGlComponent(source_button_->getGlComponent());
+  source_button_->addListener(this);
+  source_button_->setNoBackground();
+  source_button_->setShowOnColors(false);
+  source_button_->setTriggeredOnMouseDown(true);
+  source_button_->setLookAndFeel(TextLookAndFeel::instance());
+  source_button_->setText(kSourceButtonText[current_source_]);
+
   dimension_value_ = std::make_unique<SynthSlider>("osc_" + number + "_view_2d");
   addSlider(dimension_value_.get());
   dimension_value_->setVisible(false);
@@ -490,6 +534,21 @@ OscillatorSection::OscillatorSection(Authentication* auth,
   ttwt_error_text_ = std::make_unique<PlainTextComponent>("ttwt error", ttwt_error);
   addOpenGlComponent(ttwt_error_text_.get());
   ttwt_error_text_->setVisible(false);
+
+  noise_title_ = std::make_unique<PlainTextComponent>("Noise Title", "White");
+  addOpenGlComponent(noise_title_.get());
+  noise_title_->setFontType(PlainTextComponent::kTitle);
+  noise_title_->setInterceptsMouseClicks(false, false);
+
+  // Created before the activator: setActivator() calls setActive(), which updates the noise controls.
+  noise_viewer_ = std::make_unique<NoiseViewer>(index, mono_modulations, poly_modulations);
+  addOpenGlComponent(noise_viewer_.get());
+  noise_viewer_->setColorSlider(noise_color_.get());
+  noise_viewer_->setFocusSlider(noise_focus_.get());
+  noise_viewer_->setTransposeSlider(transpose_.get());
+  noise_viewer_->setTuneSlider(tune_.get());
+  noise_viewer_->setUnisonSliders(unison_voices_.get(), unison_detune_.get(), unison_detune_power_.get());
+  noise_viewer_->setInterceptsMouseClicks(false, false);
 
   oscillator_on_ = std::make_unique<SynthButton>("osc_" + number + "_on");
   addButton(oscillator_on_.get());
@@ -532,6 +591,8 @@ OscillatorSection::OscillatorSection(Authentication* auth,
   addOpenGlComponent(next_distortion_->getGlComponent());
   next_distortion_->addListener(this);
   next_distortion_->setShape(Paths::next());
+
+  setupSource();
 }
 
 OscillatorSection::~OscillatorSection() = default;
@@ -652,8 +713,13 @@ void OscillatorSection::resized() {
 
   wavetable_->setBounds(wavetable_x, widget_margin, wavetable_width, wave_section_height);
   preset_selector_->setBounds(wavetable_x, widget_margin, wavetable_width, title_width - 2 * widget_margin);
-  dimension_button_->setBounds(wavetable_x, widget_margin + wave_section_height - text_height,
-                               text_height, text_height);
+  int corner_y = widget_margin + wave_section_height - text_height;
+  source_button_->setBounds(wavetable_x, corner_y, getSourceButtonWidth(), text_height);
+  dimension_button_->setBounds(source_button_->getRight(), corner_y, text_height, text_height);
+  noise_viewer_->setBounds(wavetable_->getBounds());
+  noise_title_->setBounds(preset_selector_->getBounds());
+  noise_title_->setTextSize(preset_selector_->getHeight() * PresetSelector::kDefaultFontHeightRatio);
+  noise_title_->setColor(findColour(Skin::kPresetText, true));
 
   int wave_frame_height = wave_section_height + 2 * widget_margin;
   wave_frame_->setBounds(wave_frame_x, 0, slider_width, wave_frame_height);
@@ -677,6 +743,8 @@ void OscillatorSection::resized() {
 
   placeKnobsInArea(Rectangle<int>(section2_x - widget_margin, knob_y, section2_width + widget_margin, big_knob_height),
                    { spectral_morph_amount_.get(), distortion_amount_.get() });
+  noise_color_->setBounds(spectral_morph_amount_->getBounds());
+  noise_focus_->setBounds(distortion_amount_->getBounds());
 
   int morph_y = getHeight() - knob_section_height + widget_margin;
   Rectangle<int> spectral_normal_bounds(spectral_morph_amount_->getX(), morph_y,
@@ -782,6 +850,14 @@ void OscillatorSection::buttonClicked(Button* clicked_button) {
     Point<int> position(destination_selector_->getX(), destination_selector_->getBottom());
     showPopupSelector(this, position, options, [=](int selection) { setDestinationSelected(selection); });
   }
+  else if (clicked_button == source_button_.get()) {
+    PopupItems options;
+    for (int i = 0; i < vital::SynthOscillator::kNumSources; ++i)
+      options.addItem(i, strings::kOscillatorSourceNames[i]);
+
+    Point<int> position(source_button_->getX(), source_button_->getBottom());
+    showPopupSelector(this, position, options, [=](int selection) { setSourceSelected(selection); });
+  }
   else if (clicked_button == ttwt_settings_.get())
     showTtwtSettings();
   else if (clicked_button == dimension_button_.get()) {
@@ -823,13 +899,15 @@ void OscillatorSection::setAllValues(vital::control_map& controls) {
   current_spectral_morph_type_ = controls[spectral_morph_control_name_]->value();
   current_distortion_type_ = controls[distortion_control_name_]->value();
   current_destination_ = controls[destination_control_name_]->value();
+  current_source_ = controls[source_control_name_]->value();
   transpose_quantize_button_->setValue(static_cast<int>(controls[quantize_control_name_]->value()));
   setupSpectralMorph();
   setupDistortion();
   setupDestination();
   vital::SynthOscillator::DistortionType type = (vital::SynthOscillator::DistortionType)current_distortion_type_;
 
-  setDistortionPhaseVisible(vital::SynthOscillator::usesDistortionPhase(type));
+  setDistortionPhaseVisible(!isNoise() && vital::SynthOscillator::usesDistortionPhase(type));
+  setupSource();
 
   wavetable_->setSpectralMorphType(current_spectral_morph_type_);
   wavetable_->setDistortionType(current_distortion_type_);
@@ -880,6 +958,7 @@ void OscillatorSection::setActive(bool active) {
   SynthSection::setActive(active);
   spectral_morph_amount_->setActive(active && current_spectral_morph_type_ != vital::SynthOscillator::kNoSpectralMorph);
   distortion_amount_->setActive(active && current_distortion_type_ != vital::SynthOscillator::kNone);
+  setSourceControlsActive();
 }
 
 void OscillatorSection::setName(String name) {
@@ -947,6 +1026,11 @@ void OscillatorSection::setSpectralMorphSelected(int selection) {
 void OscillatorSection::setDestinationSelected(int selection) {
   current_destination_ = selection;
   notifyDestinationChange();
+}
+
+void OscillatorSection::setSourceSelected(int selection) {
+  current_source_ = selection;
+  notifySourceChange();
 }
 
 void OscillatorSection::toggleFilterInput(int filter_index, bool on) {
@@ -1174,6 +1258,91 @@ void OscillatorSection::notifyDistortionTypeChange() {
   SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
   if (parent)
     parent->getSynth()->valueChangedInternal(distortion_control_name_, current_distortion_type_);
+}
+
+bool OscillatorSection::isNoise() const {
+  return current_source_ == vital::SynthOscillator::kNoiseSource;
+}
+
+// Noise keeps the panel's layout: the display, the two big knobs and their labels change role, and
+// the phase controls, which do not apply to noise, stay in place drawn inactive.
+void OscillatorSection::setupSource() {
+  bool noise = isNoise();
+  source_button_->setText(kSourceButtonText[current_source_]);
+  source_button_->setSize(getSourceButtonWidth(), source_button_->getHeight());
+  dimension_button_->setTopLeftPosition(source_button_->getRight(), dimension_button_->getY());
+  noise_title_->setVisible(noise);
+  setNoiseTitle();
+  wave_frame_->setVisible(!noise);
+
+  wavetable_->setVisible(!noise);
+  preset_selector_->setVisible(!noise);
+  edit_button_->setVisible(!noise);
+  dimension_button_->setVisible(!noise);
+  noise_viewer_->setVisible(noise);
+
+  spectral_morph_amount_->setVisible(!noise);
+  distortion_amount_->setVisible(!noise);
+  noise_color_->setVisible(noise);
+  noise_focus_->setVisible(noise);
+
+  Component* type_controls[] = { spectral_morph_type_selector_.get(), prev_spectral_.get(), next_spectral_.get(),
+                                 distortion_type_selector_.get(), prev_distortion_.get(), next_distortion_.get() };
+  for (Component* type_control : type_controls)
+    type_control->setVisible(!noise);
+
+  if (noise) {
+    spectral_morph_type_text_->setText("COLOR");
+    distortion_type_text_->setText("FOCUS");
+  }
+  else {
+    spectral_morph_type_text_->setText(kSpectralMorphTypes[current_spectral_morph_type_]);
+    distortion_type_text_->setText(getDistortionString(current_distortion_type_, index_));
+  }
+
+  setSourceControlsActive();
+  vital::SynthOscillator::DistortionType type = (vital::SynthOscillator::DistortionType)current_distortion_type_;
+  setDistortionPhaseVisible(!noise && vital::SynthOscillator::usesDistortionPhase(type));
+  repaintBackground();
+}
+
+void OscillatorSection::setSourceControlsActive() {
+  bool noise = isNoise();
+  bool active = isActive();
+  noise_viewer_->setActive(active);
+  noise_color_->setActive(active);
+  noise_focus_->setActive(active);
+
+  SynthSlider* wavetable_controls[] = { wave_frame_.get(), phase_.get(), random_phase_.get() };
+  for (SynthSlider* wavetable_control : wavetable_controls)
+    wavetable_control->setActive(active && !noise);
+}
+
+void OscillatorSection::setNoiseTitle() {
+  noise_title_->setText(getNoiseColorName(noise_color_->getValue()));
+}
+
+// Wide enough for the text plus the same side margins the square 2D button leaves around its text.
+int OscillatorSection::getSourceButtonWidth() const {
+  int height = findValue(Skin::kTextButtonHeight);
+  Font font = Fonts::instance()->monospace().withPointHeight(findValue(Skin::kButtonFontSize));
+  int margin = height - font.getStringWidth("2D");
+  return font.getStringWidth(kSourceButtonText[current_source_]) + margin;
+}
+
+void OscillatorSection::sliderValueChanged(Slider* moved_slider) {
+  if (moved_slider == noise_color_.get())
+    setNoiseTitle();
+
+  SynthSection::sliderValueChanged(moved_slider);
+}
+
+void OscillatorSection::notifySourceChange() {
+  setupSource();
+
+  SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
+  if (parent)
+    parent->getSynth()->valueChangedInternal(source_control_name_, current_source_);
 }
 
 void OscillatorSection::notifyDestinationChange() {
