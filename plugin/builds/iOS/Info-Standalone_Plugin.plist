@@ -14,9 +14,9 @@
     <key>CFBundleIdentifier</key>
     <string>audio.vial.synth</string>
     <key>CFBundleName</key>
-    <string>Vial</string>
+    <string>Heartbeat</string>
     <key>CFBundleDisplayName</key>
-    <string>Vial</string>
+    <string>Heartbeat</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleSignature</key>
@@ -44,13 +44,13 @@
     <array>
       <dict>
         <key>name</key>
-        <string>Vial Audio: Vial</string>
+        <string>Heartbeat Audio: Heartbeat</string>
         <key>manufacturer</key>
         <string>Open</string>
         <key>type</key>
         <string>auri</string>
         <key>subtype</key>
-        <string>Vial</string>
+        <string>Heartbeat</string>
         <key>version</key>
         <integer>65542</integer>
       </dict>

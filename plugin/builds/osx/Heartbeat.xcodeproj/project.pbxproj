@@ -1497,7 +1497,7 @@
 			isa = PBXFileReference;
 			explicitFileType = wrapper.cfbundle;
 			includeInIndex = 0;
-			path = Vial.vst;
+			path = Heartbeat.vst;
 			sourceTree = "BUILT_PRODUCTS_DIR";
 		};
 		582A7E48BD6832825D3BBF1A = {
@@ -1518,21 +1518,21 @@
 			isa = PBXFileReference;
 			explicitFileType = wrapper.cfbundle;
 			includeInIndex = 0;
-			path = Vial.vst3;
+			path = Heartbeat.vst3;
 			sourceTree = "BUILT_PRODUCTS_DIR";
 		};
 		2801D896A423C24FB939EBE6 = {
 			isa = PBXFileReference;
 			explicitFileType = wrapper.cfbundle;
 			includeInIndex = 0;
-			path = Vial.component;
+			path = Heartbeat.component;
 			sourceTree = "BUILT_PRODUCTS_DIR";
 		};
 		14AFDF6020778057AA6BF015 = {
 			isa = PBXFileReference;
 			explicitFileType = "wrapper.app-extension";
 			includeInIndex = 0;
-			path = Vial.appex;
+			path = Heartbeat.appex;
 			sourceTree = "BUILT_PRODUCTS_DIR";
 		};
 		3E408D90BF2575D57D470184 = {
@@ -1952,7 +1952,7 @@
 			isa = PBXFileReference;
 			explicitFileType = wrapper.application;
 			includeInIndex = 0;
-			path = Vial.app;
+			path = Heartbeat.app;
 			sourceTree = "BUILT_PRODUCTS_DIR";
 		};
 		7740CF8E76D239091744FAB4 = {
@@ -3051,7 +3051,7 @@
 			isa = PBXFileReference;
 			explicitFileType = archive.ar;
 			includeInIndex = 0;
-			path = libVial.a;
+			path = libHeartbeat.a;
 			sourceTree = "BUILT_PRODUCTS_DIR";
 		};
 		C0A5158BC65049BE31285110 = {
@@ -4566,7 +4566,7 @@
 				5AC44BE3DBA5F99623835525,
 				29E805555BDD0647AB5F151C,
 			);
-			name = Vial;
+			name = Heartbeat;
 			sourceTree = "<group>";
 		};
 		BA73E1EC42742BF700C44C2F = {
@@ -4850,9 +4850,9 @@
 					"../../../third_party",
 					"../../../third_party/JUCE/modules/juce_audio_plugin_client",
 				);
-				OTHER_LDFLAGS = "-bundle -lVial -lgssapi_krb5";
+				OTHER_LDFLAGS = "-bundle -lHeartbeat -lgssapi_krb5";
 				PRODUCT_BUNDLE_IDENTIFIER = audio.vial.synth;
-				PRODUCT_NAME = "Vial";
+				PRODUCT_NAME = "Heartbeat";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				USE_HEADERMAP = NO;
 				VALID_ARCHS = "arm64 arm64e x86_64";
@@ -4958,9 +4958,9 @@
 					"../../../third_party",
 					"../../../third_party/JUCE/modules/juce_audio_plugin_client",
 				);
-				OTHER_LDFLAGS = "-bundle -lVial -lgssapi_krb5";
+				OTHER_LDFLAGS = "-bundle -lHeartbeat -lgssapi_krb5";
 				PRODUCT_BUNDLE_IDENTIFIER = audio.vial.synth;
-				PRODUCT_NAME = "Vial";
+				PRODUCT_NAME = "Heartbeat";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				USE_HEADERMAP = NO;
 				VALID_ARCHS = "arm64 arm64e x86_64";
@@ -5065,9 +5065,9 @@
 					"../../../third_party",
 					"../../../third_party/JUCE/modules/juce_audio_plugin_client",
 				);
-				OTHER_LDFLAGS = "-bundle -lVial -lgssapi_krb5";
+				OTHER_LDFLAGS = "-bundle -lHeartbeat -lgssapi_krb5";
 				PRODUCT_BUNDLE_IDENTIFIER = audio.vial.synth;
-				PRODUCT_NAME = "Vial";
+				PRODUCT_NAME = "Heartbeat";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				USE_HEADERMAP = NO;
 				VALID_ARCHS = "arm64 arm64e x86_64";
@@ -5173,9 +5173,9 @@
 					"../../../third_party",
 					"../../../third_party/JUCE/modules/juce_audio_plugin_client",
 				);
-				OTHER_LDFLAGS = "-bundle -lVial -lgssapi_krb5";
+				OTHER_LDFLAGS = "-bundle -lHeartbeat -lgssapi_krb5";
 				PRODUCT_BUNDLE_IDENTIFIER = audio.vial.synth;
-				PRODUCT_NAME = "Vial";
+				PRODUCT_NAME = "Heartbeat";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				USE_HEADERMAP = NO;
 				VALID_ARCHS = "arm64 arm64e x86_64";
@@ -5280,10 +5280,10 @@
 					"../../../third_party",
 					"../../../third_party/JUCE/modules/juce_audio_plugin_client",
 				);
-				OTHER_LDFLAGS = "-bundle -lVial -lgssapi_krb5";
+				OTHER_LDFLAGS = "-bundle -lHeartbeat -lgssapi_krb5";
 				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -d ppc64_$ppc64 -d x86_64_$x86_64 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I \"$(DEVELOPER_DIR)/Extras/CoreAudio/AudioUnits/AUPublic/AUBase\" -I \"$(DEVELOPER_DIR)/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/AudioUnit.framework/Headers\"";
 				PRODUCT_BUNDLE_IDENTIFIER = audio.vial.synth;
-				PRODUCT_NAME = "Vial";
+				PRODUCT_NAME = "Heartbeat";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				USE_HEADERMAP = NO;
 				VALID_ARCHS = "arm64 arm64e x86_64";
@@ -5389,10 +5389,10 @@
 					"../../../third_party",
 					"../../../third_party/JUCE/modules/juce_audio_plugin_client",
 				);
-				OTHER_LDFLAGS = "-bundle -lVial -lgssapi_krb5";
+				OTHER_LDFLAGS = "-bundle -lHeartbeat -lgssapi_krb5";
 				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -d ppc64_$ppc64 -d x86_64_$x86_64 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I \"$(DEVELOPER_DIR)/Extras/CoreAudio/AudioUnits/AUPublic/AUBase\" -I \"$(DEVELOPER_DIR)/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/AudioUnit.framework/Headers\"";
 				PRODUCT_BUNDLE_IDENTIFIER = audio.vial.synth;
-				PRODUCT_NAME = "Vial";
+				PRODUCT_NAME = "Heartbeat";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				USE_HEADERMAP = NO;
 				VALID_ARCHS = "arm64 arm64e x86_64";
@@ -5492,9 +5492,9 @@
 					"../../../third_party",
 					"../../../third_party/JUCE/modules/juce_audio_plugin_client",
 				);
-				OTHER_LDFLAGS = "-lVial -lgssapi_krb5";
+				OTHER_LDFLAGS = "-lHeartbeat -lgssapi_krb5";
 				PRODUCT_BUNDLE_IDENTIFIER = audio.vial.synth.synthAUv3;
-				PRODUCT_NAME = "Vial";
+				PRODUCT_NAME = "Heartbeat";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				USE_HEADERMAP = NO;
 				VALID_ARCHS = "arm64 arm64e x86_64";
@@ -5594,9 +5594,9 @@
 					"../../../third_party",
 					"../../../third_party/JUCE/modules/juce_audio_plugin_client",
 				);
-				OTHER_LDFLAGS = "-lVial -lgssapi_krb5";
+				OTHER_LDFLAGS = "-lHeartbeat -lgssapi_krb5";
 				PRODUCT_BUNDLE_IDENTIFIER = audio.vial.synth.synthAUv3;
-				PRODUCT_NAME = "Vial";
+				PRODUCT_NAME = "Heartbeat";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				USE_HEADERMAP = NO;
 				VALID_ARCHS = "arm64 arm64e x86_64";
@@ -5695,9 +5695,9 @@
 					"../../../third_party",
 					"../../../third_party/JUCE/modules/juce_audio_plugin_client",
 				);
-				OTHER_LDFLAGS = "-lVial -lgssapi_krb5";
+				OTHER_LDFLAGS = "-lHeartbeat -lgssapi_krb5";
 				PRODUCT_BUNDLE_IDENTIFIER = audio.vial.synth;
-				PRODUCT_NAME = "Vial";
+				PRODUCT_NAME = "Heartbeat";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				USE_HEADERMAP = NO;
 				VALID_ARCHS = "arm64 arm64e x86_64";
@@ -5797,9 +5797,9 @@
 					"../../../third_party",
 					"../../../third_party/JUCE/modules/juce_audio_plugin_client",
 				);
-				OTHER_LDFLAGS = "-lVial -lgssapi_krb5";
+				OTHER_LDFLAGS = "-lHeartbeat -lgssapi_krb5";
 				PRODUCT_BUNDLE_IDENTIFIER = audio.vial.synth;
-				PRODUCT_NAME = "Vial";
+				PRODUCT_NAME = "Heartbeat";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				USE_HEADERMAP = NO;
 				VALID_ARCHS = "arm64 arm64e x86_64";
@@ -5899,7 +5899,7 @@
 					"../../../third_party/JUCE/modules/juce_audio_plugin_client",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = audio.vial.synth;
-				PRODUCT_NAME = "Vial";
+				PRODUCT_NAME = "Heartbeat";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				USE_HEADERMAP = NO;
@@ -6001,7 +6001,7 @@
 					"../../../third_party/JUCE/modules/juce_audio_plugin_client",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = audio.vial.synth;
-				PRODUCT_NAME = "Vial";
+				PRODUCT_NAME = "Heartbeat";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				USE_HEADERMAP = NO;
@@ -6050,7 +6050,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				PRODUCT_NAME = "Vial";
+				PRODUCT_NAME = "Heartbeat";
 				SDKROOT = macosx;
 				WARNING_CFLAGS = "-Wreorder";
 				ZERO_LINK = NO;
@@ -6098,7 +6098,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				PRODUCT_NAME = "Vial";
+				PRODUCT_NAME = "Heartbeat";
 				SDKROOT = macosx;
 				WARNING_CFLAGS = "-Wreorder";
 				ZERO_LINK = NO;
@@ -6130,7 +6130,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			name = "Post-build script";
 			shellPath = /bin/sh;
-			shellScript = "if [ -f ~/Library/Audio/Plug-Ins/Components/Vital.component ]; then\n  auval -v aumu Vita Tyte\nfi";
+			shellScript = "if [ -f ~/Library/Audio/Plug-Ins/Components/Heartbeat.component ]; then\n  auval -v aumu Hbt1 Hrtb\nfi";
 		};
 		DDA3E4C82DD636A6B1B37767 = {
 			isa = PBXAggregateTarget;
@@ -6147,8 +6147,8 @@
 				D3E191ABE26748FDEF58CFEE,
 				8C3BB0CEB81B6FD48714DDAB,
 			);
-			name = "Vial - All";
-			productName = Vial;
+			name = "Heartbeat - All";
+			productName = Heartbeat;
 		};
 		75A6E8C066609FD80E69D3F8 = {
 			isa = XCConfigurationList;
@@ -6206,7 +6206,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			name = "Post-build script";
 			shellPath = /bin/sh;
-			shellScript = "if [ -f ~/Library/Audio/Plug-Ins/Components/Vital.component ]; then\n  auval -v aumu Vita Tyte\nfi";
+			shellScript = "if [ -f ~/Library/Audio/Plug-Ins/Components/Heartbeat.component ]; then\n  auval -v aumu Hbt1 Hrtb\nfi";
 		};
 		04C62C3EDEE68AB6BB542024 = {
 			isa = PBXNativeTarget;
@@ -6221,8 +6221,8 @@
 			dependencies = (
 				34851CD7063D24C39EAB95A9,
 			);
-			name = "Vial - VST";
-			productName = Vial;
+			name = "Heartbeat - VST";
+			productName = Heartbeat;
 			productReference = 5684D867B375509C886F7B06;
 			productType = "com.apple.product-type.bundle";
 		};
@@ -6282,7 +6282,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			name = "Post-build script";
 			shellPath = /bin/sh;
-			shellScript = "if [ -f ~/Library/Audio/Plug-Ins/Components/Vital.component ]; then\n  auval -v aumu Vita Tyte\nfi";
+			shellScript = "if [ -f ~/Library/Audio/Plug-Ins/Components/Heartbeat.component ]; then\n  auval -v aumu Hbt1 Hrtb\nfi";
 		};
 		650B07A70E4EC6685842D802 = {
 			isa = PBXNativeTarget;
@@ -6297,8 +6297,8 @@
 			dependencies = (
 				B6132AD44464C23F6E9F976B,
 			);
-			name = "Vial - VST3";
-			productName = Vial;
+			name = "Heartbeat - VST3";
+			productName = Heartbeat;
 			productReference = E23701A8A5F0ABAFA2C3CC9A;
 			productType = "com.apple.product-type.bundle";
 		};
@@ -6368,7 +6368,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			name = "Post-build script";
 			shellPath = /bin/sh;
-			shellScript = "if [ -f ~/Library/Audio/Plug-Ins/Components/Vital.component ]; then\n  auval -v aumu Vita Tyte\nfi";
+			shellScript = "if [ -f ~/Library/Audio/Plug-Ins/Components/Heartbeat.component ]; then\n  auval -v aumu Hbt1 Hrtb\nfi";
 		};
 		C2D01B9344ECB5A5F8D03D03 = {
 			isa = PBXNativeTarget;
@@ -6384,8 +6384,8 @@
 			dependencies = (
 				D92B0603F3A6609CDE9A8181,
 			);
-			name = "Vial - AU";
-			productName = Vial;
+			name = "Heartbeat - AU";
+			productName = Heartbeat;
 			productReference = 2801D896A423C24FB939EBE6;
 			productType = "com.apple.product-type.bundle";
 		};
@@ -6447,7 +6447,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			name = "Post-build script";
 			shellPath = /bin/sh;
-			shellScript = "if [ -f ~/Library/Audio/Plug-Ins/Components/Vital.component ]; then\n  auval -v aumu Vita Tyte\nfi";
+			shellScript = "if [ -f ~/Library/Audio/Plug-Ins/Components/Heartbeat.component ]; then\n  auval -v aumu Hbt1 Hrtb\nfi";
 		};
 		5DD7392369A544599AE7F84E = {
 			isa = PBXNativeTarget;
@@ -6462,8 +6462,8 @@
 			dependencies = (
 				548D37704808FB684BCE9E18,
 			);
-			name = "Vial - AUv3 AppExtension";
-			productName = Vial;
+			name = "Heartbeat - AUv3 AppExtension";
+			productName = Heartbeat;
 			productReference = 14AFDF6020778057AA6BF015;
 			productType = "com.apple.product-type.app-extension";
 		};
@@ -6523,7 +6523,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			name = "Post-build script";
 			shellPath = /bin/sh;
-			shellScript = "if [ -f ~/Library/Audio/Plug-Ins/Components/Vital.component ]; then\n  auval -v aumu Vita Tyte\nfi";
+			shellScript = "if [ -f ~/Library/Audio/Plug-Ins/Components/Heartbeat.component ]; then\n  auval -v aumu Hbt1 Hrtb\nfi";
 		};
 		76D308612DBE077FFB1B6207 = {
 			isa = PBXCopyFilesBuildPhase;
@@ -6551,8 +6551,8 @@
 				A689291CF3682BB74201A14A,
 				F150D66CDD634A93FA474E56,
 			);
-			name = "Vial - Standalone Plugin";
-			productName = Vial;
+			name = "Heartbeat - Standalone Plugin";
+			productName = Heartbeat;
 			productReference = 772D63BB6D32DE44B4D47CA2;
 			productType = "com.apple.product-type.application";
 		};
@@ -6603,7 +6603,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			name = "Post-build script";
 			shellPath = /bin/sh;
-			shellScript = "if [ -f ~/Library/Audio/Plug-Ins/Components/Vital.component ]; then\n  auval -v aumu Vita Tyte\nfi";
+			shellScript = "if [ -f ~/Library/Audio/Plug-Ins/Components/Heartbeat.component ]; then\n  auval -v aumu Hbt1 Hrtb\nfi";
 		};
 		995510783F0DBDE21AB02443 = {
 			isa = PBXNativeTarget;
@@ -6614,15 +6614,15 @@
 			);
 			buildRules = ( );
 			dependencies = ( );
-			name = "Vial - Shared Code";
-			productName = Vial;
+			name = "Heartbeat - Shared Code";
+			productName = Heartbeat;
 			productReference = C067F5E592D8433D02092111;
 			productType = "com.apple.product-type.library.static";
 		};
 		1274150799E95CB43F035F74 = {
 			isa = PBXProject;
 			buildConfigurationList = BE49DC8D2B264DCFD2D03E8A;
-			attributes = { LastUpgradeCheck = 1200; ORGANIZATIONNAME = "Vial Audio"; TargetAttributes = { DDA3E4C82DD636A6B1B37767 = { DevelopmentTeam = EFXDM6K3KJ; ProvisioningStyle = Automatic; SystemCapabilities = {com.apple.ApplicationGroups.iOS = { enabled = 0; }; com.apple.InAppPurchase = { enabled = 0; }; com.apple.InterAppAudio = { enabled = 0; }; com.apple.Push = { enabled = 0; }; com.apple.Sandbox = { enabled = 0; }; com.apple.HardenedRuntime = { enabled = 1; }; }; };04C62C3EDEE68AB6BB542024 = { DevelopmentTeam = EFXDM6K3KJ; ProvisioningStyle = Automatic; SystemCapabilities = {com.apple.ApplicationGroups.iOS = { enabled = 0; }; com.apple.InAppPurchase = { enabled = 0; }; com.apple.InterAppAudio = { enabled = 0; }; com.apple.Push = { enabled = 0; }; com.apple.Sandbox = { enabled = 0; }; com.apple.HardenedRuntime = { enabled = 1; }; }; };650B07A70E4EC6685842D802 = { DevelopmentTeam = EFXDM6K3KJ; ProvisioningStyle = Automatic; SystemCapabilities = {com.apple.ApplicationGroups.iOS = { enabled = 0; }; com.apple.InAppPurchase = { enabled = 0; }; com.apple.InterAppAudio = { enabled = 0; }; com.apple.Push = { enabled = 0; }; com.apple.Sandbox = { enabled = 0; }; com.apple.HardenedRuntime = { enabled = 1; }; }; };C2D01B9344ECB5A5F8D03D03 = { DevelopmentTeam = EFXDM6K3KJ; ProvisioningStyle = Automatic; SystemCapabilities = {com.apple.ApplicationGroups.iOS = { enabled = 0; }; com.apple.InAppPurchase = { enabled = 0; }; com.apple.InterAppAudio = { enabled = 0; }; com.apple.Push = { enabled = 0; }; com.apple.Sandbox = { enabled = 0; }; com.apple.HardenedRuntime = { enabled = 1; }; }; };5DD7392369A544599AE7F84E = { DevelopmentTeam = EFXDM6K3KJ; ProvisioningStyle = Automatic; SystemCapabilities = {com.apple.ApplicationGroups.iOS = { enabled = 0; }; com.apple.InAppPurchase = { enabled = 0; }; com.apple.InterAppAudio = { enabled = 0; }; com.apple.Push = { enabled = 0; }; com.apple.Sandbox = { enabled = 1; }; com.apple.HardenedRuntime = { enabled = 1; }; }; };F9F0DA819689524463BB1AEE = { DevelopmentTeam = EFXDM6K3KJ; ProvisioningStyle = Automatic; SystemCapabilities = {com.apple.ApplicationGroups.iOS = { enabled = 0; }; com.apple.InAppPurchase = { enabled = 0; }; com.apple.InterAppAudio = { enabled = 0; }; com.apple.Push = { enabled = 0; }; com.apple.Sandbox = { enabled = 0; }; com.apple.HardenedRuntime = { enabled = 1; }; }; };995510783F0DBDE21AB02443 = { DevelopmentTeam = EFXDM6K3KJ; ProvisioningStyle = Automatic; SystemCapabilities = {com.apple.ApplicationGroups.iOS = { enabled = 0; }; com.apple.InAppPurchase = { enabled = 0; }; com.apple.InterAppAudio = { enabled = 0; }; com.apple.Push = { enabled = 0; }; com.apple.Sandbox = { enabled = 0; }; com.apple.HardenedRuntime = { enabled = 1; }; }; }; }; };
+			attributes = { LastUpgradeCheck = 1200; ORGANIZATIONNAME = "Heartbeat Audio"; TargetAttributes = { DDA3E4C82DD636A6B1B37767 = { DevelopmentTeam = EFXDM6K3KJ; ProvisioningStyle = Automatic; SystemCapabilities = {com.apple.ApplicationGroups.iOS = { enabled = 0; }; com.apple.InAppPurchase = { enabled = 0; }; com.apple.InterAppAudio = { enabled = 0; }; com.apple.Push = { enabled = 0; }; com.apple.Sandbox = { enabled = 0; }; com.apple.HardenedRuntime = { enabled = 1; }; }; };04C62C3EDEE68AB6BB542024 = { DevelopmentTeam = EFXDM6K3KJ; ProvisioningStyle = Automatic; SystemCapabilities = {com.apple.ApplicationGroups.iOS = { enabled = 0; }; com.apple.InAppPurchase = { enabled = 0; }; com.apple.InterAppAudio = { enabled = 0; }; com.apple.Push = { enabled = 0; }; com.apple.Sandbox = { enabled = 0; }; com.apple.HardenedRuntime = { enabled = 1; }; }; };650B07A70E4EC6685842D802 = { DevelopmentTeam = EFXDM6K3KJ; ProvisioningStyle = Automatic; SystemCapabilities = {com.apple.ApplicationGroups.iOS = { enabled = 0; }; com.apple.InAppPurchase = { enabled = 0; }; com.apple.InterAppAudio = { enabled = 0; }; com.apple.Push = { enabled = 0; }; com.apple.Sandbox = { enabled = 0; }; com.apple.HardenedRuntime = { enabled = 1; }; }; };C2D01B9344ECB5A5F8D03D03 = { DevelopmentTeam = EFXDM6K3KJ; ProvisioningStyle = Automatic; SystemCapabilities = {com.apple.ApplicationGroups.iOS = { enabled = 0; }; com.apple.InAppPurchase = { enabled = 0; }; com.apple.InterAppAudio = { enabled = 0; }; com.apple.Push = { enabled = 0; }; com.apple.Sandbox = { enabled = 0; }; com.apple.HardenedRuntime = { enabled = 1; }; }; };5DD7392369A544599AE7F84E = { DevelopmentTeam = EFXDM6K3KJ; ProvisioningStyle = Automatic; SystemCapabilities = {com.apple.ApplicationGroups.iOS = { enabled = 0; }; com.apple.InAppPurchase = { enabled = 0; }; com.apple.InterAppAudio = { enabled = 0; }; com.apple.Push = { enabled = 0; }; com.apple.Sandbox = { enabled = 1; }; com.apple.HardenedRuntime = { enabled = 1; }; }; };F9F0DA819689524463BB1AEE = { DevelopmentTeam = EFXDM6K3KJ; ProvisioningStyle = Automatic; SystemCapabilities = {com.apple.ApplicationGroups.iOS = { enabled = 0; }; com.apple.InAppPurchase = { enabled = 0; }; com.apple.InterAppAudio = { enabled = 0; }; com.apple.Push = { enabled = 0; }; com.apple.Sandbox = { enabled = 0; }; com.apple.HardenedRuntime = { enabled = 1; }; }; };995510783F0DBDE21AB02443 = { DevelopmentTeam = EFXDM6K3KJ; ProvisioningStyle = Automatic; SystemCapabilities = {com.apple.ApplicationGroups.iOS = { enabled = 0; }; com.apple.InAppPurchase = { enabled = 0; }; com.apple.InterAppAudio = { enabled = 0; }; com.apple.Push = { enabled = 0; }; com.apple.Sandbox = { enabled = 0; }; com.apple.HardenedRuntime = { enabled = 1; }; }; }; }; };
 			compatibilityVersion = "Xcode 3.2";
 			hasScannedForEncodings = 0;
 			mainGroup = 98F1FCB5DC3DD869395E33CF;

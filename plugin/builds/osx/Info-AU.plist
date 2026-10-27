@@ -25,9 +25,9 @@
     <key>CFBundleIdentifier</key>
     <string>audio.vial.synth</string>
     <key>CFBundleName</key>
-    <string>Vial</string>
+    <string>Heartbeat</string>
     <key>CFBundleDisplayName</key>
-    <string>Vial</string>
+    <string>Heartbeat</string>
     <key>CFBundlePackageType</key>
     <string>BNDL</string>
     <key>CFBundleSignature</key>
@@ -44,7 +44,7 @@
     <array>
       <dict>
         <key>name</key>
-        <string>Vial Audio: Vial</string>
+        <string>Heartbeat Audio: Heartbeat</string>
         <key>description</key>
         <string></string>
         <key>factoryFunction</key>
@@ -54,7 +54,7 @@
         <key>type</key>
         <string>aumu</string>
         <key>subtype</key>
-        <string>Vial</string>
+        <string>Heartbeat</string>
         <key>version</key>
         <integer>65542</integer>
         <key>resourceUsage</key>

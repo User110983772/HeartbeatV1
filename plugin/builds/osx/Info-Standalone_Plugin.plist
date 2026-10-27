@@ -25,9 +25,9 @@
     <key>CFBundleIdentifier</key>
     <string>audio.vial.synth</string>
     <key>CFBundleName</key>
-    <string>Vial</string>
+    <string>Heartbeat</string>
     <key>CFBundleDisplayName</key>
-    <string>Vial</string>
+    <string>Heartbeat</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleSignature</key>

@@ -71,11 +71,11 @@ class LogoButton : public Button {
 
       if (hover) {
         g.setColour(findColour(Skin::kLightenScreen, true));
-        g.fillEllipse(getLocalBounds().toFloat());
+        g.fillPath(ring_);
       }
       else if (down) {
         g.setColour(findColour(Skin::kOverlayScreen, true));
-        g.fillEllipse(getLocalBounds().toFloat());
+        g.fillPath(ring_);
       }
     }
 
@@ -122,7 +122,7 @@ class LogoButton : public Button {
 LogoSection::LogoSection() : SynthSection("logo_section") {
 #if !defined(NO_TEXT_ENTRY)
   logo_button_ = std::make_unique<LogoButton>("logo");
-  logo_button_->setPaths(Paths::vitalV(), Paths::vitalRing());
+  logo_button_->setPaths(Paths::logoFrame(), Paths::heartbeatLogo());
   addAndMakeVisible(logo_button_.get());
   addOpenGlComponent(logo_button_->getImageComponent());
   logo_button_->addListener(this);

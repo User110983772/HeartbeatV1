@@ -123,15 +123,15 @@ clean:
 install_standalone: standalone install_icons
 	install -d $(BIN) $(MAN) $(CHANGES) $(DESKTOP)
 	install standalone/builds/linux/build/$(PROGRAM) $(BIN)
-	install -m644 standalone/vital.desktop $(DESKTOP)/vital.desktop
+	install -m644 standalone/heartbeat.desktop $(DESKTOP)/heartbeat.desktop
 
 install_lv2: lv2
 	install -d $(LV2)
-	install -m644 plugin/builds/linux_lv2/Vital.lv2/* $(LV2)
+	install -m644 plugin/builds/linux_lv2/Heartbeat.lv2/* $(LV2)
 
 install_effects_lv2: effects_lv2
 	install -d $(EFFECTS_LV2)
-	install -m644 effects/builds/linux_lv2/VitalFX.lv2/* $(EFFECTS_LV2)
+	install -m644 effects/builds/linux_lv2/HeartbeatFX.lv2/* $(EFFECTS_LV2)
 
 install_vst: vst
 	install -d $(VSTDIR)
@@ -185,7 +185,7 @@ dist:
 
 zip_binaries:
 	mkdir $(ZIP_FOLDER)
-	cp -r plugin/builds/linux_lv2/Vital.lv2 $(ZIP_FOLDER)
+	cp -r plugin/builds/linux_lv2/Heartbeat.lv2 $(ZIP_FOLDER)
 	cp -r plugin/builds/linux_vst/build/$(LIB_PROGRAM).so $(ZIP_FOLDER)
 	cp -r plugin/builds/linux_vst/build/$(LIB_PROGRAM).vst3 $(ZIP_FOLDER)
 	cp -r standalone/builds/linux/build/$(PROGRAM) $(ZIP_FOLDER)

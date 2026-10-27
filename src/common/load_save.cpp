@@ -27,7 +27,7 @@
 #define STRINGIFY(x) QUOTE(x)
 
 namespace {
-  const std::string kLinuxUserDataDirectory = "~/.local/share/vital/";
+  const std::string kLinuxUserDataDirectory = "~/.local/share/heartbeat/";
   const std::string kAvailablePacksFile = "available_packs.json";
   const std::string kInstalledPacksFile = "packs.json";
 
@@ -1745,7 +1745,7 @@ File LoadSave::getDataDirectory() {
   String xdg_data_home = SystemStats::getEnvironmentVariable ("XDG_DATA_HOME", {});
 
   if (!xdg_data_home.trim().isEmpty())
-    directory = File(xdg_data_home).getChildFile("vial");
+    directory = File(xdg_data_home).getChildFile("heartbeat");
 
 #elif defined(__APPLE__)
   File home_directory = File::getSpecialLocation(File::userHomeDirectory);

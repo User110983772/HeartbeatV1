@@ -30,18 +30,29 @@ class Paths {
       return drawable->getOutlineAsPath();
     }
 
-    static Path vitalRing() {
-      Path path = fromSvgData((const void*)BinaryData::vital_ring_svg, BinaryData::vital_ring_svgSize);
-      path.addLineSegment(Line<float>(0.0f, 0.0f, 0.0f, 0.0f), 0.2f);
-      path.addLineSegment(Line<float>(kLogoWidth, kLogoWidth, kLogoWidth, kLogoWidth), 0.2f);
+    // The logo is one pulse line that draws a heart, stroked from SVG path data in a 100 unit box.
+    static Path heartbeatLogo() {
+      static constexpr float kStrokeWidth = 6.0f;
+      Path line = Drawable::parseSVGPath("M4 69H16L22 57L29 81L34 69H50C36 57 24 46 24 34C24 25 30 19 37 19"
+                                         "C43 19 48 23 50 28C52 23 57 19 63 19C70 19 76 25 76 34"
+                                         "C76 46 64 57 50 69H96");
+      Path path;
+      PathStrokeType(kStrokeWidth, PathStrokeType::curved, PathStrokeType::rounded).createStrokedPath(path, line);
+      path.applyTransform(AffineTransform::scale(kLogoWidth / 100.0f));
+      addLogoFrame(path);
       return path;
     }
 
-    static Path vitalV() {
-      Path path = fromSvgData((const void*)BinaryData::vital_v_svg, BinaryData::vital_ring_svgSize);
+    // An empty path with the logo's bounds, for drawers that take a second, differently coloured layer.
+    static Path logoFrame() {
+      Path path;
+      addLogoFrame(path);
+      return path;
+    }
+
+    static void addLogoFrame(Path& path) {
       path.addLineSegment(Line<float>(0.0f, 0.0f, 0.0f, 0.0f), 0.2f);
       path.addLineSegment(Line<float>(kLogoWidth, kLogoWidth, kLogoWidth, kLogoWidth), 0.2f);
-      return path;
     }
 
     static Path vitalWord() {
