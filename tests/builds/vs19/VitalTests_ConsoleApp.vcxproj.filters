@@ -2,124 +2,124 @@
 
 <Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="VitalTests\tunings">
+    <Filter Include="HeartbeatTests\tunings">
       <UniqueIdentifier>{C59EDD8F-02C7-9829-2676-EC53A8F2AF69}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\skins">
+    <Filter Include="HeartbeatTests\skins">
       <UniqueIdentifier>{B85BB437-D4A5-BEAC-860E-3BC55967BA65}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\fonts">
+    <Filter Include="HeartbeatTests\fonts">
       <UniqueIdentifier>{7F8B6690-F740-09EA-4BD2-6DB267F80A02}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\icons">
+    <Filter Include="HeartbeatTests\icons">
       <UniqueIdentifier>{18B8BCBE-FBC6-AD26-08FD-DB8B9CB72E35}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\src\common\wavetable">
+    <Filter Include="HeartbeatTests\src\common\wavetable">
       <UniqueIdentifier>{8E623BAF-BC08-40A7-CA55-59CEB9A05750}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\src\common">
+    <Filter Include="HeartbeatTests\src\common">
       <UniqueIdentifier>{24BE7AD7-9A07-0A93-05FD-2EE37DCE54E9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\src\interface\editor_components">
+    <Filter Include="HeartbeatTests\src\interface\editor_components">
       <UniqueIdentifier>{455B5AEC-13BF-21FA-03C8-0CEDD3C55DBE}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\src\interface\editor_sections">
+    <Filter Include="HeartbeatTests\src\interface\editor_sections">
       <UniqueIdentifier>{9EAE7809-BD45-4C59-8FF5-759A43394EAB}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\src\interface\look_and_feel">
+    <Filter Include="HeartbeatTests\src\interface\look_and_feel">
       <UniqueIdentifier>{4691FE1B-19EB-3389-5A03-EAEEB8AE1A11}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\src\interface\wavetable\editors">
+    <Filter Include="HeartbeatTests\src\interface\wavetable\editors">
       <UniqueIdentifier>{AC7ABBB2-92F3-ECE3-AABF-2533283E5F13}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\src\interface\wavetable\overlays">
+    <Filter Include="HeartbeatTests\src\interface\wavetable\overlays">
       <UniqueIdentifier>{B3A0293A-12D5-B0D5-6CAF-BF8E2C572756}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\src\interface\wavetable">
+    <Filter Include="HeartbeatTests\src\interface\wavetable">
       <UniqueIdentifier>{158C52BE-2BEB-3FAD-371E-D3396B0A279B}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\src\interface">
+    <Filter Include="HeartbeatTests\src\interface">
       <UniqueIdentifier>{8FDB74EC-570E-62F7-2400-1A3BEC54BEB6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\src\synthesis\effects">
+    <Filter Include="HeartbeatTests\src\synthesis\effects">
       <UniqueIdentifier>{289F92CB-1E2B-7AE3-EC09-06902E1DA08A}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\src\synthesis\filters">
+    <Filter Include="HeartbeatTests\src\synthesis\filters">
       <UniqueIdentifier>{0BB01CE4-8F3F-354A-8160-82AC993D66FC}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\src\synthesis\framework">
+    <Filter Include="HeartbeatTests\src\synthesis\framework">
       <UniqueIdentifier>{180A4DA8-018D-4FF4-A557-0CDA68FBEC8C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\src\synthesis\lookups">
+    <Filter Include="HeartbeatTests\src\synthesis\lookups">
       <UniqueIdentifier>{CFFE2A85-AA25-25BE-FC47-CD527C014045}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\src\synthesis\modulators">
+    <Filter Include="HeartbeatTests\src\synthesis\modulators">
       <UniqueIdentifier>{FB154342-BAC5-6E18-68EE-DCB6AE3ED9DD}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\src\synthesis\modules">
+    <Filter Include="HeartbeatTests\src\synthesis\modules">
       <UniqueIdentifier>{A425E38E-AA27-52AF-6740-967510DC809C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\src\synthesis\producers">
+    <Filter Include="HeartbeatTests\src\synthesis\producers">
       <UniqueIdentifier>{AE18F120-DC99-92F7-B949-3EAE033120AE}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\src\synthesis\synth_engine">
+    <Filter Include="HeartbeatTests\src\synthesis\synth_engine">
       <UniqueIdentifier>{205B6D8B-4592-D0FC-A4BD-A500A700BF3C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\src\synthesis\utilities">
+    <Filter Include="HeartbeatTests\src\synthesis\utilities">
       <UniqueIdentifier>{FE18F719-128B-4F31-4C23-48FD622D8902}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\src\synthesis">
+    <Filter Include="HeartbeatTests\src\synthesis">
       <UniqueIdentifier>{53DD314A-1AE5-8CB6-273F-AEB10BDD1BE3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\src\unity_build">
+    <Filter Include="HeartbeatTests\src\unity_build">
       <UniqueIdentifier>{04E03970-7BB7-60AD-C789-923E2A90127E}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\src">
+    <Filter Include="HeartbeatTests\src">
       <UniqueIdentifier>{9D7D612E-836A-899C-C441-3CF5E6D7E34E}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\tests\interface">
+    <Filter Include="HeartbeatTests\tests\interface">
       <UniqueIdentifier>{EF4116D9-7F48-6A0F-51CA-092511702741}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\tests\stress">
+    <Filter Include="HeartbeatTests\tests\stress">
       <UniqueIdentifier>{B0CC634A-6B19-29A8-39BF-2FB45BD289BA}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\tests\synthesis\effects">
+    <Filter Include="HeartbeatTests\tests\synthesis\effects">
       <UniqueIdentifier>{0E7C57D6-5B47-D25D-E322-0E38FB1C2017}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\tests\synthesis\filters">
+    <Filter Include="HeartbeatTests\tests\synthesis\filters">
       <UniqueIdentifier>{F77747C8-75CD-9970-F623-A14CF2090A67}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\tests\synthesis\framework">
+    <Filter Include="HeartbeatTests\tests\synthesis\framework">
       <UniqueIdentifier>{CA8BD4EF-EAB3-1D9F-8C6B-F2C5482D961B}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\tests\synthesis\lookups">
+    <Filter Include="HeartbeatTests\tests\synthesis\lookups">
       <UniqueIdentifier>{6E39DB46-3554-0AF9-4518-26AB34EEA2F2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\tests\synthesis\modulators">
+    <Filter Include="HeartbeatTests\tests\synthesis\modulators">
       <UniqueIdentifier>{F8A2D136-183D-8B89-7246-B57F64A030DA}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\tests\synthesis\producers">
+    <Filter Include="HeartbeatTests\tests\synthesis\producers">
       <UniqueIdentifier>{F71F8972-A6C2-E3F7-DB66-4A9CBDDBC16B}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\tests\synthesis\utilities">
+    <Filter Include="HeartbeatTests\tests\synthesis\utilities">
       <UniqueIdentifier>{BCE9CD03-2CE3-9B99-4101-37E0760403BF}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\tests\synthesis">
+    <Filter Include="HeartbeatTests\tests\synthesis">
       <UniqueIdentifier>{E20CFFE7-6C6F-F3D1-D254-AD4E74A5B154}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\tests">
+    <Filter Include="HeartbeatTests\tests">
       <UniqueIdentifier>{D6F1F3D8-D8FC-AA26-6C64-3E2657A0EEDC}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\third_party\concurrentqueue">
+    <Filter Include="HeartbeatTests\third_party\concurrentqueue">
       <UniqueIdentifier>{601F5B05-7F57-73D7-6F7C-EC8DB46EE100}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\third_party\json">
+    <Filter Include="HeartbeatTests\third_party\json">
       <UniqueIdentifier>{70F8B833-E2F8-3AB7-0014-D5A1EFEC8E0B}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests\third_party">
+    <Filter Include="HeartbeatTests\third_party">
       <UniqueIdentifier>{F5784B97-CF06-600D-643E-D1C266572D63}</UniqueIdentifier>
     </Filter>
-    <Filter Include="VitalTests">
+    <Filter Include="HeartbeatTests">
       <UniqueIdentifier>{1E03D4E3-347C-67FA-56BF-F461639CCDC7}</UniqueIdentifier>
     </Filter>
     <Filter Include="JUCE Modules\juce_audio_basics\audio_play_head">
@@ -575,784 +575,784 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\common\wavetable\file_source.cpp">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\wavetable\frequency_filter_modifier.cpp">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\wavetable\phase_modifier.cpp">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\wavetable\pitch_detector.cpp">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\wavetable\shepard_tone_source.cpp">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\wavetable\slew_limit_modifier.cpp">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\wavetable\wave_fold_modifier.cpp">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\wavetable\wave_line_source.cpp">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\wavetable\wave_source.cpp">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\wavetable\wave_warp_modifier.cpp">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\wavetable\wave_window_modifier.cpp">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\wavetable\wavetable_component.cpp">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\wavetable\wavetable_component_factory.cpp">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\wavetable\wavetable_creator.cpp">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\wavetable\wavetable_group.cpp">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\wavetable\wavetable_keyframe.cpp">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\border_bounds_constrainer.cpp">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\line_generator.cpp">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\load_save.cpp">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\midi_manager.cpp">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\startup.cpp">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\synth_base.cpp">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\synth_gui_interface.cpp">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\synth_parameters.cpp">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\synth_types.cpp">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\tuning.cpp">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\bar_renderer.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\compressor_editor.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\drag_drop_effect_order.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\envelope_editor.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\equalizer_response.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\filter_response.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\lfo_editor.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\line_editor.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\line_map_editor.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\midi_keyboard.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\modulation_button.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\modulation_meter.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\modulation_tab_selector.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\open_gl_background.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\open_gl_component.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\open_gl_image.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\open_gl_image_component.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\open_gl_line_renderer.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\open_gl_multi_image.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\open_gl_multi_quad.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\oscilloscope.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\peak_meter_viewer.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\preset_selector.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\sample_viewer.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\synth_button.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\synth_preset_selector.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\synth_slider.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\tab_selector.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\tempo_selector.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\text_selector.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\transpose_quantize.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_components\wavetable_3d.cpp">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\about_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\authentication_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\bank_exporter.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\bend_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\chorus_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\compressor_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\delay_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\delete_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\distortion_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\download_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\effects_interface.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\envelope_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\equalizer_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\expired_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\extra_mod_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\filter_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\flanger_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\full_interface.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\header_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\keyboard_interface.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\lfo_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\macro_knob_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\master_controls_interface.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\modulation_interface.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\modulation_manager.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\modulation_matrix.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\oscillator_advanced_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\oscillator_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\phaser_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\popup_browser.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\portamento_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\preset_browser.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\random_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\reverb_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\sample_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\save_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\synth_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\synthesis_interface.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\update_check_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\voice_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\volume_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\editor_sections\wavetable_edit_section.cpp">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\look_and_feel\curve_look_and_feel.cpp">
-      <Filter>VitalTests\src\interface\look_and_feel</Filter>
+      <Filter>HeartbeatTests\src\interface\look_and_feel</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\look_and_feel\default_look_and_feel.cpp">
-      <Filter>VitalTests\src\interface\look_and_feel</Filter>
+      <Filter>HeartbeatTests\src\interface\look_and_feel</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\look_and_feel\fonts.cpp">
-      <Filter>VitalTests\src\interface\look_and_feel</Filter>
+      <Filter>HeartbeatTests\src\interface\look_and_feel</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\look_and_feel\shaders.cpp">
-      <Filter>VitalTests\src\interface\look_and_feel</Filter>
+      <Filter>HeartbeatTests\src\interface\look_and_feel</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\look_and_feel\skin.cpp">
-      <Filter>VitalTests\src\interface\look_and_feel</Filter>
+      <Filter>HeartbeatTests\src\interface\look_and_feel</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\look_and_feel\text_look_and_feel.cpp">
-      <Filter>VitalTests\src\interface\look_and_feel</Filter>
+      <Filter>HeartbeatTests\src\interface\look_and_feel</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\wavetable\editors\bar_editor.cpp">
-      <Filter>VitalTests\src\interface\wavetable\editors</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\editors</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\wavetable\editors\phase_editor.cpp">
-      <Filter>VitalTests\src\interface\wavetable\editors</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\editors</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\wavetable\editors\wave_source_editor.cpp">
-      <Filter>VitalTests\src\interface\wavetable\editors</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\editors</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\wavetable\editors\wave_window_editor.cpp">
-      <Filter>VitalTests\src\interface\wavetable\editors</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\editors</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\wavetable\overlays\file_source_overlay.cpp">
-      <Filter>VitalTests\src\interface\wavetable\overlays</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\overlays</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\wavetable\overlays\frequency_filter_overlay.cpp">
-      <Filter>VitalTests\src\interface\wavetable\overlays</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\overlays</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\wavetable\overlays\phase_modifier_overlay.cpp">
-      <Filter>VitalTests\src\interface\wavetable\overlays</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\overlays</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\wavetable\overlays\slew_limiter_overlay.cpp">
-      <Filter>VitalTests\src\interface\wavetable\overlays</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\overlays</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\wavetable\overlays\wave_fold_overlay.cpp">
-      <Filter>VitalTests\src\interface\wavetable\overlays</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\overlays</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\wavetable\overlays\wave_line_source_overlay.cpp">
-      <Filter>VitalTests\src\interface\wavetable\overlays</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\overlays</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\wavetable\overlays\wave_source_overlay.cpp">
-      <Filter>VitalTests\src\interface\wavetable\overlays</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\overlays</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\wavetable\overlays\wavetable_component_overlay.cpp">
-      <Filter>VitalTests\src\interface\wavetable\overlays</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\overlays</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\wavetable\overlays\wave_warp_overlay.cpp">
-      <Filter>VitalTests\src\interface\wavetable\overlays</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\overlays</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\wavetable\overlays\wave_window_overlay.cpp">
-      <Filter>VitalTests\src\interface\wavetable\overlays</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\overlays</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\wavetable\wavetable_component_list.cpp">
-      <Filter>VitalTests\src\interface\wavetable</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\wavetable\wavetable_organizer.cpp">
-      <Filter>VitalTests\src\interface\wavetable</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\wavetable\wavetable_overlay_factory.cpp">
-      <Filter>VitalTests\src\interface\wavetable</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\wavetable\wavetable_playhead.cpp">
-      <Filter>VitalTests\src\interface\wavetable</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\interface\wavetable\wavetable_playhead_info.cpp">
-      <Filter>VitalTests\src\interface\wavetable</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\effects\compressor.cpp">
-      <Filter>VitalTests\src\synthesis\effects</Filter>
+      <Filter>HeartbeatTests\src\synthesis\effects</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\effects\delay.cpp">
-      <Filter>VitalTests\src\synthesis\effects</Filter>
+      <Filter>HeartbeatTests\src\synthesis\effects</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\effects\distortion.cpp">
-      <Filter>VitalTests\src\synthesis\effects</Filter>
+      <Filter>HeartbeatTests\src\synthesis\effects</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\effects\phaser.cpp">
-      <Filter>VitalTests\src\synthesis\effects</Filter>
+      <Filter>HeartbeatTests\src\synthesis\effects</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\effects\reverb.cpp">
-      <Filter>VitalTests\src\synthesis\effects</Filter>
+      <Filter>HeartbeatTests\src\synthesis\effects</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\filters\comb_filter.cpp">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\filters\dc_filter.cpp">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\filters\decimator.cpp">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\filters\digital_svf.cpp">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\filters\diode_filter.cpp">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\filters\dirty_filter.cpp">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\filters\fir_halfband_decimator.cpp">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\filters\formant_filter.cpp">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\filters\formant_manager.cpp">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\filters\iir_halfband_decimator.cpp">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\filters\ladder_filter.cpp">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\filters\linkwitz_riley_filter.cpp">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\filters\phaser_filter.cpp">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\filters\sallen_key_filter.cpp">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\filters\synth_filter.cpp">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\filters\upsampler.cpp">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\filters\vocal_tract.cpp">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\framework\feedback.cpp">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\framework\operators.cpp">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\framework\processor.cpp">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\framework\processor_router.cpp">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\framework\synth_module.cpp">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\framework\utils.cpp">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\framework\value.cpp">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\framework\voice_handler.cpp">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\lookups\wave_frame.cpp">
-      <Filter>VitalTests\src\synthesis\lookups</Filter>
+      <Filter>HeartbeatTests\src\synthesis\lookups</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\lookups\wavetable.cpp">
-      <Filter>VitalTests\src\synthesis\lookups</Filter>
+      <Filter>HeartbeatTests\src\synthesis\lookups</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modulators\envelope.cpp">
-      <Filter>VitalTests\src\synthesis\modulators</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modulators</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modulators\line_map.cpp">
-      <Filter>VitalTests\src\synthesis\modulators</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modulators</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modulators\random_lfo.cpp">
-      <Filter>VitalTests\src\synthesis\modulators</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modulators</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modulators\synth_lfo.cpp">
-      <Filter>VitalTests\src\synthesis\modulators</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modulators</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modulators\trigger_random.cpp">
-      <Filter>VitalTests\src\synthesis\modulators</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modulators</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modules\chorus_module.cpp">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modules\comb_module.cpp">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modules\compressor_module.cpp">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modules\delay_module.cpp">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modules\distortion_module.cpp">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modules\envelope_module.cpp">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modules\equalizer_module.cpp">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modules\filter_module.cpp">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modules\filters_module.cpp">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modules\flanger_module.cpp">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modules\formant_module.cpp">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modules\lfo_module.cpp">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modules\modulation_connection_processor.cpp">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modules\oscillator_module.cpp">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modules\phaser_module.cpp">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modules\producers_module.cpp">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modules\random_lfo_module.cpp">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modules\reorderable_effect_chain.cpp">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modules\reverb_module.cpp">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modules\sample_module.cpp">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\modules\synth_voice_handler.cpp">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\producers\sample_source.cpp">
-      <Filter>VitalTests\src\synthesis\producers</Filter>
+      <Filter>HeartbeatTests\src\synthesis\producers</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\producers\synth_oscillator.cpp">
-      <Filter>VitalTests\src\synthesis\producers</Filter>
+      <Filter>HeartbeatTests\src\synthesis\producers</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\synth_engine\sound_engine.cpp">
-      <Filter>VitalTests\src\synthesis\synth_engine</Filter>
+      <Filter>HeartbeatTests\src\synthesis\synth_engine</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\utilities\legato_filter.cpp">
-      <Filter>VitalTests\src\synthesis\utilities</Filter>
+      <Filter>HeartbeatTests\src\synthesis\utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\utilities\peak_meter.cpp">
-      <Filter>VitalTests\src\synthesis\utilities</Filter>
+      <Filter>HeartbeatTests\src\synthesis\utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\utilities\portamento_slope.cpp">
-      <Filter>VitalTests\src\synthesis\utilities</Filter>
+      <Filter>HeartbeatTests\src\synthesis\utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\utilities\smooth_value.cpp">
-      <Filter>VitalTests\src\synthesis\utilities</Filter>
+      <Filter>HeartbeatTests\src\synthesis\utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\synthesis\utilities\value_switch.cpp">
-      <Filter>VitalTests\src\synthesis\utilities</Filter>
+      <Filter>HeartbeatTests\src\synthesis\utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\unity_build\common.cpp">
-      <Filter>VitalTests\src\unity_build</Filter>
+      <Filter>HeartbeatTests\src\unity_build</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\unity_build\interface_editor_components.cpp">
-      <Filter>VitalTests\src\unity_build</Filter>
+      <Filter>HeartbeatTests\src\unity_build</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\unity_build\interface_editor_sections.cpp">
-      <Filter>VitalTests\src\unity_build</Filter>
+      <Filter>HeartbeatTests\src\unity_build</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\unity_build\interface_editor_sections2.cpp">
-      <Filter>VitalTests\src\unity_build</Filter>
+      <Filter>HeartbeatTests\src\unity_build</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\unity_build\interface_look_and_feel.cpp">
-      <Filter>VitalTests\src\unity_build</Filter>
+      <Filter>HeartbeatTests\src\unity_build</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\unity_build\interface_wavetable.cpp">
-      <Filter>VitalTests\src\unity_build</Filter>
+      <Filter>HeartbeatTests\src\unity_build</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\unity_build\synthesis.cpp">
-      <Filter>VitalTests\src\unity_build</Filter>
+      <Filter>HeartbeatTests\src\unity_build</Filter>
     </ClCompile>
     <ClCompile Include="..\..\interface\bend_section_test.cpp">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\interface\chorus_section_test.cpp">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\interface\compressor_section_test.cpp">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\interface\delay_section_test.cpp">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\interface\distortion_section_test.cpp">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\interface\envelope_section_test.cpp">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\interface\equalizer_section_test.cpp">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\interface\filter_section_test.cpp">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\interface\flanger_section_test.cpp">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\interface\full_interface_test.cpp">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\interface\interface_test.cpp">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\interface\lfo_section_test.cpp">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\interface\oscillator_advanced_section_test.cpp">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\interface\oscillator_section_test.cpp">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\interface\phaser_section_test.cpp">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\interface\portamento_section_test.cpp">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\interface\reverb_section_test.cpp">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\interface\sample_section_test.cpp">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\interface\synthesis_interface_test.cpp">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\interface\voice_section_test.cpp">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\stress\engine_launch_test.cpp">
-      <Filter>VitalTests\tests\stress</Filter>
+      <Filter>HeartbeatTests\tests\stress</Filter>
     </ClCompile>
     <ClCompile Include="..\..\stress\modulation_stress_test.cpp">
-      <Filter>VitalTests\tests\stress</Filter>
+      <Filter>HeartbeatTests\tests\stress</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\effects\compressor_test.cpp">
-      <Filter>VitalTests\tests\synthesis\effects</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\effects</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\effects\delay_test.cpp">
-      <Filter>VitalTests\tests\synthesis\effects</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\effects</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\effects\distortion_test.cpp">
-      <Filter>VitalTests\tests\synthesis\effects</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\effects</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\effects\phaser_test.cpp">
-      <Filter>VitalTests\tests\synthesis\effects</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\effects</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\effects\reverb_test.cpp">
-      <Filter>VitalTests\tests\synthesis\effects</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\effects</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\filters\comb_filter_test.cpp">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\filters\dc_filter_test.cpp">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\filters\decimator_test.cpp">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\filters\digital_svf_test.cpp">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\filters\diode_filter_test.cpp">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\filters\dirty_filter_test.cpp">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\filters\fir_halfband_decimator_test.cpp">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\filters\formant_filter_test.cpp">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\filters\iir_halfband_decimator_test.cpp">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\filters\ladder_filter_test.cpp">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\filters\linkwitz_riley_filter_test.cpp">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\filters\phaser_filter_test.cpp">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\filters\sallen_key_filter_test.cpp">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\framework\circular_queue_test.cpp">
-      <Filter>VitalTests\tests\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\framework</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\framework\matrix_test.cpp">
-      <Filter>VitalTests\tests\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\framework</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\framework\poly_values_test.cpp">
-      <Filter>VitalTests\tests\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\framework</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\lookups\wave_frame_test.cpp">
-      <Filter>VitalTests\tests\synthesis\lookups</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\lookups</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\modulators\envelope_test.cpp">
-      <Filter>VitalTests\tests\synthesis\modulators</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\modulators</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\modulators\random_lfo_test.cpp">
-      <Filter>VitalTests\tests\synthesis\modulators</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\modulators</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\modulators\synth_lfo_test.cpp">
-      <Filter>VitalTests\tests\synthesis\modulators</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\modulators</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\modulators\trigger_random_test.cpp">
-      <Filter>VitalTests\tests\synthesis\modulators</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\modulators</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\producers\sample_source_test.cpp">
-      <Filter>VitalTests\tests\synthesis\producers</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\producers</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\producers\synth_oscillator_test.cpp">
-      <Filter>VitalTests\tests\synthesis\producers</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\producers</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\utilities\legato_filter_test.cpp">
-      <Filter>VitalTests\tests\synthesis\utilities</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\utilities\peak_meter_test.cpp">
-      <Filter>VitalTests\tests\synthesis\utilities</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\utilities\portamento_slope_test.cpp">
-      <Filter>VitalTests\tests\synthesis\utilities</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\utilities\smooth_value_test.cpp">
-      <Filter>VitalTests\tests\synthesis\utilities</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\utilities\value_switch_test.cpp">
-      <Filter>VitalTests\tests\synthesis\utilities</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\note_handler_test.cpp">
-      <Filter>VitalTests\tests\synthesis</Filter>
+      <Filter>HeartbeatTests\tests\synthesis</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\poly_utils_test.cpp">
-      <Filter>VitalTests\tests\synthesis</Filter>
+      <Filter>HeartbeatTests\tests\synthesis</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis\processor_test.cpp">
-      <Filter>VitalTests\tests\synthesis</Filter>
+      <Filter>HeartbeatTests\tests\synthesis</Filter>
     </ClCompile>
     <ClCompile Include="..\..\interface_tests.cpp">
-      <Filter>VitalTests\tests</Filter>
+      <Filter>HeartbeatTests\tests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\main.cpp">
-      <Filter>VitalTests\tests</Filter>
+      <Filter>HeartbeatTests\tests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\stress_tests.cpp">
-      <Filter>VitalTests\tests</Filter>
+      <Filter>HeartbeatTests\tests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\synthesis_tests.cpp">
-      <Filter>VitalTests\tests</Filter>
+      <Filter>HeartbeatTests\tests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\third_party\JUCE\modules\juce_audio_basics\buffers\juce_AudioChannelSet.cpp">
       <Filter>JUCE Modules\juce_audio_basics\buffers</Filter>
@@ -3523,814 +3523,814 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\common\wavetable\file_source.h">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\wavetable\frequency_filter_modifier.h">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\wavetable\phase_modifier.h">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\wavetable\pitch_detector.h">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\wavetable\shepard_tone_source.h">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\wavetable\slew_limit_modifier.h">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\wavetable\wave_fold_modifier.h">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\wavetable\wave_line_source.h">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\wavetable\wave_source.h">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\wavetable\wave_warp_modifier.h">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\wavetable\wave_window_modifier.h">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\wavetable\wavetable_component.h">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\wavetable\wavetable_component_factory.h">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\wavetable\wavetable_creator.h">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\wavetable\wavetable_group.h">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\wavetable\wavetable_keyframe.h">
-      <Filter>VitalTests\src\common\wavetable</Filter>
+      <Filter>HeartbeatTests\src\common\wavetable</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\authentication.h">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\border_bounds_constrainer.h">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\fourier_transform.h">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\line_generator.h">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\load_save.h">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\midi_manager.h">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\startup.h">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\synth_base.h">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\synth_constants.h">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\synth_gui_interface.h">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\synth_parameters.h">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\synth_types.h">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\common\tuning.h">
-      <Filter>VitalTests\src\common</Filter>
+      <Filter>HeartbeatTests\src\common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\audio_file_drop_source.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\bar_renderer.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\compressor_editor.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\drag_drop_effect_order.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\envelope_editor.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\equalizer_response.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\filter_response.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\incrementer_buttons.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\lfo_editor.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\line_editor.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\line_map_editor.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\midi_keyboard.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\modulation_button.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\modulation_meter.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\modulation_tab_selector.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\open_gl_background.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\open_gl_component.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\open_gl_image.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\open_gl_image_component.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\open_gl_line_renderer.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\open_gl_multi_image.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\open_gl_multi_quad.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\oscilloscope.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\overlay.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\peak_meter_viewer.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\preset_selector.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\sample_viewer.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\synth_button.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\synth_preset_selector.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\synth_slider.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\tab_selector.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\tempo_selector.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\text_selector.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\transpose_quantize.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_components\wavetable_3d.h">
-      <Filter>VitalTests\src\interface\editor_components</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\about_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\authentication_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\bank_exporter.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\bend_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\chorus_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\compressor_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\delay_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\delete_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\distortion_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\download_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\effects_interface.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\envelope_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\equalizer_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\expired_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\extra_mod_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\filter_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\flanger_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\full_interface.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\header_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\keyboard_interface.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\lfo_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\macro_knob_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\master_controls_interface.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\modulation_interface.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\modulation_manager.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\modulation_matrix.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\oscillator_advanced_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\oscillator_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\phaser_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\popup_browser.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\portamento_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\preset_browser.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\random_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\reverb_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\sample_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\save_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\synth_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\synthesis_interface.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\update_check_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\voice_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\volume_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\editor_sections\wavetable_edit_section.h">
-      <Filter>VitalTests\src\interface\editor_sections</Filter>
+      <Filter>HeartbeatTests\src\interface\editor_sections</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\look_and_feel\curve_look_and_feel.h">
-      <Filter>VitalTests\src\interface\look_and_feel</Filter>
+      <Filter>HeartbeatTests\src\interface\look_and_feel</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\look_and_feel\default_look_and_feel.h">
-      <Filter>VitalTests\src\interface\look_and_feel</Filter>
+      <Filter>HeartbeatTests\src\interface\look_and_feel</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\look_and_feel\fonts.h">
-      <Filter>VitalTests\src\interface\look_and_feel</Filter>
+      <Filter>HeartbeatTests\src\interface\look_and_feel</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\look_and_feel\paths.h">
-      <Filter>VitalTests\src\interface\look_and_feel</Filter>
+      <Filter>HeartbeatTests\src\interface\look_and_feel</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\look_and_feel\shaders.h">
-      <Filter>VitalTests\src\interface\look_and_feel</Filter>
+      <Filter>HeartbeatTests\src\interface\look_and_feel</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\look_and_feel\skin.h">
-      <Filter>VitalTests\src\interface\look_and_feel</Filter>
+      <Filter>HeartbeatTests\src\interface\look_and_feel</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\look_and_feel\synth_strings.h">
-      <Filter>VitalTests\src\interface\look_and_feel</Filter>
+      <Filter>HeartbeatTests\src\interface\look_and_feel</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\look_and_feel\text_look_and_feel.h">
-      <Filter>VitalTests\src\interface\look_and_feel</Filter>
+      <Filter>HeartbeatTests\src\interface\look_and_feel</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\wavetable\editors\bar_editor.h">
-      <Filter>VitalTests\src\interface\wavetable\editors</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\editors</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\wavetable\editors\phase_editor.h">
-      <Filter>VitalTests\src\interface\wavetable\editors</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\editors</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\wavetable\editors\wave_source_editor.h">
-      <Filter>VitalTests\src\interface\wavetable\editors</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\editors</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\wavetable\editors\wave_window_editor.h">
-      <Filter>VitalTests\src\interface\wavetable\editors</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\editors</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\wavetable\overlays\file_source_overlay.h">
-      <Filter>VitalTests\src\interface\wavetable\overlays</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\overlays</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\wavetable\overlays\frequency_filter_overlay.h">
-      <Filter>VitalTests\src\interface\wavetable\overlays</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\overlays</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\wavetable\overlays\phase_modifier_overlay.h">
-      <Filter>VitalTests\src\interface\wavetable\overlays</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\overlays</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\wavetable\overlays\slew_limiter_overlay.h">
-      <Filter>VitalTests\src\interface\wavetable\overlays</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\overlays</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\wavetable\overlays\wave_fold_overlay.h">
-      <Filter>VitalTests\src\interface\wavetable\overlays</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\overlays</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\wavetable\overlays\wave_line_source_overlay.h">
-      <Filter>VitalTests\src\interface\wavetable\overlays</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\overlays</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\wavetable\overlays\wave_source_overlay.h">
-      <Filter>VitalTests\src\interface\wavetable\overlays</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\overlays</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\wavetable\overlays\wavetable_component_overlay.h">
-      <Filter>VitalTests\src\interface\wavetable\overlays</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\overlays</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\wavetable\overlays\wave_warp_overlay.h">
-      <Filter>VitalTests\src\interface\wavetable\overlays</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\overlays</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\wavetable\overlays\wave_window_overlay.h">
-      <Filter>VitalTests\src\interface\wavetable\overlays</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable\overlays</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\wavetable\wavetable_component_list.h">
-      <Filter>VitalTests\src\interface\wavetable</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\wavetable\wavetable_organizer.h">
-      <Filter>VitalTests\src\interface\wavetable</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\wavetable\wavetable_overlay_factory.h">
-      <Filter>VitalTests\src\interface\wavetable</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\wavetable\wavetable_playhead.h">
-      <Filter>VitalTests\src\interface\wavetable</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\interface\wavetable\wavetable_playhead_info.h">
-      <Filter>VitalTests\src\interface\wavetable</Filter>
+      <Filter>HeartbeatTests\src\interface\wavetable</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\effects\compressor.h">
-      <Filter>VitalTests\src\synthesis\effects</Filter>
+      <Filter>HeartbeatTests\src\synthesis\effects</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\effects\delay.h">
-      <Filter>VitalTests\src\synthesis\effects</Filter>
+      <Filter>HeartbeatTests\src\synthesis\effects</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\effects\distortion.h">
-      <Filter>VitalTests\src\synthesis\effects</Filter>
+      <Filter>HeartbeatTests\src\synthesis\effects</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\effects\phaser.h">
-      <Filter>VitalTests\src\synthesis\effects</Filter>
+      <Filter>HeartbeatTests\src\synthesis\effects</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\effects\reverb.h">
-      <Filter>VitalTests\src\synthesis\effects</Filter>
+      <Filter>HeartbeatTests\src\synthesis\effects</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\filters\comb_filter.h">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\filters\dc_filter.h">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\filters\decimator.h">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\filters\digital_svf.h">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\filters\diode_filter.h">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\filters\dirty_filter.h">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\filters\fir_halfband_decimator.h">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\filters\formant_filter.h">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\filters\formant_manager.h">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\filters\iir_halfband_decimator.h">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\filters\ladder_filter.h">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\filters\linkwitz_riley_filter.h">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\filters\one_pole_filter.h">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\filters\phaser_filter.h">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\filters\sallen_key_filter.h">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\filters\synth_filter.h">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\filters\upsampler.h">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\filters\vocal_tract.h">
-      <Filter>VitalTests\src\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\src\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\framework\circular_queue.h">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\framework\common.h">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\framework\feedback.h">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\framework\futils.h">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\framework\matrix.h">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\framework\note_handler.h">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\framework\operators.h">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\framework\poly_utils.h">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\framework\poly_values.h">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\framework\processor.h">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\framework\processor_router.h">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\framework\synth_module.h">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\framework\utils.h">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\framework\value.h">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\framework\voice_handler.h">
-      <Filter>VitalTests\src\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\src\synthesis\framework</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\lookups\lookup_table.h">
-      <Filter>VitalTests\src\synthesis\lookups</Filter>
+      <Filter>HeartbeatTests\src\synthesis\lookups</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\lookups\memory.h">
-      <Filter>VitalTests\src\synthesis\lookups</Filter>
+      <Filter>HeartbeatTests\src\synthesis\lookups</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\lookups\wave_frame.h">
-      <Filter>VitalTests\src\synthesis\lookups</Filter>
+      <Filter>HeartbeatTests\src\synthesis\lookups</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\lookups\wavetable.h">
-      <Filter>VitalTests\src\synthesis\lookups</Filter>
+      <Filter>HeartbeatTests\src\synthesis\lookups</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modulators\envelope.h">
-      <Filter>VitalTests\src\synthesis\modulators</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modulators</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modulators\line_map.h">
-      <Filter>VitalTests\src\synthesis\modulators</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modulators</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modulators\random_lfo.h">
-      <Filter>VitalTests\src\synthesis\modulators</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modulators</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modulators\synth_lfo.h">
-      <Filter>VitalTests\src\synthesis\modulators</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modulators</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modulators\trigger_random.h">
-      <Filter>VitalTests\src\synthesis\modulators</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modulators</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modules\chorus_module.h">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modules\comb_module.h">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modules\compressor_module.h">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modules\delay_module.h">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modules\distortion_module.h">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modules\envelope_module.h">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modules\equalizer_module.h">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modules\filter_module.h">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modules\filters_module.h">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modules\flanger_module.h">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modules\formant_module.h">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modules\lfo_module.h">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modules\modulation_connection_processor.h">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modules\oscillator_module.h">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modules\phaser_module.h">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modules\producers_module.h">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modules\random_lfo_module.h">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modules\reorderable_effect_chain.h">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modules\reverb_module.h">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modules\sample_module.h">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\modules\synth_voice_handler.h">
-      <Filter>VitalTests\src\synthesis\modules</Filter>
+      <Filter>HeartbeatTests\src\synthesis\modules</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\producers\sample_source.h">
-      <Filter>VitalTests\src\synthesis\producers</Filter>
+      <Filter>HeartbeatTests\src\synthesis\producers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\producers\spectral_morph.h">
-      <Filter>VitalTests\src\synthesis\producers</Filter>
+      <Filter>HeartbeatTests\src\synthesis\producers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\producers\synth_oscillator.h">
-      <Filter>VitalTests\src\synthesis\producers</Filter>
+      <Filter>HeartbeatTests\src\synthesis\producers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\synth_engine\sound_engine.h">
-      <Filter>VitalTests\src\synthesis\synth_engine</Filter>
+      <Filter>HeartbeatTests\src\synthesis\synth_engine</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\utilities\legato_filter.h">
-      <Filter>VitalTests\src\synthesis\utilities</Filter>
+      <Filter>HeartbeatTests\src\synthesis\utilities</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\utilities\peak_meter.h">
-      <Filter>VitalTests\src\synthesis\utilities</Filter>
+      <Filter>HeartbeatTests\src\synthesis\utilities</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\utilities\portamento_slope.h">
-      <Filter>VitalTests\src\synthesis\utilities</Filter>
+      <Filter>HeartbeatTests\src\synthesis\utilities</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\utilities\smooth_value.h">
-      <Filter>VitalTests\src\synthesis\utilities</Filter>
+      <Filter>HeartbeatTests\src\synthesis\utilities</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\synthesis\utilities\value_switch.h">
-      <Filter>VitalTests\src\synthesis\utilities</Filter>
+      <Filter>HeartbeatTests\src\synthesis\utilities</Filter>
     </ClInclude>
     <ClInclude Include="..\..\interface\bend_section_test.h">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\interface\chorus_section_test.h">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\interface\compressor_section_test.h">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\interface\delay_section_test.h">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\interface\distortion_section_test.h">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\interface\envelope_section_test.h">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\interface\equalizer_section_test.h">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\interface\filter_section_test.h">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\interface\flanger_section_test.h">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\interface\full_interface_test.h">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\interface\interface_test.h">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\interface\lfo_section_test.h">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\interface\oscillator_advanced_section_test.h">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\interface\oscillator_section_test.h">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\interface\phaser_section_test.h">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\interface\portamento_section_test.h">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\interface\reverb_section_test.h">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\interface\sample_section_test.h">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\interface\synthesis_interface_test.h">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\interface\voice_section_test.h">
-      <Filter>VitalTests\tests\interface</Filter>
+      <Filter>HeartbeatTests\tests\interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\stress\engine_launch_test.h">
-      <Filter>VitalTests\tests\stress</Filter>
+      <Filter>HeartbeatTests\tests\stress</Filter>
     </ClInclude>
     <ClInclude Include="..\..\stress\modulation_stress_test.h">
-      <Filter>VitalTests\tests\stress</Filter>
+      <Filter>HeartbeatTests\tests\stress</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\effects\compressor_test.h">
-      <Filter>VitalTests\tests\synthesis\effects</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\effects</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\effects\delay_test.h">
-      <Filter>VitalTests\tests\synthesis\effects</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\effects</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\effects\distortion_test.h">
-      <Filter>VitalTests\tests\synthesis\effects</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\effects</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\effects\phaser_test.h">
-      <Filter>VitalTests\tests\synthesis\effects</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\effects</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\effects\reverb_test.h">
-      <Filter>VitalTests\tests\synthesis\effects</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\effects</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\filters\comb_filter_test.h">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\filters\dc_filter_test.h">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\filters\decimator_test.h">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\filters\digital_svf_test.h">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\filters\diode_filter_test.h">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\filters\dirty_filter_test.h">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\filters\fir_halfband_decimator_test.h">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\filters\formant_filter_test.h">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\filters\iir_halfband_decimator_test.h">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\filters\ladder_filter_test.h">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\filters\linkwitz_riley_filter_test.h">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\filters\phaser_filter_test.h">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\filters\sallen_key_filter_test.h">
-      <Filter>VitalTests\tests\synthesis\filters</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\framework\circular_queue_test.h">
-      <Filter>VitalTests\tests\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\framework</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\framework\matrix_test.h">
-      <Filter>VitalTests\tests\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\framework</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\framework\poly_values_test.h">
-      <Filter>VitalTests\tests\synthesis\framework</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\framework</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\lookups\wave_frame_test.h">
-      <Filter>VitalTests\tests\synthesis\lookups</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\lookups</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\modulators\envelope_test.h">
-      <Filter>VitalTests\tests\synthesis\modulators</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\modulators</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\modulators\random_lfo_test.h">
-      <Filter>VitalTests\tests\synthesis\modulators</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\modulators</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\modulators\synth_lfo_test.h">
-      <Filter>VitalTests\tests\synthesis\modulators</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\modulators</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\modulators\trigger_random_test.h">
-      <Filter>VitalTests\tests\synthesis\modulators</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\modulators</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\producers\sample_source_test.h">
-      <Filter>VitalTests\tests\synthesis\producers</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\producers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\producers\synth_oscillator_test.h">
-      <Filter>VitalTests\tests\synthesis\producers</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\producers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\utilities\legato_filter_test.h">
-      <Filter>VitalTests\tests\synthesis\utilities</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\utilities</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\utilities\peak_meter_test.h">
-      <Filter>VitalTests\tests\synthesis\utilities</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\utilities</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\utilities\portamento_slope_test.h">
-      <Filter>VitalTests\tests\synthesis\utilities</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\utilities</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\utilities\smooth_value_test.h">
-      <Filter>VitalTests\tests\synthesis\utilities</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\utilities</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\utilities\value_switch_test.h">
-      <Filter>VitalTests\tests\synthesis\utilities</Filter>
+      <Filter>HeartbeatTests\tests\synthesis\utilities</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\note_handler_test.h">
-      <Filter>VitalTests\tests\synthesis</Filter>
+      <Filter>HeartbeatTests\tests\synthesis</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\poly_utils_test.h">
-      <Filter>VitalTests\tests\synthesis</Filter>
+      <Filter>HeartbeatTests\tests\synthesis</Filter>
     </ClInclude>
     <ClInclude Include="..\..\synthesis\processor_test.h">
-      <Filter>VitalTests\tests\synthesis</Filter>
+      <Filter>HeartbeatTests\tests\synthesis</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\third_party\concurrentqueue\concurrentqueue.h">
-      <Filter>VitalTests\third_party\concurrentqueue</Filter>
+      <Filter>HeartbeatTests\third_party\concurrentqueue</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\third_party\json\json.h">
-      <Filter>VitalTests\third_party\json</Filter>
+      <Filter>HeartbeatTests\third_party\json</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\third_party\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h">
       <Filter>JUCE Modules\juce_audio_basics\audio_play_head</Filter>
@@ -6720,85 +6720,85 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\tunings\5 Limit.scl">
-      <Filter>VitalTests\tunings</Filter>
+      <Filter>HeartbeatTests\tunings</Filter>
     </None>
     <None Include="..\..\..\tunings\7 Limit.scl">
-      <Filter>VitalTests\tunings</Filter>
+      <Filter>HeartbeatTests\tunings</Filter>
     </None>
     <None Include="..\..\..\tunings\Pythagorean.scl">
-      <Filter>VitalTests\tunings</Filter>
+      <Filter>HeartbeatTests\tunings</Filter>
     </None>
     <None Include="..\..\..\default.vitalskin">
-      <Filter>VitalTests\skins</Filter>
+      <Filter>HeartbeatTests\skins</Filter>
     </None>
     <None Include="..\..\..\fonts\DroidSansMono.ttf">
-      <Filter>VitalTests\fonts</Filter>
+      <Filter>HeartbeatTests\fonts</Filter>
     </None>
     <None Include="..\..\..\fonts\Lato-Light.ttf">
-      <Filter>VitalTests\fonts</Filter>
+      <Filter>HeartbeatTests\fonts</Filter>
     </None>
     <None Include="..\..\..\fonts\Lato-Regular.ttf">
-      <Filter>VitalTests\fonts</Filter>
+      <Filter>HeartbeatTests\fonts</Filter>
     </None>
     <None Include="..\..\..\fonts\Montserrat-Light.otf">
-      <Filter>VitalTests\fonts</Filter>
+      <Filter>HeartbeatTests\fonts</Filter>
     </None>
     <None Include="..\..\..\fonts\Montserrat-Regular.ttf">
-      <Filter>VitalTests\fonts</Filter>
+      <Filter>HeartbeatTests\fonts</Filter>
     </None>
     <None Include="..\..\..\icons\chorus.svg">
-      <Filter>VitalTests\icons</Filter>
+      <Filter>HeartbeatTests\icons</Filter>
     </None>
     <None Include="..\..\..\icons\cog.svg">
-      <Filter>VitalTests\icons</Filter>
+      <Filter>HeartbeatTests\icons</Filter>
     </None>
     <None Include="..\..\..\icons\compressor.svg">
-      <Filter>VitalTests\icons</Filter>
+      <Filter>HeartbeatTests\icons</Filter>
     </None>
     <None Include="..\..\..\icons\delay.svg">
-      <Filter>VitalTests\icons</Filter>
+      <Filter>HeartbeatTests\icons</Filter>
     </None>
     <None Include="..\..\..\icons\distortion.svg">
-      <Filter>VitalTests\icons</Filter>
+      <Filter>HeartbeatTests\icons</Filter>
     </None>
     <None Include="..\..\..\icons\drag_drop_arrows.svg">
-      <Filter>VitalTests\icons</Filter>
+      <Filter>HeartbeatTests\icons</Filter>
     </None>
     <None Include="..\..\..\icons\effects_filter.svg">
-      <Filter>VitalTests\icons</Filter>
+      <Filter>HeartbeatTests\icons</Filter>
     </None>
     <None Include="..\..\..\icons\equalizer.svg">
-      <Filter>VitalTests\icons</Filter>
+      <Filter>HeartbeatTests\icons</Filter>
     </None>
     <None Include="..\..\..\icons\flanger.svg">
-      <Filter>VitalTests\icons</Filter>
+      <Filter>HeartbeatTests\icons</Filter>
     </None>
     <None Include="..\..\..\icons\folder.svg">
-      <Filter>VitalTests\icons</Filter>
+      <Filter>HeartbeatTests\icons</Filter>
     </None>
     <None Include="..\..\..\icons\link.svg">
-      <Filter>VitalTests\icons</Filter>
+      <Filter>HeartbeatTests\icons</Filter>
     </None>
     <None Include="..\..\..\icons\phaser.svg">
-      <Filter>VitalTests\icons</Filter>
+      <Filter>HeartbeatTests\icons</Filter>
     </None>
     <None Include="..\..\..\icons\reverb.svg">
-      <Filter>VitalTests\icons</Filter>
+      <Filter>HeartbeatTests\icons</Filter>
     </None>
     <None Include="..\..\..\icons\shuffle.svg">
-      <Filter>VitalTests\icons</Filter>
+      <Filter>HeartbeatTests\icons</Filter>
     </None>
     <None Include="..\..\..\icons\vital_ring.svg">
-      <Filter>VitalTests\icons</Filter>
+      <Filter>HeartbeatTests\icons</Filter>
     </None>
     <None Include="..\..\..\icons\vital_v.svg">
-      <Filter>VitalTests\icons</Filter>
+      <Filter>HeartbeatTests\icons</Filter>
     </None>
     <None Include="..\..\..\icons\vital_word.svg">
-      <Filter>VitalTests\icons</Filter>
+      <Filter>HeartbeatTests\icons</Filter>
     </None>
     <None Include="..\..\..\icons\vital_word_ring.svg">
-      <Filter>VitalTests\icons</Filter>
+      <Filter>HeartbeatTests\icons</Filter>
     </None>
     <None Include="..\..\..\third_party\JUCE\modules\juce_audio_devices\native\oboe\CMakeLists.txt">
       <Filter>JUCE Modules\juce_audio_devices\native\oboe</Filter>

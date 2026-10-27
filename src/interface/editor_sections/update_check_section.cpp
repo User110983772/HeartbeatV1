@@ -35,7 +35,7 @@ UpdateCheckSection::UpdateCheckSection(String name) : Overlay(name), version_req
                                                       body_(Shaders::kRoundedRectangleFragment) {
   addOpenGlComponent(&body_);
 
-  notify_text_ = std::make_unique<PlainTextComponent>("notify", "There is a new version of Vital!");
+  notify_text_ = std::make_unique<PlainTextComponent>("notify", "There is a new version of Heartbeat!");
   notify_text_->setTextSize(20.0f);
   notify_text_->setFontType(PlainTextComponent::kLight);
   addOpenGlComponent(notify_text_.get());

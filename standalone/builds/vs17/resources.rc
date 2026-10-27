@@ -17,9 +17,9 @@ BEGIN
     BEGIN
       VALUE "CompanyName",  "Matt Tytel\0"
       VALUE "LegalCopyright",  "Matt Tytel\0"
-      VALUE "FileDescription",  "Vial\0"
+      VALUE "FileDescription",  "Heartbeat\0"
       VALUE "FileVersion",  "1.0.6\0"
-      VALUE "ProductName",  "Vial\0"
+      VALUE "ProductName",  "Heartbeat\0"
       VALUE "ProductVersion",  "1.0.6\0"
     END
   END

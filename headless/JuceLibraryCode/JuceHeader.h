@@ -40,8 +40,8 @@
 #if ! JUCE_DONT_DECLARE_PROJECTINFO
 namespace ProjectInfo
 {
-    const char* const  projectName    = "Vital";
-    const char* const  companyName    = "Matt Tytel";
+    const char* const  projectName    = "Heartbeat";
+    const char* const  companyName    = "Heartbeat Audio";
     const char* const  versionString  = "99999.9.9";
     const int          versionNumber  = 0x869f0909;
 }
