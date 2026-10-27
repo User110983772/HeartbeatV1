@@ -172,6 +172,10 @@ void SynthPlugin::processBlock(AudioSampleBuffer& buffer, MidiBuffer& midi_messa
     last_seconds_time_ += num_samples * sample_time;
     sample_offset += num_samples;
   }
+
+  // processKeyboardEvents() adds the on-screen keyboard's notes to midi_messages for the engine.
+  // This plugin produces no MIDI, so nothing may be passed on to the host.
+  midi_messages.clear();
 }
 
 bool SynthPlugin::hasEditor() const {
