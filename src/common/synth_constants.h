@@ -23,10 +23,15 @@
 namespace vital {
 
   constexpr int kNumLfos = 8;
-  constexpr int kNumOscillators = 3;
+  constexpr int kNumOscillators = 16;
+  // Oscillators are summed into groups; each group has its own amplitude source, level and output.
+  constexpr int kNumOscillatorGroups = 8;
+  // Fixed oscillator panels in the voice tab until the scrolling oscillator list replaces them.
+  constexpr int kNumOscillatorSections = 3;
   constexpr int kNumOscillatorWaveFrames = 257;
   constexpr int kNumEnvelopes = 6;
   constexpr int kNumRandomLfos = 4;
+  constexpr int kNumGroupAmpSources = kNumEnvelopes + kNumLfos + kNumRandomLfos;
   constexpr int kNumMacros = 4;
   constexpr int kNumFilters = 2;
   constexpr int kNumFormants = 4;
@@ -58,6 +63,12 @@ namespace vital {
   const std::string kBankExtension = "vitalbank";
 
   namespace constants {
+    enum GroupOutput {
+      kGroupDirectOut,
+      kGroupFxBus1,
+      kNumGroupOutputs
+    };
+
     enum SourceDestination {
       kFilter1,
       kFilter2,

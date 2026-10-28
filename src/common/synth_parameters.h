@@ -99,6 +99,7 @@ namespace vital {
       static const ValueDetails random_lfo_parameter_list[];
       static const ValueDetails filter_parameter_list[];
       static const ValueDetails osc_parameter_list[];
+      static const ValueDetails group_parameter_list[];
       static const ValueDetails mod_parameter_list[];
 
     private:

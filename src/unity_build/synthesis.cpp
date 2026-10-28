@@ -73,6 +73,7 @@
 #include "oscillator_module.cpp"
 #include "phaser_module.cpp"
 #include "producers_module.cpp"
+#include "oscillator_group_mixer.cpp"
 #include "phaser.cpp"
 #include "distortion.cpp"
 #include "compressor.cpp"

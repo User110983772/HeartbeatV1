@@ -18,6 +18,7 @@
 
 #include "synth_module.h"
 #include "producers_module.h"
+#include "oscillator_group_mixer.h"
 #include "voice_handler.h"
 #include "wavetable.h"
 #include "synth_types.h"
@@ -51,6 +52,9 @@ namespace vital {
       bool shouldAccumulate(Output* output) override;
       void correctToTime(double seconds) override;
       void disableUnnecessaryModSources();
+      void updateOscillatorMemory() { producers_->updateOscillatorMemory(); }
+      // Envelopes, LFOs and random LFOs only run when something uses them; group amp sources count.
+      void enableGroupAmpSources();
       void disableModSource(const std::string& source);
 
       output_map& getPolyModulations() override;
@@ -58,7 +62,7 @@ namespace vital {
       Wavetable* getWavetable(int index) { return producers_->getWavetable(index); }
       Sample* getSample() { return producers_->getSample(); }
       LineGenerator* getLfoSource(int index) { return &lfo_sources_[index]; }
-      Output* getDirectOutput() { return getAccumulatedOutput(direct_output_->output()); }
+      Output* getDirectOutput() { return getAccumulatedOutput(direct_sum_->output()); }
 
       Output* note_retrigger() { return &note_retriggered_; }
 
@@ -78,6 +82,8 @@ namespace vital {
       void createFilters(Output* keytrack);
 
       void setupPolyModulationReadouts();
+      void createOscillatorGroups();
+      bool isGroupAmpSource(const Processor* owner) const;
 
       ModulationConnectionBank modulation_bank_;
       CircularQueue<ModulationConnectionProcessor*> enabled_modulation_processors_;
@@ -117,6 +123,12 @@ namespace vital {
 
       Multiply* output_;
       Multiply* direct_output_;
+      Processor* velocity_amplitude_;
+      OscillatorGroupMixer* group_mixer_;
+      Value* group_amp_sources_[kNumOscillatorGroups];
+      Processor* amp_source_owners_[kNumGroupAmpSources];
+      Add* fx_sum_;
+      Add* direct_sum_;
       Output num_voices_;
 
       output_map poly_readouts_;

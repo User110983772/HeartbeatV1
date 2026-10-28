@@ -26,7 +26,7 @@ namespace vital {
       addSubmodule(oscillators_[i]);
       addProcessor(oscillators_[i]);
       oscillators_[i]->enable(false);
-      oscillator_destinations_[i] = nullptr;
+      oscillator_groups_[i] = nullptr;
     }
 
     sampler_ = new SampleModule();
@@ -38,7 +38,9 @@ namespace vital {
   void ProducersModule::init() {
     for (int i = 0; i < kNumOscillators; ++i) {
       std::string number = std::to_string(i + 1);
-      oscillator_destinations_[i] = createBaseControl("osc_" + number + "_destination");
+      oscillator_groups_[i] = createBaseControl("osc_" + number + "_group");
+      // Kept for the oscillator router, which will be repurposed; groups decide routing for now.
+      createBaseControl("osc_" + number + "_destination");
 
       oscillators_[i]->useInput(input(kReset), OscillatorModule::kReset);
       oscillators_[i]->useInput(input(kRetrigger), OscillatorModule::kRetrigger);
@@ -59,6 +61,21 @@ namespace vital {
       oscillators_[i]->oscillator()->setSecondOscillatorOutput(oscillators_[index2]->output(OscillatorModule::kRaw));
       oscillators_[i]->oscillator()->setSampleOutput(sampler_->output(SampleModule::kRaw));
     }
+  }
+
+  void ProducersModule::updateOscillatorMemory() {
+    for (int i = 0; i < kNumOscillators; ++i)
+      oscillators_[i]->oscillator()->setSpectralMemory(oscillators_[i]->isOn());
+  }
+
+  bool ProducersModule::isGroupUsed(int group) const {
+    for (int i = 0; i < kNumOscillators; ++i) {
+      if (oscillators_[i]->isOn() && oscillator_groups_[i] &&
+          static_cast<int>(oscillator_groups_[i]->value()) == group) {
+        return true;
+      }
+    }
+    return false;
   }
 
   void ProducersModule::process(int num_samples) {
@@ -101,25 +118,15 @@ namespace vital {
     bool filter1_on = isFilter1On();
     bool filter2_on = isFilter2On();
 
+    for (int g = 0; g < kNumOscillatorGroups; ++g)
+      utils::zeroBuffer(output(kGroupOutputStart + g)->buffer, num_samples);
+
+    // Oscillators are summed per group; the voice handler applies each group's amp source, level and output.
     for (int i = 0; i < kNumOscillators; ++i) {
       const poly_float* buffer = oscillators_[i]->output(OscillatorModule::kLevelled)->buffer;
-
-      int destination = oscillator_destinations_[i]->value();
-      bool raw = destination == constants::kEffects;
-      bool filter1 = destination == constants::kFilter1 || destination == constants::kDualFilters;
-      bool filter2 = destination == constants::kFilter2 || destination == constants::kDualFilters;
-      bool direct_out = destination == constants::kDirectOut;
-      if (raw || (!filter2 && filter1 && !filter1_on) ||
-                 (!filter1 && filter2 && !filter2_on) ||
-                 (filter1 && filter2 && !filter1_on && !filter2_on)) {
-        utils::addBuffers(raw_output, raw_output, buffer, num_samples);
-      }
-      if (filter1)
-        utils::addBuffers(filter1_output, filter1_output, buffer, num_samples);
-      if (filter2)
-        utils::addBuffers(filter2_output, filter2_output, buffer, num_samples);
-      if (direct_out)
-        utils::addBuffers(direct_output, direct_output, buffer, num_samples);
+      int group = utils::iclamp(static_cast<int>(oscillator_groups_[i]->value()), 0, kNumOscillatorGroups - 1);
+      poly_float* group_output = output(kGroupOutputStart + group)->buffer;
+      utils::addBuffers(group_output, group_output, buffer, num_samples);
     }
 
     const poly_float* sample = sampler_->output(SampleModule::kLevelled)->buffer;

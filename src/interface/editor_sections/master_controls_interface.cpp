@@ -581,7 +581,7 @@ MasterControlsInterface::MasterControlsInterface(
     const vital::output_map& poly_modulations, bool synth) : SynthSection("master_controls") {
 
   if (synth) {
-    for (int i = 0; i < vital::kNumOscillators; ++i) {
+    for (int i = 0; i < vital::kNumOscillatorSections; ++i) {
       oscillator_advanceds_[i] = std::make_unique<OscillatorAdvancedSection>(i + 1, mono_modulations,
                                                                              poly_modulations);
       addSubSection(oscillator_advanceds_[i].get());
@@ -615,8 +615,8 @@ void MasterControlsInterface::resized() {
   int large_padding = findValue(Skin::kLargePadding);
   int padding = findValue(Skin::kPadding);
   int settings_top = padding;
-  if (oscillator_advanceds_[vital::kNumOscillators - 1])
-    settings_top = oscillator_advanceds_[vital::kNumOscillators - 1]->getBottom() + large_padding;
+  if (oscillator_advanceds_[vital::kNumOscillatorSections - 1])
+    settings_top = oscillator_advanceds_[vital::kNumOscillatorSections - 1]->getBottom() + large_padding;
 
   int settings_height = getHeight() - settings_top;
   int panel_width = getWidth() * 0.22f;

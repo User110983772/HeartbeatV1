@@ -37,7 +37,8 @@ namespace vital {
         kToFilter2,
         kRawOut,
         kDirectOut,
-        kNumOutputs
+        kGroupOutputStart,
+        kNumOutputs = kGroupOutputStart + kNumOscillatorGroups
       };
 
       static force_inline int getFirstModulationIndex(int index) {
@@ -59,6 +60,8 @@ namespace vital {
         return oscillators_[index]->getWavetable();
       }
 
+      bool isGroupUsed(int group) const;
+      void updateOscillatorMemory();
       Sample* getSample() { return sampler_->getSample(); }
       Output* samplePhaseOutput() { return sampler_->getPhaseOutput(); }
       void setFilter1On(const Value* on) { filter1_on_ = on; }
@@ -68,7 +71,7 @@ namespace vital {
       bool isFilter1On() { return filter1_on_ == nullptr || filter1_on_->value() != 0.0f; }
       bool isFilter2On() { return filter2_on_ == nullptr || filter2_on_->value() != 0.0f; }
       OscillatorModule* oscillators_[kNumOscillators];
-      Value* oscillator_destinations_[kNumOscillators];
+      Value* oscillator_groups_[kNumOscillators];
       Value* sample_destination_;
       SampleModule* sampler_;
 

@@ -69,6 +69,8 @@ namespace vital {
       void setPitchWheel(mono_float value, int channel);
       void setZonedPitchWheel(mono_float value, int from_channel, int to_channel);
       void disableUnnecessaryModSources();
+      // Allocates spectral buffers for oscillators that are on and frees the rest. Call with processing locked.
+      void updateOscillatorMemory();
       void enableModSource(const std::string& source);
       void disableModSource(const std::string& source);
       bool isModSourceEnabled(const std::string& source);

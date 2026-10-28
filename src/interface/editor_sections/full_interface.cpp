@@ -61,7 +61,7 @@ FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_inte
                                                                 synth_data->mono_modulations,
                                                                 synth_data->poly_modulations);
 
-    for (int i = 0; i < vital::kNumOscillators; ++i) {
+    for (int i = 0; i < vital::kNumOscillatorSections; ++i) {
       wavetable_edits_[i] = std::make_unique<WavetableEditSection>(i, synth_data->wavetable_creators[i]);
       addSubSection(wavetable_edits_[i].get());
       wavetable_edits_[i]->setVisible(false);
@@ -83,7 +83,7 @@ FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_inte
   master_controls_interface_->setVisible(false);
 
   if (synthesis_interface_) {
-    for (int i = 0; i < vital::kNumOscillators; ++i)
+    for (int i = 0; i < vital::kNumOscillatorSections; ++i)
       master_controls_interface_->passOscillatorSection(i, synthesis_interface_->getOscillatorSection(i));
   }
 
@@ -494,13 +494,13 @@ void FullInterface::resized() {
 
   modulation_manager_->setBounds(bounds);
   
-  for (int i = 0; i < vital::kNumOscillators; ++i) {
+  for (int i = 0; i < vital::kNumOscillatorSections; ++i) {
     if (wavetable_edits_[i])
       wavetable_edits_[i]->setBounds(left, 0, width, height);
   }
 
   if (synthesis_interface_) {
-    for (int i = 0; i < vital::kNumOscillators; ++i)
+    for (int i = 0; i < vital::kNumOscillatorSections; ++i)
       master_controls_interface_->setOscillatorBounds(i, synthesis_interface_->getOscillatorBounds(i));
   }
   master_controls_interface_->setBounds(main_bounds);
@@ -578,7 +578,7 @@ void FullInterface::setAllValues(vital::control_map& controls) {
 }
 
 void FullInterface::setWavetableNames() {
-  for (int i = 0; i < vital::kNumOscillators; ++i) {
+  for (int i = 0; i < vital::kNumOscillatorSections; ++i) {
     if (wavetable_edits_[i])
       synthesis_interface_->setWavetableName(i, wavetable_edits_[i]->getName());
   }
@@ -758,7 +758,7 @@ void FullInterface::showFullScreenSection(SynthSection* full_screen) {
     full_screen_section_->setBounds(getLocalBounds());
   }
 
-  for (int i = 0; i < vital::kNumOscillators; ++i)
+  for (int i = 0; i < vital::kNumOscillatorSections; ++i)
     wavetable_edits_[i]->setVisible(false);
 
   bool show_rest = full_screen == nullptr;
@@ -779,7 +779,7 @@ void FullInterface::showWavetableEditSection(int index) {
     return;
 
   ScopedLock lock(open_gl_critical_section_);
-  for (int i = 0; i < vital::kNumOscillators; ++i)
+  for (int i = 0; i < vital::kNumOscillatorSections; ++i)
     wavetable_edits_[i]->setVisible(i == index);
 
   bool show_rest = index < 0;

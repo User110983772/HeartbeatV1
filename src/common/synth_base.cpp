@@ -63,8 +63,25 @@ SynthBase::SynthBase() : expired_(false) {
 
 SynthBase::~SynthBase() { }
 
+namespace {
+  bool isOscillatorOnControl(const std::string& name) {
+    static const std::string kPrefix = "osc_";
+    static const std::string kSuffix = "_on";
+    return name.size() > kPrefix.size() + kSuffix.size() && name.compare(0, kPrefix.size(), kPrefix) == 0 &&
+           name.compare(name.size() - kSuffix.size(), kSuffix.size(), kSuffix) == 0;
+  }
+}
+
 void SynthBase::valueChanged(const std::string& name, vital::mono_float value) {
   controls_[name]->set(value);
+  // Changes from other threads post a ValueChangedCallback, which does this on the message thread.
+  if (isOscillatorOnControl(name) && MessageManager::existsAndIsCurrentThread())
+    updateOscillatorMemory();
+}
+
+void SynthBase::updateOscillatorMemory() {
+  ScopedLock lock(getCriticalSection());
+  engine_->updateOscillatorMemory();
 }
 
 void SynthBase::valueChangedInternal(const std::string& name, vital::mono_float value) {
@@ -321,6 +338,7 @@ void SynthBase::initEngine() {
     control.second->set(details.default_value);
   }
   checkOversampling();
+  updateOscillatorMemory();
 
   clearActiveFile();
 }
@@ -760,6 +778,9 @@ void SynthBase::checkOversampling() {
 
 void SynthBase::ValueChangedCallback::messageCallback() {
   if (auto synth_base = listener.lock()) {
+    if (isOscillatorOnControl(control_name))
+      (*synth_base)->updateOscillatorMemory();
+
     SynthGuiInterface* gui_interface = (*synth_base)->getGuiInterface();
     if (gui_interface) {
       gui_interface->updateGuiControl(control_name, value);

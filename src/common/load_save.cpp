@@ -207,11 +207,17 @@ void LoadSave::loadWavetables(SynthBase* synth, const json& wavetables) {
 
   int i = 0;
   for (const json& wavetable : wavetables) {
+    if (i >= vital::kNumOscillators)
+      break;
     WavetableCreator* wavetable_creator = synth->getWavetableCreator(i);
     wavetable_creator->jsonToState(wavetable);
     wavetable_creator->render();
     i++;
   }
+
+  // Presets saved with fewer oscillators leave the rest on the default table.
+  for (; i < vital::kNumOscillators; ++i)
+    synth->getWavetableCreator(i)->init();
 }
 
 void LoadSave::loadLfos(SynthBase* synth, const json& lfos) {
@@ -1048,6 +1054,7 @@ bool LoadSave::jsonToState(SynthBase* synth, std::map<std::string, String>& save
   loadLfos(synth, lfos);
   loadSaveState(save_info, data);
   synth->checkOversampling();
+  synth->updateOscillatorMemory();
   
   return true;
 }

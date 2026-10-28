@@ -40,10 +40,19 @@ namespace vital {
       slide_mapping_(nullptr), lift_mapping_(nullptr), mod_wheel_mapping_(nullptr),
       pitch_wheel_mapping_(nullptr), stereo_(nullptr), note_percentage_(nullptr), last_active_voice_mask_(0) {
     output_ = new Multiply();
-    registerOutput(output_->output());
-
     direct_output_ = new Multiply();
-    registerOutput(direct_output_->output());
+    velocity_amplitude_ = nullptr;
+    group_mixer_ = new OscillatorGroupMixer();
+    for (int g = 0; g < kNumOscillatorGroups; ++g)
+      group_amp_sources_[g] = nullptr;
+    for (int i = 0; i < kNumGroupAmpSources; ++i)
+      amp_source_owners_[i] = nullptr;
+
+    // Voice outputs are the sample/filter path (still on Env 1) plus the oscillator groups.
+    fx_sum_ = new Add();
+    registerOutput(fx_sum_->output());
+    direct_sum_ = new Add();
+    registerOutput(direct_sum_->output());
 
     note_from_reference_ = new cr::Add();
     midi_offset_output_ = registerControlRateOutput(note_from_reference_->output(), true);
@@ -69,6 +78,7 @@ namespace vital {
     addProcessor(voice_sum);
     addProcessor(output_);
     addProcessor(direct_output_);
+    createOscillatorGroups();
 
     Output* macros[kNumMacros];
     for (int i = 0; i < kNumMacros; ++i)
@@ -148,6 +158,44 @@ namespace vital {
     producers_->plug(active_mask(), ProducersModule::kActiveVoices);
     addSubmodule(producers_);
     addProcessor(producers_);
+  }
+
+  void SynthVoiceHandler::createOscillatorGroups() {
+    group_mixer_->plug(reset(), OscillatorGroupMixer::kReset);
+    group_mixer_->plug(velocity_amplitude_, OscillatorGroupMixer::kAmplitude);
+
+    Output* amp_sources[kNumGroupAmpSources];
+    int source = 0;
+    for (int i = 0; i < kNumEnvelopes; ++i)
+      amp_sources[source++] = envelopes_[i]->output(EnvelopeModule::kValue);
+    for (int i = 0; i < kNumLfos; ++i)
+      amp_sources[source++] = lfos_[i]->output(LfoModule::kValue);
+    for (int i = 0; i < kNumRandomLfos; ++i)
+      amp_sources[source++] = random_lfos_[i]->output();
+    VITAL_ASSERT(source == kNumGroupAmpSources);
+
+    for (int i = 0; i < kNumGroupAmpSources; ++i) {
+      group_mixer_->plug(amp_sources[i], OscillatorGroupMixer::kAmpSources + i);
+      amp_source_owners_[i] = amp_sources[i]->owner;
+    }
+
+    for (int g = 0; g < kNumOscillatorGroups; ++g) {
+      std::string prefix = "group_" + std::to_string(g + 1);
+      group_mixer_->plug(producers_->output(ProducersModule::kGroupOutputStart + g),
+                         OscillatorGroupMixer::kGroupAudio + g);
+      group_mixer_->plug(createPolyModControl(prefix + "_level"), OscillatorGroupMixer::kLevels + g);
+      group_amp_sources_[g] = createBaseControl(prefix + "_amp_source");
+      group_mixer_->plug(group_amp_sources_[g], OscillatorGroupMixer::kAmpSourceIndices + g);
+      group_mixer_->plug(createBaseControl(prefix + "_output"), OscillatorGroupMixer::kOutputIndices + g);
+    }
+    addProcessor(group_mixer_);
+
+    fx_sum_->plug(output_, 0);
+    fx_sum_->plug(group_mixer_->output(OscillatorGroupMixer::kFxBusOut), 1);
+    direct_sum_->plug(direct_output_, 0);
+    direct_sum_->plug(group_mixer_->output(OscillatorGroupMixer::kDirectOut), 1);
+    addProcessor(fx_sum_);
+    addProcessor(direct_sum_);
   }
 
   void SynthVoiceHandler::createModulators() {
@@ -288,6 +336,7 @@ namespace vital {
     amplitude->plug(velocity_track_mult, 0);
     amplitude->plug(voice_amplitude, 1);
     addProcessor(amplitude);
+    velocity_amplitude_ = amplitude;
 
     amplitude_envelope_ = envelopes_[0];
     amplitude_envelope_->setControlRate(false);
@@ -378,11 +427,32 @@ namespace vital {
       random_lfos_[i]->enable(false);
 
     random_->enable(false);
+    enableGroupAmpSources();
   }
 
   void SynthVoiceHandler::disableModSource(const std::string& source) {
-    if (source != "env_1")
-      getModulationSource(source)->owner->enable(false);
+    Processor* owner = getModulationSource(source)->owner;
+    if (source != "env_1" && !isGroupAmpSource(owner))
+      owner->enable(false);
+  }
+
+  bool SynthVoiceHandler::isGroupAmpSource(const Processor* owner) const {
+    for (int g = 0; g < kNumOscillatorGroups; ++g) {
+      int index = utils::iclamp(static_cast<int>(group_amp_sources_[g]->value()), 0, kNumGroupAmpSources - 1);
+      if (amp_source_owners_[index] == owner && producers_->isGroupUsed(g))
+        return true;
+    }
+    return false;
+  }
+
+  void SynthVoiceHandler::enableGroupAmpSources() {
+    for (int g = 0; g < kNumOscillatorGroups; ++g) {
+      if (!producers_->isGroupUsed(g))
+        continue;
+      int index = utils::iclamp(static_cast<int>(group_amp_sources_[g]->value()), 0, kNumGroupAmpSources - 1);
+      if (!amp_source_owners_[index]->enabled())
+        amp_source_owners_[index]->enable(true);
+    }
   }
 
   void SynthVoiceHandler::enableModulationConnection(ModulationConnectionProcessor* processor) {

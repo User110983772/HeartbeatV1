@@ -47,6 +47,8 @@ namespace vital {
   static const std::string kOscIdPrefix = "osc";
   static const std::string kFilterIdPrefix = "filter";
   static const std::string kModulationIdPrefix = "modulation";
+  static const std::string kGroupIdPrefix = "group";
+  static const std::string kGroupNamePrefix = "Group";
   static const std::string kNameDelimiter = " ";
   static const std::string kEnvNamePrefix = "Envelope";
   static const std::string kLfoNamePrefix = "LFO";
@@ -524,6 +526,17 @@ namespace vital {
       ValueDetails::kLinear, false, "%", "Noise Color", nullptr },
     { "noise_focus", 0x010007, 0.0, 1.0, 0.0, 0.0, 100.0,
       ValueDetails::kLinear, false, "%", "Noise Focus", nullptr },
+    { "group", 0x010008, 0.0, kNumOscillatorGroups - 1, 0.0, 0.0, 1.0,
+      ValueDetails::kIndexed, false, "", "Group", strings::kGroupNames },
+  };
+
+  const ValueDetails ValueDetailsLookup::group_parameter_list[] = {
+    { "amp_source", 0x010008, 0.0, kNumGroupAmpSources - 1, 0.0, 0.0, 1.0,
+      ValueDetails::kIndexed, false, "", "Amp Source", strings::kGroupAmpSourceNames },
+    { "level", 0x010008, 0.0, 1.0, 1.0, 0.0, 1.0,
+      ValueDetails::kQuadratic, false, "", "Level", nullptr },
+    { "output", 0x010008, 0.0, constants::kNumGroupOutputs - 1, constants::kGroupFxBus1, 0.0, 1.0,
+      ValueDetails::kIndexed, false, "", "Output", strings::kGroupOutputNames },
   };
 
   const ValueDetails ValueDetailsLookup::mod_parameter_list[] = {
@@ -542,6 +555,8 @@ namespace vital {
   ValueDetailsLookup::ValueDetailsLookup() {
     static constexpr int kNumOscillatorsOld = 2;
     static constexpr int kNewOscillatorVersion = 0x000500;
+    static constexpr int kNumVitalOscillators = 3;
+    static constexpr int kOscillatorGroupsVersion = 0x010008;
     static constexpr int kOldMaxModulations = 32;
     static constexpr int kNewModulationVersion = 0x000601;
 
@@ -569,10 +584,19 @@ namespace vital {
     int num_osc_parameters = sizeof(osc_parameter_list) / sizeof(ValueDetails);
     for (int osc = 0; osc < kNumOscillatorsOld; ++osc)
       addParameterGroup(osc_parameter_list, num_osc_parameters, osc, kOscIdPrefix, kOscNamePrefix);
-    for (int osc = kNumOscillatorsOld; osc < kNumOscillators; ++osc) {
+    for (int osc = kNumOscillatorsOld; osc < kNumVitalOscillators; ++osc) {
       addParameterGroup(osc_parameter_list, num_osc_parameters, osc, kOscIdPrefix,
                         kOscNamePrefix, kNewOscillatorVersion);
     }
+    // Heartbeat's extra oscillators sort after every existing parameter so host automation indices are kept.
+    for (int osc = kNumVitalOscillators; osc < kNumOscillators; ++osc) {
+      addParameterGroup(osc_parameter_list, num_osc_parameters, osc, kOscIdPrefix,
+                        kOscNamePrefix, kOscillatorGroupsVersion);
+    }
+
+    int num_group_parameters = sizeof(group_parameter_list) / sizeof(ValueDetails);
+    for (int group = 0; group < kNumOscillatorGroups; ++group)
+      addParameterGroup(group_parameter_list, num_group_parameters, group, kGroupIdPrefix, kGroupNamePrefix);
 
     int num_filter_parameters = sizeof(filter_parameter_list) / sizeof(ValueDetails);
     for (int filter = 0; filter < kNumFilters; ++filter)

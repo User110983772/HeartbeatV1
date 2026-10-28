@@ -77,7 +77,7 @@ class MasterControlsInterface  : public SynthSection {
     void setAudioMemory(const vital::StereoMemory* memory);
 
   private:
-    std::unique_ptr<OscillatorAdvancedSection> oscillator_advanceds_[vital::kNumOscillators];
+    std::unique_ptr<OscillatorAdvancedSection> oscillator_advanceds_[vital::kNumOscillatorSections];
     std::unique_ptr<DisplaySettings> display_settings_;
     std::unique_ptr<OversampleSettings> oversample_settings_;
     std::unique_ptr<VoiceSettings> voice_settings_;

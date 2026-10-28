@@ -315,6 +315,22 @@ namespace strings {
     "RM <- Sample"
   };
 
+  const std::string kGroupNames[vital::kNumOscillatorGroups] = {
+    "Group 1", "Group 2", "Group 3", "Group 4", "Group 5", "Group 6", "Group 7", "Group 8"
+  };
+
+  // Order matches SynthVoiceHandler's amp sources: envelopes, LFOs, then random LFOs.
+  const std::string kGroupAmpSourceNames[vital::kNumGroupAmpSources] = {
+    "Env 1", "Env 2", "Env 3", "Env 4", "Env 5", "Env 6",
+    "LFO 1", "LFO 2", "LFO 3", "LFO 4", "LFO 5", "LFO 6", "LFO 7", "LFO 8",
+    "Random 1", "Random 2", "Random 3", "Random 4"
+  };
+
+  const std::string kGroupOutputNames[vital::constants::kNumGroupOutputs] = {
+    "Direct Out",
+    "FX Bus 1"
+  };
+
   const std::string kOscillatorSourceNames[] = {
     "Wavetable",
     "Noise",

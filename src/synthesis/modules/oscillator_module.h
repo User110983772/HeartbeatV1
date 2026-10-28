@@ -51,6 +51,7 @@ namespace vital {
         int val = distortion_type_->value();
         return static_cast<SynthOscillator::DistortionType>(val);
       }
+      bool isOn() const { return on_ && on_->value() != 0.0f; }
 
     protected:
       std::string prefix_;

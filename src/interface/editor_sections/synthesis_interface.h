@@ -58,7 +58,7 @@ class SynthesisInterface : public SynthSection, public OscillatorSection::Listen
   private:
     std::unique_ptr<FilterSection> filter_section_1_;
     std::unique_ptr<FilterSection> filter_section_2_;
-    std::unique_ptr<OscillatorSection> oscillators_[vital::kNumOscillators];
+    std::unique_ptr<OscillatorSection> oscillators_[vital::kNumOscillatorSections];
     std::unique_ptr<SampleSection> sample_section_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SynthesisInterface)

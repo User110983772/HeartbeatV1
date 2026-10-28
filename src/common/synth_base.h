@@ -56,6 +56,8 @@ class SynthBase : public MidiManager::Listener {
     void modWheelGuiChanged(vital::mono_float value);
     void presetChangedThroughMidi(File preset) override;
     void valueChangedExternal(const std::string& name, vital::mono_float value);
+    // Oscillators only hold their spectral buffers while on; runs on the message thread with processing locked.
+    void updateOscillatorMemory();
     void valueChangedInternal(const std::string& name, vital::mono_float value);
     bool connectModulation(const std::string& source, const std::string& destination);
     void connectModulation(vital::ModulationConnection* connection);

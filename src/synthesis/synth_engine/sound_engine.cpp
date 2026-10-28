@@ -134,6 +134,11 @@ namespace vital {
     SynthModule::init();
     disableUnnecessaryModSources();
     setOversamplingAmount(kDefaultOversamplingAmount, kDefaultSampleRate);
+    updateOscillatorMemory();
+  }
+
+  void SoundEngine::updateOscillatorMemory() {
+    voice_handler_->updateOscillatorMemory();
   }
 
   void SoundEngine::connectModulation(const modulation_change& change) {
@@ -244,6 +249,7 @@ namespace vital {
 
     FloatVectorOperations::disableDenormalisedNumberSupport();
     voice_handler_->setLegato(legato_->value());
+    voice_handler_->enableGroupAmpSources();
     ProcessorRouter::process(num_samples);
 
     if (getNumActiveVoices() == 0) {

@@ -23,6 +23,9 @@
 #include "wave_frame.h"
 #include "wavetable.h"
 
+#include <memory>
+#include <vector>
+
 namespace vital {
 
   class FourierTransform;
@@ -230,7 +233,12 @@ namespace vital {
       void setSpectralMorphValues(SpectralMorph spectral_morph);
       void setDistortionValues(DistortionType distortion_type);
       void process(int num_samples) override;
-      Processor* clone() const override { return new SynthOscillator(*this); }
+      Processor* clone() const override;
+
+      // Spectral buffers (about 1 MB per voice copy) only exist while the oscillator is on. Allocate or free
+      // them from the message thread with audio processing locked; without them the oscillator is silent.
+      void setSpectralMemory(bool allocated);
+      bool hasSpectralMemory() const { return spectral_memory_->allocated; }
 
       void setFirstOscillatorOutput(Output* oscillator) { first_mod_oscillator_ = oscillator; }
       void setSecondOscillatorOutput(Output* oscillator) { second_mod_oscillator_ = oscillator; }
@@ -329,8 +337,23 @@ namespace vital {
       Output* second_mod_oscillator_;
       Output* sample_;
     
-      poly_float fourier_frames1_[kNumBuffers + 1][kSpectralBufferSize];
-      poly_float fourier_frames2_[kNumBuffers + 1][kSpectralBufferSize];
+      struct SpectralFrames {
+        poly_float frames1[kNumBuffers + 1][kSpectralBufferSize];
+        poly_float frames2[kNumBuffers + 1][kSpectralBufferSize];
+      };
+
+      // Shared by the oscillator and all of its voice copies; each copy owns one slot.
+      struct SpectralMemory {
+        std::vector<std::unique_ptr<SpectralFrames>> frames;
+        int num_copies = 1;
+        bool allocated = false;
+        int generation = 0;
+      };
+
+      std::shared_ptr<SpectralMemory> spectral_memory_;
+      int spectral_slot_;
+      int spectral_generation_;
+      SpectralFrames* spectral_frames_;
       std::shared_ptr<FourierTransform> fourier_transform_;
       std::shared_ptr<Output> phase_inc_buffer_;
       std::shared_ptr<PhaseBuffer> phase_buffer_;

@@ -535,7 +535,8 @@ namespace vital {
       transpose_quantize_(0), last_quantized_transpose_(0.0f), last_quantize_ratio_(1.0f),
       unison_(1), active_oscillators_(2), wavetable_(wavetable), wavetable_version_(wavetable->getVersion()),
       first_mod_oscillator_(nullptr), second_mod_oscillator_(nullptr), sample_(nullptr),
-      fourier_frames1_(), fourier_frames2_() {
+      spectral_memory_(std::make_shared<SpectralMemory>()), spectral_slot_(0), spectral_generation_(-1),
+      spectral_frames_(nullptr) {
     pan_amplitude_ = 0.0f;
     for (int i = 0; i < kNumPolyPhase; ++i)
       noise_gains_[i] = 0.0f;
@@ -788,10 +789,10 @@ namespace vital {
       int buffer_index = phase_update * poly_float::kSize + i;
       last_buffers_[buffer_index] = wave_buffers_[buffer_index];
 
-      poly_float* fourier_buffer = fourier_frames1_[buffer_index];
+      poly_float* fourier_buffer = spectral_frames_->frames1[buffer_index];
       mono_float* destination = ((mono_float*)fourier_buffer) + poly_float::kSize - 1;
       if (destination == wave_buffers_[buffer_index])
-        fourier_buffer = fourier_frames2_[buffer_index];
+        fourier_buffer = spectral_frames_->frames2[buffer_index];
 
       float shift = morph_amount[i];
       if (formant_shift)
@@ -1213,9 +1214,50 @@ namespace vital {
            distortion_type == kBend || distortion_type == kSqueeze || distortion_type == kPulseWidth;
   }
 
+  Processor* SynthOscillator::clone() const {
+    SynthOscillator* copy = new SynthOscillator(*this);
+    SpectralMemory* memory = spectral_memory_.get();
+    copy->spectral_slot_ = memory->num_copies++;
+    copy->spectral_generation_ = -1;
+    copy->spectral_frames_ = nullptr;
+    if (memory->allocated) {
+      memory->frames.resize(memory->num_copies);
+      memory->frames[copy->spectral_slot_] = std::make_unique<SpectralFrames>();
+    }
+    return copy;
+  }
+
+  void SynthOscillator::setSpectralMemory(bool allocated) {
+    SpectralMemory* memory = spectral_memory_.get();
+    if (memory->allocated == allocated)
+      return;
+
+    memory->frames.clear();
+    memory->frames.shrink_to_fit();
+    if (allocated) {
+      memory->frames.resize(memory->num_copies);
+      for (auto& frames : memory->frames)
+        frames = std::make_unique<SpectralFrames>();
+    }
+    memory->allocated = allocated;
+    memory->generation++;
+  }
+
   void SynthOscillator::process(int num_samples) {
     if (static_cast<int>(input(kSource)->at(0)[0]) == kNoiseSource) {
       processNoise(num_samples);
+      return;
+    }
+
+    if (spectral_generation_ != spectral_memory_->generation) {
+      spectral_generation_ = spectral_memory_->generation;
+      bool has_slot = spectral_memory_->allocated && spectral_slot_ < spectral_memory_->frames.size();
+      spectral_frames_ = has_slot ? spectral_memory_->frames[spectral_slot_].get() : nullptr;
+      resetWavetableBuffers();
+    }
+    if (spectral_frames_ == nullptr) {
+      output(kRaw)->clearBuffer();
+      output(kLevelled)->clearBuffer();
       return;
     }
 

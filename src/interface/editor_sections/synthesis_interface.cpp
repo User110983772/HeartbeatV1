@@ -33,7 +33,7 @@ SynthesisInterface::SynthesisInterface(Authentication* auth,
   addSubSection(filter_section_1_.get());
   filter_section_1_->addListener(this);
 
-  for (int i = 0; i < vital::kNumOscillators; ++i) {
+  for (int i = 0; i < vital::kNumOscillatorSections; ++i) {
     oscillators_[i] = std::make_unique<OscillatorSection>(auth, i, mono_modulations, poly_modulations);
     addSubSection(oscillators_[i].get());
     oscillators_[i]->addListener(this);
@@ -62,10 +62,10 @@ void SynthesisInterface::resized() {
   int oscillator_margin = oscillators_[0]->findValue(Skin::kWidgetMargin);
   int oscillator_height = 2 * (int)oscillators_[0]->getKnobSectionHeight() - oscillator_margin;
 
-  for (int i = 0; i < vital::kNumOscillators; ++i)
+  for (int i = 0; i < vital::kNumOscillatorSections; ++i)
     oscillators_[i]->setBounds(0, i * (oscillator_height + padding), getWidth(), oscillator_height);
 
-  int sample_y = oscillators_[vital::kNumOscillators - 1]->getBottom() + padding;
+  int sample_y = oscillators_[vital::kNumOscillatorSections - 1]->getBottom() + padding;
   int sample_height = sample_section_->getKnobSectionHeight();
   int filter_y = sample_y + sample_height + findValue(Skin::kLargePadding);
   int filter_height = getHeight() - filter_y;
@@ -79,14 +79,14 @@ void SynthesisInterface::resized() {
 
 void SynthesisInterface::visibilityChanged() {
   if (isShowing()) {
-    for (int i = 0; i < vital::kNumOscillators; ++i)
+    for (int i = 0; i < vital::kNumOscillatorSections; ++i)
       oscillators_[i]->loadBrowserState();
   }
 }
 
 void SynthesisInterface::distortionTypeChanged(OscillatorSection* section, int distortion_type) {
-  bool dependents[vital::kNumOscillators];
-  for (int i = 0; i < vital::kNumOscillators; ++i)
+  bool dependents[vital::kNumOscillatorSections];
+  for (int i = 0; i < vital::kNumOscillatorSections; ++i)
     dependents[i] = false;
 
   int index = section->index();
@@ -109,7 +109,7 @@ void SynthesisInterface::distortionTypeChanged(OscillatorSection* section, int d
 void SynthesisInterface::oscillatorDestinationChanged(OscillatorSection* section, int destination) {
   bool filter1_on = destination == vital::constants::kFilter1 || destination == vital::constants::kDualFilters;
   bool filter2_on = destination == vital::constants::kFilter2 || destination == vital::constants::kDualFilters;
-  for (int i = 0; i < vital::kNumOscillators; ++i) {
+  for (int i = 0; i < vital::kNumOscillatorSections; ++i) {
     if (oscillators_[i].get() == section) {
       filter_section_1_->setOscillatorInput(i, filter1_on);
       filter_section_2_->setOscillatorInput(i, filter2_on);
