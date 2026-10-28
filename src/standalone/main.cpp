@@ -104,7 +104,8 @@ class SynthApplication : public JUCEApplication {
               
           if (visible) {
             setUsingNativeTitleBar(true);
-            setResizable(true, true);
+            // Sizes are chosen from the logo menu only, as in the plugin.
+            setResizable(false, false);
           }
 
           editor_ = new SynthEditor(visible);
