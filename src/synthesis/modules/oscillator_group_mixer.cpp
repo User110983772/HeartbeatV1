@@ -17,30 +17,59 @@
 #include "oscillator_group_mixer.h"
 
 #include "futils.h"
+#include "lfo_module.h"
+#include "producers_module.h"
 #include "utils.h"
 
 namespace vital {
 
-  OscillatorGroupMixer::OscillatorGroupMixer() : Processor(kNumInputs, kNumOutputs), last_amplitude_(0.0f) {
+  OscillatorGroupMixer::OscillatorGroupMixer() : Processor(kNumInputs, kNumOutputs), producers_(nullptr),
+                                                 voice_state_(kVoiceIdle), last_amplitude_(0.0f) {
+    for (int i = 0; i < kNumLfos; ++i)
+      lfos_[i] = nullptr;
     for (int g = 0; g < kNumOscillatorGroups; ++g) {
       last_sources_[g] = 0.0f;
       last_levels_[g] = 0.0f;
+      fades_[g] = 1.0f;
     }
   }
 
-  force_inline poly_float OscillatorGroupMixer::readControl(int index, int sample) const {
-    const Output* source = input(index)->source;
-    return source->isControlRate() ? source->buffer[0] : source->buffer[sample];
+  void OscillatorGroupMixer::setSources(const ProducersModule* producers, const LfoModule* const* lfos) {
+    producers_ = producers;
+    for (int i = 0; i < kNumLfos; ++i)
+      lfos_[i] = lfos[i];
+  }
+
+  poly_mask OscillatorGroupMixer::fadeMask(int source_index, poly_mask released_mask, poly_mask kill_mask) const {
+    if (source_index < kNumEnvelopes)
+      return 0;
+
+    int lfo_index = source_index - kNumEnvelopes;
+    if (lfo_index < kNumLfos && lfos_[lfo_index] && lfos_[lfo_index]->isOneShot()) {
+      poly_float phase = utils::decodePhaseAndVoice(input(kLfoPhases + lfo_index)->at(0)).first;
+      poly_mask finished_mask = poly_float::greaterThanOrEqual(phase, 0.9999f);
+      return (released_mask & finished_mask) | kill_mask;
+    }
+    return released_mask | kill_mask;
   }
 
   void OscillatorGroupMixer::process(int num_samples) {
     poly_float* fx_out = output(kFxBusOut)->buffer;
     poly_float* direct_out = output(kDirectOut)->buffer;
+    poly_float* alive_out = output(kVoiceAlive)->buffer;
     utils::zeroBuffer(fx_out, num_samples);
     utils::zeroBuffer(direct_out, num_samples);
+    utils::zeroBuffer(alive_out, num_samples);
+
+    const Output* trigger = input(kTrigger)->source;
+    voice_state_ = utils::maskLoad(voice_state_, trigger->trigger_value, trigger->trigger_mask);
+    poly_mask note_on_mask = trigger->trigger_mask & poly_float::equal(trigger->trigger_value, kVoiceOn);
+    poly_mask kill_mask = poly_float::equal(voice_state_, kVoiceKill);
+    poly_mask released_mask = poly_float::equal(voice_state_, kVoiceOff) | kill_mask;
 
     poly_mask reset_mask = getResetMask(kReset);
     mono_float sample_inc = 1.0f / num_samples;
+    mono_float fade_delta = 1.0f / (kFadeSeconds * getSampleRate());
 
     poly_float amplitude = input(kAmplitude)->at(0);
     poly_float start_amplitude = utils::maskLoad(last_amplitude_, amplitude, reset_mask);
@@ -52,10 +81,14 @@ namespace vital {
                                        0, kNumGroupAmpSources - 1);
       int output_index = static_cast<int>(input(kOutputIndices + g)->at(0)[0]);
       poly_float* dest = output_index == constants::kGroupDirectOut ? direct_out : fx_out;
+      bool used = producers_ == nullptr || producers_->isGroupUsed(g);
 
       const Output* source = input(kAmpSources + source_index)->source;
       const Output* level = input(kLevels + g)->source;
       const poly_float* audio = input(kGroupAudio + g)->source->buffer;
+
+      fades_[g] = utils::maskLoad(fades_[g], 1.0f, note_on_mask | reset_mask);
+      poly_float fade_step = utils::maskLoad(poly_float(0.0f), poly_float(fade_delta), fadeMask(source_index, released_mask, kill_mask));
 
       // Control-rate sources and levels are ramped across the block, like SmoothMultiply does.
       poly_float source_end = utils::clamp(source->buffer[0], 0.0f, 1.0f);
@@ -68,18 +101,24 @@ namespace vital {
       bool audio_rate_source = !source->isControlRate();
       bool audio_rate_level = !level->isControlRate();
       poly_float current_amplitude = start_amplitude;
+      poly_float fade = fades_[g];
 
       for (int i = 0; i < num_samples; ++i) {
         source_value += source_delta;
         level_value += level_delta;
         current_amplitude += delta_amplitude;
+        fade = utils::max(fade - fade_step, 0.0f);
 
         poly_float s = audio_rate_source ? utils::clamp(source->buffer[i], 0.0f, 1.0f) : source_value;
         poly_float l = audio_rate_level ? level->buffer[i] : level_value;
         poly_float gain = s * current_amplitude;
-        dest[i] += audio[i] * gain * gain * l;
+        poly_float total = gain * gain * l * fade;
+        dest[i] += audio[i] * total;
+        if (used)
+          alive_out[i] = utils::max(alive_out[i], total);
       }
 
+      fades_[g] = fade;
       last_sources_[g] = audio_rate_source ? utils::clamp(source->buffer[num_samples - 1], 0.0f, 1.0f) : source_end;
       last_levels_[g] = audio_rate_level ? level->buffer[num_samples - 1] : level_end;
     }

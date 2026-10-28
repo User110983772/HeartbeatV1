@@ -98,7 +98,6 @@ namespace vital {
       Processor* bent_midi_;
       Processor* current_midi_note_;
       EnvelopeModule* amplitude_envelope_;
-      Processor* amplitude_;
       Processor* pitch_wheel_;
 
       LfoModule* lfos_[kNumLfos];

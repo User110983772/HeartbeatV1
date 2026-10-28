@@ -46,10 +46,13 @@ namespace vital {
       virtual Processor* clone() const override { return new LfoModule(*this); }
       void correctToTime(double seconds) override;
       void setControlRate(bool control_rate) override;
+      // Envelope and Sustain Envelope modes play once instead of looping.
+      bool isOneShot() const;
 
     protected:
       std::string prefix_;
       SynthLfo* lfo_;
+      Value* sync_type_ = nullptr;
       const Output* beats_per_second_;
 
       JUCE_LEAK_DETECTOR(LfoModule)

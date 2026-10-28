@@ -20,18 +20,29 @@
 #include "synth_constants.h"
 
 namespace vital {
+  class LfoModule;
+  class ProducersModule;
 
   // Applies each oscillator group's amplitude source and level, then sends the group to its output.
   // The amp source is shaped like Vital's amplitude envelope: (source * amplitude)^2, where amplitude is
   // velocity tracking times voice amplitude, so a group on Env 1 sounds exactly like the old voice output.
+  //
+  // It also decides when a voice can end: kVoiceAlive is the loudest gain of any group with an engine on.
+  // Envelopes release on their own; LFOs and randoms don't, so after the key is released a group on a
+  // looping LFO or random fades out quickly, and a group on a one-shot LFO fades once the LFO finishes.
+  // A stolen (killed) voice fades every non-envelope group.
   class OscillatorGroupMixer : public Processor {
     public:
+      static constexpr mono_float kFadeSeconds = kVoiceKillTime;
+
       enum {
         kReset,
+        kTrigger,
         kAmplitude,
         kGroupAudio,
         kAmpSources = kGroupAudio + kNumOscillatorGroups,
-        kLevels = kAmpSources + kNumGroupAmpSources,
+        kLfoPhases = kAmpSources + kNumGroupAmpSources,
+        kLevels = kLfoPhases + kNumLfos,
         kAmpSourceIndices = kLevels + kNumOscillatorGroups,
         kOutputIndices = kAmpSourceIndices + kNumOscillatorGroups,
         kNumInputs = kOutputIndices + kNumOscillatorGroups
@@ -40,21 +51,30 @@ namespace vital {
       enum {
         kFxBusOut,
         kDirectOut,
+        kVoiceAlive,
         kNumOutputs
       };
 
       OscillatorGroupMixer();
       virtual ~OscillatorGroupMixer() { }
 
+      // Global modules, read for which groups are used and which LFOs are one-shot.
+      void setSources(const ProducersModule* producers, const LfoModule* const* lfos);
+
       void process(int num_samples) override;
       virtual Processor* clone() const override { return new OscillatorGroupMixer(*this); }
 
     private:
-      poly_float readControl(int index, int sample) const;
+      poly_mask fadeMask(int source_index, poly_mask released_mask, poly_mask kill_mask) const;
 
+      const ProducersModule* producers_;
+      const LfoModule* lfos_[kNumLfos];
+
+      poly_float voice_state_;
       poly_float last_amplitude_;
       poly_float last_sources_[kNumOscillatorGroups];
       poly_float last_levels_[kNumOscillatorGroups];
+      poly_float fades_[kNumOscillatorGroups];
 
       JUCE_LEAK_DETECTOR(OscillatorGroupMixer)
   };

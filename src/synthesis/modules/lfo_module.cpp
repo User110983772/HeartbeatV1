@@ -29,6 +29,13 @@ namespace vital {
     setControlRate(true);
   }
 
+  bool LfoModule::isOneShot() const {
+    if (sync_type_ == nullptr)
+      return false;
+    int sync_type = static_cast<int>(sync_type_->value());
+    return sync_type == SynthLfo::kEnvelope || sync_type == SynthLfo::kSustainEnvelope;
+  }
+
   void LfoModule::init() {
     Output* free_frequency = createPolyModControl(prefix_ + "_frequency");
     Output* phase = createPolyModControl(prefix_ + "_phase");
@@ -36,6 +43,7 @@ namespace vital {
     Output* delay = createPolyModControl(prefix_ + "_delay_time");
     Output* stereo_phase = createPolyModControl(prefix_ + "_stereo");
     Value* sync_type = createBaseControl(prefix_ + "_sync_type");
+    sync_type_ = sync_type;
     Value* smooth_mode = createBaseControl(prefix_ + "_smooth_mode");
     Output* smooth_time = createPolyModControl(prefix_ + "_smooth_time");
 

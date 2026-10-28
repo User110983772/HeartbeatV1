@@ -33,7 +33,7 @@ namespace vital {
   SynthVoiceHandler::SynthVoiceHandler(Output* beats_per_second) :
       VoiceHandler(0, kMaxPolyphony), producers_(nullptr), beats_per_second_(beats_per_second),
       note_from_reference_(nullptr), midi_offset_output_(nullptr),
-      bent_midi_(nullptr), current_midi_note_(nullptr), amplitude_envelope_(nullptr), amplitude_(nullptr),
+      bent_midi_(nullptr), current_midi_note_(nullptr), amplitude_envelope_(nullptr),
       pitch_wheel_(nullptr), lfos_(), envelopes_(), lfo_sources_(), random_(nullptr),
       random_lfos_(), note_mapping_(nullptr), velocity_mapping_(nullptr), aftertouch_mapping_(nullptr),
       slide_mapping_(nullptr), lift_mapping_(nullptr), mod_wheel_mapping_(nullptr),
@@ -68,7 +68,8 @@ namespace vital {
     for (int i = 0; i < kNumMacros; ++i)
       macros[i] = createMonoModControl("macro_control_" + std::to_string(i + 1));
 
-    setVoiceKiller(amplitude_->output());
+    // A voice ends once it's released and every group with an engine on has gone silent.
+    setVoiceKiller(group_mixer_->output(OscillatorGroupMixer::kVoiceAlive));
 
     for (int i = 0; i < vital::kMaxModulationConnections; ++i) {
       ModulationConnectionProcessor* processor = modulation_bank_.atIndex(i)->modulation_processor.get();
@@ -144,7 +145,11 @@ namespace vital {
 
   void SynthVoiceHandler::createOscillatorGroups() {
     group_mixer_->plug(reset(), OscillatorGroupMixer::kReset);
+    group_mixer_->plug(retrigger(), OscillatorGroupMixer::kTrigger);
     group_mixer_->plug(velocity_amplitude_, OscillatorGroupMixer::kAmplitude);
+    for (int i = 0; i < kNumLfos; ++i)
+      group_mixer_->plug(lfos_[i]->output(LfoModule::kOscPhase), OscillatorGroupMixer::kLfoPhases + i);
+    group_mixer_->setSources(producers_, lfos_);
 
     Output* amp_sources[kNumGroupAmpSources];
     int source = 0;
@@ -304,17 +309,6 @@ namespace vital {
 
     amplitude_envelope_ = envelopes_[0];
     amplitude_envelope_->setControlRate(false);
-
-    Processor* control_amplitude = new SmoothMultiply();
-    control_amplitude->plug(amplitude_envelope_->output(Envelope::kValue), SmoothMultiply::kAudioRate);
-    control_amplitude->plug(amplitude, SmoothMultiply::kControlRate);
-    control_amplitude->plug(reset(), SmoothMultiply::kReset);
-
-    amplitude_ = new Square();
-    amplitude_->plug(control_amplitude);
-
-    addProcessor(control_amplitude);
-    addProcessor(amplitude_);
   }
 
   void SynthVoiceHandler::process(int num_samples) {
