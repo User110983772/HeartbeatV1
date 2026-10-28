@@ -156,8 +156,6 @@ class FullInterface : public SynthSection, public AuthenticationSection::Listene
     float getPixelScaling() const override { return display_scale_; }
     int getPixelMultiple() const override { return pixel_multiple_; }
     void toggleOscillatorZoom(int index);
-    void toggleFilter1Zoom();
-    void toggleFilter2Zoom();
 
   private:
     bool wavetableEditorsInitialized() {

@@ -599,9 +599,7 @@ namespace vital {
       addParameterGroup(group_parameter_list, num_group_parameters, group, kGroupIdPrefix, kGroupNamePrefix);
 
     int num_filter_parameters = sizeof(filter_parameter_list) / sizeof(ValueDetails);
-    for (int filter = 0; filter < kNumFilters; ++filter)
-      addParameterGroup(filter_parameter_list, num_filter_parameters, filter, kFilterIdPrefix, kFilterNamePrefix);
-
+    // Heartbeat has no voice filters; only the Filter effect uses these parameters.
     addParameterGroup(filter_parameter_list, num_filter_parameters, "fx", kFilterIdPrefix, kFilterNamePrefix);
 
     int num_mod_parameters = sizeof(mod_parameter_list) / sizeof(ValueDetails);
@@ -617,8 +615,6 @@ namespace vital {
     details_lookup_["osc_1_on"].default_value = 1.0f;
     details_lookup_["osc_2_destination"].default_value = 1.0f;
     details_lookup_["osc_3_destination"].default_value = 3.0f;
-    details_lookup_["filter_1_osc1_input"].default_value = 1.0f;
-    details_lookup_["filter_2_osc2_input"].default_value = 1.0f;
 
     std::sort(details_list_.begin(), details_list_.end(), compareValueDetails);
   }

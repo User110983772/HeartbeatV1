@@ -16,7 +16,6 @@
 
 #include "synthesis_interface.h"
 
-#include "filter_section.h"
 #include "oscillator_section.h"
 #include "producers_module.h"
 #include "synth_oscillator.h"
@@ -25,14 +24,6 @@
 SynthesisInterface::SynthesisInterface(Authentication* auth,
                                        const vital::output_map& mono_modulations,
                                        const vital::output_map& poly_modulations) : SynthSection("synthesis") {
-  filter_section_2_ = std::make_unique<FilterSection>(2, mono_modulations, poly_modulations);
-  addSubSection(filter_section_2_.get());
-  filter_section_2_->addListener(this);
-
-  filter_section_1_ = std::make_unique<FilterSection>(1, mono_modulations, poly_modulations);
-  addSubSection(filter_section_1_.get());
-  filter_section_1_->addListener(this);
-
   for (int i = 0; i < vital::kNumOscillatorSections; ++i) {
     oscillators_[i] = std::make_unique<OscillatorSection>(auth, i, mono_modulations, poly_modulations);
     addSubSection(oscillators_[i].get());
@@ -54,10 +45,6 @@ void SynthesisInterface::paintBackground(Graphics& g) {
 
 void SynthesisInterface::resized() {
   int padding = getPadding();
-  int active_width = getWidth() - padding;
-  int width_left = (active_width - padding) / 2;
-  int width_right = active_width - width_left;
-  int right_x = width_left + padding;
 
   int oscillator_margin = oscillators_[0]->findValue(Skin::kWidgetMargin);
   int oscillator_height = 2 * (int)oscillators_[0]->getKnobSectionHeight() - oscillator_margin;
@@ -67,13 +54,7 @@ void SynthesisInterface::resized() {
 
   int sample_y = oscillators_[vital::kNumOscillatorSections - 1]->getBottom() + padding;
   int sample_height = sample_section_->getKnobSectionHeight();
-  int filter_y = sample_y + sample_height + findValue(Skin::kLargePadding);
-  int filter_height = getHeight() - filter_y;
-
   sample_section_->setBounds(0, sample_y, getWidth(), sample_height);
-
-  filter_section_1_->setBounds(0, filter_y, width_left, filter_height);
-  filter_section_2_->setBounds(right_x, filter_y, width_right, filter_height);
   SynthSection::resized();
 }
 
@@ -106,38 +87,7 @@ void SynthesisInterface::distortionTypeChanged(OscillatorSection* section, int d
   oscillators_[last_index]->resetOscillatorModulationDistortionType();
 }
 
-void SynthesisInterface::oscillatorDestinationChanged(OscillatorSection* section, int destination) {
-  bool filter1_on = destination == vital::constants::kFilter1 || destination == vital::constants::kDualFilters;
-  bool filter2_on = destination == vital::constants::kFilter2 || destination == vital::constants::kDualFilters;
-  for (int i = 0; i < vital::kNumOscillatorSections; ++i) {
-    if (oscillators_[i].get() == section) {
-      filter_section_1_->setOscillatorInput(i, filter1_on);
-      filter_section_2_->setOscillatorInput(i, filter2_on);
-    }
-  }
-}
+// The oscillator and sample routers are kept for a later feature; with no voice filters they route nothing.
+void SynthesisInterface::oscillatorDestinationChanged(OscillatorSection* section, int destination) { }
 
-void SynthesisInterface::filterSerialSelected(FilterSection* section) {
-  if (section == filter_section_1_.get())
-    filter_section_2_->clearFilterInput();
-  else
-    filter_section_1_->clearFilterInput();
-}
-
-void SynthesisInterface::oscInputToggled(FilterSection* section, int index, bool on) {
-  int filter_index = section == filter_section_1_.get() ? 0 : 1;
-  oscillators_[index]->toggleFilterInput(filter_index, on);
-}
-
-void SynthesisInterface::sampleInputToggled(FilterSection* section, bool on) {
-  int filter_index = section == filter_section_1_.get() ? 0 : 1;
-  sample_section_->toggleFilterInput(filter_index, on);
-}
-
-void SynthesisInterface::sampleDestinationChanged(SampleSection* section, int destination) {
-  bool filter1_on = destination == vital::constants::kFilter1 || destination == vital::constants::kDualFilters;
-  bool filter2_on = destination == vital::constants::kFilter2 || destination == vital::constants::kDualFilters;
-  filter_section_1_->setSampleInput(filter1_on);
-  filter_section_2_->setSampleInput(filter2_on);
-}
-
+void SynthesisInterface::sampleDestinationChanged(SampleSection* section, int destination) { }

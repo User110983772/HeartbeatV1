@@ -18,7 +18,6 @@
 
 #include "envelope.h"
 #include "envelope_module.h"
-#include "filters_module.h"
 #include "line_map.h"
 #include "operators.h"
 #include "portamento_slope.h"
@@ -35,7 +34,7 @@ namespace vital {
       VoiceHandler(0, kMaxPolyphony), producers_(nullptr), beats_per_second_(beats_per_second),
       note_from_reference_(nullptr), midi_offset_output_(nullptr),
       bent_midi_(nullptr), current_midi_note_(nullptr), amplitude_envelope_(nullptr), amplitude_(nullptr),
-      pitch_wheel_(nullptr), filters_module_(nullptr), lfos_(), envelopes_(), lfo_sources_(), random_(nullptr),
+      pitch_wheel_(nullptr), lfos_(), envelopes_(), lfo_sources_(), random_(nullptr),
       random_lfos_(), note_mapping_(nullptr), velocity_mapping_(nullptr), aftertouch_mapping_(nullptr),
       slide_mapping_(nullptr), lift_mapping_(nullptr), mod_wheel_mapping_(nullptr),
       pitch_wheel_mapping_(nullptr), stereo_(nullptr), note_percentage_(nullptr), last_active_voice_mask_(0) {
@@ -48,7 +47,7 @@ namespace vital {
     for (int i = 0; i < kNumGroupAmpSources; ++i)
       amp_source_owners_[i] = nullptr;
 
-    // Voice outputs are the sample/filter path (still on Env 1) plus the oscillator groups.
+    // Voice outputs are the sample (still on Env 1) plus the oscillator groups.
     fx_sum_ = new Add();
     registerOutput(fx_sum_->output());
     direct_sum_ = new Add();
@@ -64,18 +63,13 @@ namespace vital {
     createNoteArticulation();
     createProducers();
     createModulators();
-    createFilters(note_from_reference_->output());
     createVoiceOutput();
 
-    Add* voice_sum = new Add();
-    voice_sum->plug(filters_module_, 0);
-    voice_sum->plug(producers_->output(ProducersModule::kRawOut), 1);
-    output_->plug(voice_sum, 0);
+    output_->plug(producers_->output(ProducersModule::kRawOut), 0);
     output_->plug(amplitude_, 1);
     direct_output_->plug(producers_->output(ProducersModule::kDirectOut), 0);
     direct_output_->plug(amplitude_, 1);
 
-    addProcessor(voice_sum);
     addProcessor(output_);
     addProcessor(direct_output_);
     createOscillatorGroups();
@@ -106,8 +100,6 @@ namespace vital {
     }
 
     VoiceHandler::init();
-    producers_->setFilter1On(filters_module_->getFilter1OnValue());
-    producers_->setFilter2On(filters_module_->getFilter2OnValue());
     setupPolyModulationReadouts();
 
     for (int i = 0; i < kNumMacros; ++i) {
@@ -263,18 +255,6 @@ namespace vital {
     createStatusOutput("lift", lift());
     createStatusOutput("mod_wheel", mod_wheel());
     createStatusOutput("pitch_wheel", pitch_wheel_percent());
-  }
-
-  void SynthVoiceHandler::createFilters(Output* keytrack) {
-    filters_module_ = new FiltersModule();
-    addSubmodule(filters_module_);
-    addProcessor(filters_module_);
-
-    filters_module_->plug(producers_->output(ProducersModule::kToFilter1), FiltersModule::kFilter1Input);
-    filters_module_->plug(producers_->output(ProducersModule::kToFilter2), FiltersModule::kFilter2Input);
-    filters_module_->plug(reset(), FiltersModule::kReset);
-    filters_module_->plug(keytrack, FiltersModule::kKeytrack);
-    filters_module_->plug(bent_midi_, FiltersModule::kMidi);
   }
 
   void SynthVoiceHandler::createNoteArticulation() {

@@ -18,13 +18,12 @@
 
 #include "JuceHeader.h"
 
-#include "filter_section.h"
 #include "oscillator_section.h"
 #include "sample_section.h"
 #include "synth_section.h"
 
 class SynthesisInterface : public SynthSection, public OscillatorSection::Listener,
-                           public SampleSection::Listener, public FilterSection::Listener {
+                           public SampleSection::Listener {
   public:
     SynthesisInterface(Authentication* auth,
                        const vital::output_map& mono_modulations,
@@ -41,23 +40,15 @@ class SynthesisInterface : public SynthSection, public OscillatorSection::Listen
 
     void sampleDestinationChanged(SampleSection* section, int destination) override;
 
-    void filterSerialSelected(FilterSection* section) override;
-    void oscInputToggled(FilterSection* section, int index, bool on) override;
-    void sampleInputToggled(FilterSection* section, bool on) override;
-
     Slider* getWaveFrameSlider(int index) { return oscillators_[index]->getWaveFrameSlider(); }
     Rectangle<int> getOscillatorBounds(int index) { return oscillators_[index]->getBounds(); }
     const OscillatorSection* getOscillatorSection(int index) const { return oscillators_[index].get(); }
 
     void setWavetableName(int index, String name) { oscillators_[index]->setName(name); }
 
-    FilterSection* getFilterSection1() { return filter_section_1_.get(); }
-    FilterSection* getFilterSection2() { return filter_section_2_.get(); }
     OscillatorSection* getOscillatorSection(int index) { return oscillators_[index].get(); }
 
   private:
-    std::unique_ptr<FilterSection> filter_section_1_;
-    std::unique_ptr<FilterSection> filter_section_2_;
     std::unique_ptr<OscillatorSection> oscillators_[vital::kNumOscillatorSections];
     std::unique_ptr<SampleSection> sample_section_;
 

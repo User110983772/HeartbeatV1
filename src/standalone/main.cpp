@@ -214,7 +214,7 @@ class SynthApplication : public JUCEApplication {
             return true;
           }
           else if (info.commandID == kToggleVideo)
-            editor_->getGui()->toggleFilter1Zoom();
+            editor_->getGui()->toggleOscillatorZoom(0);
 
           return false;
         }

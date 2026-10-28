@@ -28,7 +28,6 @@
 
 namespace vital {
   class AudioRateEnvelope;
-  class FiltersModule;
   class LegatoFilter;
   class LineMap;
   class LfoModule;
@@ -79,7 +78,6 @@ namespace vital {
       void createProducers();
       void createModulators();
       void createVoiceOutput();
-      void createFilters(Output* keytrack);
 
       void setupPolyModulationReadouts();
       void createOscillatorGroups();
@@ -97,8 +95,6 @@ namespace vital {
       EnvelopeModule* amplitude_envelope_;
       Processor* amplitude_;
       Processor* pitch_wheel_;
-
-      FiltersModule* filters_module_;
 
       LfoModule* lfos_[kNumLfos];
       EnvelopeModule* envelopes_[kNumEnvelopes];

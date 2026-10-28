@@ -954,16 +954,3 @@ void FullInterface::toggleOscillatorZoom(int index) {
     showFullScreenSection(synthesis_interface_->getOscillatorSection(index));
 }
 
-void FullInterface::toggleFilter1Zoom() {
-  if (full_screen_section_)
-    showFullScreenSection(nullptr);
-  else
-    showFullScreenSection(synthesis_interface_->getFilterSection1());
-}
-
-void FullInterface::toggleFilter2Zoom() {
-  if (full_screen_section_)
-    showFullScreenSection(nullptr);
-  else
-    showFullScreenSection(synthesis_interface_->getFilterSection2());
-}

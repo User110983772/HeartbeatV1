@@ -33,7 +33,6 @@ namespace vital {
   constexpr int kNumRandomLfos = 4;
   constexpr int kNumGroupAmpSources = kNumEnvelopes + kNumLfos + kNumRandomLfos;
   constexpr int kNumMacros = 4;
-  constexpr int kNumFilters = 2;
   constexpr int kNumFormants = 4;
   constexpr int kNumChannels = 2;
   constexpr int kMaxPolyphony = 33;

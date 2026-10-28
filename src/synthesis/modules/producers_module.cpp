@@ -18,8 +18,7 @@
 
 namespace vital {
   ProducersModule::ProducersModule() :
-      SynthModule(kNumInputs, kNumOutputs), sample_destination_(nullptr),
-      filter1_on_(nullptr), filter2_on_(nullptr) {
+      SynthModule(kNumInputs, kNumOutputs), sample_destination_(nullptr) {
     for (int i = 0; i < kNumOscillators; ++i) {
       std::string number = std::to_string(i + 1);
       oscillators_[i] = new OscillatorModule("osc_" + number);
@@ -106,17 +105,10 @@ namespace vital {
       index = (index + 1) % kNumOscillators;
     }
 
-    poly_float* filter1_output = output(kToFilter1)->buffer;
-    poly_float* filter2_output = output(kToFilter2)->buffer;
     poly_float* raw_output = output(kRawOut)->buffer;
     poly_float* direct_output = output(kDirectOut)->buffer;
-    utils::zeroBuffer(filter1_output, num_samples);
-    utils::zeroBuffer(filter2_output, num_samples);
     utils::zeroBuffer(raw_output, num_samples);
     utils::zeroBuffer(direct_output, num_samples);
-
-    bool filter1_on = isFilter1On();
-    bool filter2_on = isFilter2On();
 
     for (int g = 0; g < kNumOscillatorGroups; ++g)
       utils::zeroBuffer(output(kGroupOutputStart + g)->buffer, num_samples);
@@ -131,21 +123,9 @@ namespace vital {
 
     const poly_float* sample = sampler_->output(SampleModule::kLevelled)->buffer;
 
-    int sample_destination = sample_destination_->value();
-    bool sample_raw = sample_destination == constants::kEffects;
-    bool filter1_sample = sample_destination == constants::kFilter1 || sample_destination == constants::kDualFilters;
-    bool filter2_sample = sample_destination == constants::kFilter2 || sample_destination == constants::kDualFilters;
-    bool sample_direct_out = sample_destination == constants::kDirectOut;
-    if (sample_raw || (!filter2_sample && filter1_sample && !filter1_on) ||
-                      (!filter1_sample && filter2_sample && !filter2_on) ||
-                      (filter1_sample && filter2_sample && !filter1_on && !filter2_on)) {
-      utils::addBuffers(raw_output, raw_output, sample, num_samples);
-    }
-    if (filter1_sample)
-      utils::addBuffers(filter1_output, filter1_output, sample, num_samples);
-    if (filter2_sample)
-      utils::addBuffers(filter2_output, filter2_output, sample, num_samples);
-    if (sample_direct_out)
-      utils::addBuffers(direct_output, direct_output, sample, num_samples);
+    // There are no voice filters; the sample goes to the effects unless it's routed to direct out.
+    bool sample_direct_out = static_cast<int>(sample_destination_->value()) == constants::kDirectOut;
+    poly_float* sample_output = sample_direct_out ? direct_output : raw_output;
+    utils::addBuffers(sample_output, sample_output, sample, num_samples);
   }
 } // namespace vital

@@ -33,8 +33,6 @@ namespace vital {
       };
 
       enum {
-        kToFilter1,
-        kToFilter2,
         kRawOut,
         kDirectOut,
         kGroupOutputStart,
@@ -64,19 +62,13 @@ namespace vital {
       void updateOscillatorMemory();
       Sample* getSample() { return sampler_->getSample(); }
       Output* samplePhaseOutput() { return sampler_->getPhaseOutput(); }
-      void setFilter1On(const Value* on) { filter1_on_ = on; }
-      void setFilter2On(const Value* on) { filter2_on_ = on; }
 
     protected:
-      bool isFilter1On() { return filter1_on_ == nullptr || filter1_on_->value() != 0.0f; }
-      bool isFilter2On() { return filter2_on_ == nullptr || filter2_on_->value() != 0.0f; }
       OscillatorModule* oscillators_[kNumOscillators];
       Value* oscillator_groups_[kNumOscillators];
       Value* sample_destination_;
       SampleModule* sampler_;
 
-      const Value* filter1_on_;
-      const Value* filter2_on_;
 
       JUCE_LEAK_DETECTOR(ProducersModule)
   };

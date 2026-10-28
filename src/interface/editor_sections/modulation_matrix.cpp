@@ -53,8 +53,6 @@ namespace {
     { "osc_2_", "Oscillator 2", true },
     { "osc_3_", "Oscillator 3", true },
     { "sample_", "Sample" },
-    { "filter_1_", "Filter 1", true },
-    { "filter_2_", "Filter 2", true },
     { "filter_fx_", "Filter FX", true },
     { "", "" },
     { "lfo_", "LFOs" },
