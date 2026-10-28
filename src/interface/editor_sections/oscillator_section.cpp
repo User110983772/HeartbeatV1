@@ -59,12 +59,12 @@ namespace {
     "BEND",
     "SQUEEZE",
     "PULSE",
-    "FM <- OSC",
-    "FM <- OSC",
-    "FM <- SAMPLE",
-    "RM <- OSC",
-    "RM <- OSC",
-    "RM <- SAMPLE"
+    "FM <- ABOVE",
+    "FM <- ABOVE",
+    "FM <- ABOVE",
+    "RM <- ABOVE",
+    "RM <- ABOVE",
+    "RM <- ABOVE"
   };
 
   const std::string kLanguageNames[] = {
@@ -138,6 +138,7 @@ namespace {
   const std::string kSourceButtonText[vital::SynthOscillator::kNumSources] = {
     "WT",
     "NOISE",
+    "SAMPLE",
   };
 
   // Nearest pure color for the NoiseSource color control: 0 brown, 0.25 pink, 0.5 white, 1 violet.
@@ -159,13 +160,18 @@ namespace {
   constexpr int kMaxTTWTLength = 100;
   constexpr int kShowErrorMs = 2000;
 
-  String getDistortionSuffix(int type, int index) {
-    if (type == vital::SynthOscillator::kFmOscillatorA || type == vital::SynthOscillator::kRmOscillatorA)
-      return " " + String(1 + vital::ProducersModule::getFirstModulationIndex(index));
-    if (type == vital::SynthOscillator::kFmOscillatorB || type == vital::SynthOscillator::kRmOscillatorB)
-      return " " + String(1 + vital::ProducersModule::getSecondModulationIndex(index));
+  // Vital's "Osc B" and "Sample" FM/RM options now also read the engine above, so the menus only offer one of each.
+  bool isHiddenDistortionType(int type) {
+    return type == vital::SynthOscillator::kFmOscillatorB || type == vital::SynthOscillator::kFmSample ||
+           type == vital::SynthOscillator::kRmOscillatorB || type == vital::SynthOscillator::kRmSample;
+  }
 
-    return "";
+  int stepDistortionType(int type, int step) {
+    int count = vital::SynthOscillator::kNumDistortionTypes;
+    do
+      type = (type + step + count) % count;
+    while (isHiddenDistortionType(type));
+    return type;
   }
 
   bool isSpectralMenuSeparator(int index) {
@@ -177,11 +183,11 @@ namespace {
   }
 
   String getDistortionMenuString(int type, int index) {
-    return String(strings::kPhaseDistortionNames[type]) + getDistortionSuffix(type, index);
+    return String(strings::kPhaseDistortionNames[type]);
   }
 
   String getDistortionString(int type, int index) {
-    return String(kDistortionTypes[type]) + getDistortionSuffix(type, index);
+    return String(kDistortionTypes[type]);
   }
 
   int getLanguageIndex(const std::string& language) {
@@ -831,6 +837,8 @@ void OscillatorSection::buttonClicked(Button* clicked_button) {
     PopupItems options;
     
     for (int i = 0; i < vital::SynthOscillator::kNumDistortionTypes; ++i) {
+      if (isHiddenDistortionType(i))
+        continue;
       if (isDistortionMenuSeparator(i))
         options.addItem(-1, "");
 
@@ -852,7 +860,8 @@ void OscillatorSection::buttonClicked(Button* clicked_button) {
   }
   else if (clicked_button == source_button_.get()) {
     PopupItems options;
-    for (int i = 0; i < vital::SynthOscillator::kNumSources; ++i)
+    // Sample engines are edited in the sample panel until the sound engine list replaces the fixed panels.
+    for (int i = 0; i < vital::SynthOscillator::kSampleSource; ++i)
       options.addItem(i, strings::kOscillatorSourceNames[i]);
 
     Point<int> position(source_button_->getX(), source_button_->getBottom());
@@ -883,12 +892,10 @@ void OscillatorSection::buttonClicked(Button* clicked_button) {
     setSpectralMorphSelected(new_morph_type);
   }
   else if (clicked_button == prev_distortion_.get()) {
-    int new_distortion_type = current_distortion_type_ - 1 + vital::SynthOscillator::kNumDistortionTypes;
-    setDistortionSelected(new_distortion_type % vital::SynthOscillator::kNumDistortionTypes);
+    setDistortionSelected(stepDistortionType(current_distortion_type_, -1));
   }
   else if (clicked_button == next_distortion_.get()) {
-    int new_distortion_type = (current_distortion_type_ + 1) % vital::SynthOscillator::kNumDistortionTypes;
-    setDistortionSelected(new_distortion_type);
+    setDistortionSelected(stepDistortionType(current_distortion_type_, 1));
   }
   else
     SynthSection::buttonClicked(clicked_button);

@@ -75,13 +75,16 @@ class LoadSave {
 
     static void loadControls(SynthBase* synth, const json& data);
     static void loadModulations(SynthBase* synth, const json& modulations);
-    static void loadSample(SynthBase* synth, const json& sample);
+    static void loadEngineSamples(SynthBase* synth, const json& engine_samples);
+    static void loadEngineOrder(SynthBase* synth, const json& order);
     static void loadWavetables(SynthBase* synth, const json& wavetables);
     static void loadLfos(SynthBase* synth, const json& lfos);
     static void loadSaveState(std::map<std::string, String>& save_info, json data);
 
     static void initSaveInfo(std::map<std::string, String>& save_info);
     static json updateFromOldVersion(json state);
+    // Presets from before sound engines (Vital's 3 oscillators + 1 sample) become engines 1-4.
+    static json convertToSoundEngines(json state);
     static bool jsonToState(SynthBase* synth, std::map<std::string, String>& save_info, json state);
 
     static String getAuthorFromFile(const File& file);

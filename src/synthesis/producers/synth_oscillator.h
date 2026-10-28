@@ -107,6 +107,8 @@ namespace vital {
       enum Source {
         kWavetableSource,
         kNoiseSource,
+        // Handled by OscillatorModule, which runs its sample player instead of this oscillator.
+        kSampleSource,
         kNumSources
       };
 

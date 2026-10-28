@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <array>
+
 #include "value.h"
 
 #include <string>
@@ -28,6 +30,10 @@ namespace vital {
   constexpr int kNumOscillatorGroups = 8;
   // Fixed oscillator panels in the voice tab until the scrolling oscillator list replaces them.
   constexpr int kNumOscillatorSections = 3;
+  // Sound engine shown in the voice tab's sample panel until the sound engine list replaces it.
+  constexpr int kSampleSectionEngine = 3;
+  // Sound engine chain order: a permutation of engine indices, top to bottom.
+  using EngineOrder = std::array<int, kNumOscillators>;
   constexpr int kNumOscillatorWaveFrames = 257;
   constexpr int kNumEnvelopes = 6;
   constexpr int kNumRandomLfos = 4;

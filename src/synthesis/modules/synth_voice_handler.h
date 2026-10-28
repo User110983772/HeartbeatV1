@@ -59,9 +59,14 @@ namespace vital {
       output_map& getPolyModulations() override;
       ModulationConnectionBank& getModulationBank() { return modulation_bank_; }
       Wavetable* getWavetable(int index) { return producers_->getWavetable(index); }
-      Sample* getSample() { return producers_->getSample(); }
+      Sample* getSample(int index) { return producers_->getSample(index); }
+      bool setEngineOrder(const EngineOrder& order) { return producers_->setEngineOrder(order); }
+      const EngineOrder& getEngineOrder() const { return producers_->getEngineOrder(); }
+      int getEngineAbove(int index) const { return producers_->getEngineAbove(index); }
       LineGenerator* getLfoSource(int index) { return &lfo_sources_[index]; }
-      Output* getDirectOutput() { return getAccumulatedOutput(direct_sum_->output()); }
+      Output* getDirectOutput() {
+        return getAccumulatedOutput(group_mixer_->output(OscillatorGroupMixer::kDirectOut));
+      }
 
       Output* note_retrigger() { return &note_retriggered_; }
 
@@ -117,14 +122,10 @@ namespace vital {
       cr::Value* stereo_;
       cr::Multiply* note_percentage_;
 
-      Multiply* output_;
-      Multiply* direct_output_;
       Processor* velocity_amplitude_;
       OscillatorGroupMixer* group_mixer_;
       Value* group_amp_sources_[kNumOscillatorGroups];
       Processor* amp_source_owners_[kNumGroupAmpSources];
-      Add* fx_sum_;
-      Add* direct_sum_;
       Output num_voices_;
 
       output_map poly_readouts_;

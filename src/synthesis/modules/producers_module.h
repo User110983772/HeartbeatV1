@@ -18,9 +18,13 @@
 
 #include "synth_module.h"
 #include "oscillator_module.h"
-#include "sample_module.h"
+
+#include <array>
+#include <memory>
 
 namespace vital {
+  // The sound engines (oscillators and samples). Each one belongs to a group, and within a group the engines
+  // form a serial chain in engine order: an engine's FM/RM modulator is the engine directly above it.
   class ProducersModule : public SynthModule {
     public:
       enum {
@@ -33,19 +37,10 @@ namespace vital {
       };
 
       enum {
-        kRawOut,
-        kDirectOut,
         kGroupOutputStart,
-        kNumOutputs = kGroupOutputStart + kNumOscillatorGroups
+        kModulatorStart = kGroupOutputStart + kNumOscillatorGroups,
+        kNumOutputs = kModulatorStart + kNumOscillators
       };
-
-      static force_inline int getFirstModulationIndex(int index) {
-        return index == 0 ? 1 : 0;
-      }
-
-      static force_inline int getSecondModulationIndex(int index) {
-        return index == 1 ? 2 : (getFirstModulationIndex(index) + 1);
-      }
 
       ProducersModule();
       virtual ~ProducersModule() { }
@@ -60,17 +55,22 @@ namespace vital {
 
       bool isGroupUsed(int group) const;
       void updateOscillatorMemory();
-      Sample* getSample() { return sampler_->getSample(); }
-      Output* samplePhaseOutput() { return sampler_->getPhaseOutput(); }
+      Sample* getSample(int index) { return oscillators_[index]->getSample(); }
+      Output* samplePhaseOutput(int index) { return oscillators_[index]->getSamplePhaseOutput(); }
+
+      // Call with processing locked. Invalid orders (not a permutation) are ignored.
+      bool setEngineOrder(const EngineOrder& order);
+      const EngineOrder& getEngineOrder() const { return *engine_order_; }
+      // The engine directly above `index` in its group's chain, or -1 if it's at the top.
+      int getEngineAbove(int index) const;
 
     protected:
+      int groupOf(int index) const;
+
       OscillatorModule* oscillators_[kNumOscillators];
       Value* oscillator_groups_[kNumOscillators];
-      Value* sample_destination_;
-      SampleModule* sampler_;
-
+      std::shared_ptr<EngineOrder> engine_order_;
 
       JUCE_LEAK_DETECTOR(ProducersModule)
   };
 } // namespace vital
-

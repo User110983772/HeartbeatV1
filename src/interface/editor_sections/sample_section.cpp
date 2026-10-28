@@ -27,12 +27,17 @@
 #include "synth_strings.h"
 #include "text_look_and_feel.h"
 
+namespace {
+  // The sample panel edits sound engine 4 until the sound engine list replaces it.
+  const std::string kEngine = "osc_" + std::to_string(vital::kSampleSectionEngine + 1) + "_";
+}
+
 SampleSection::SampleSection(String name) : SynthSection(std::move(name)), sample_(nullptr) {
   transpose_quantize_button_ = std::make_unique<TransposeQuantizeButton>();
   addOpenGlComponent(transpose_quantize_button_.get());
   transpose_quantize_button_->addQuantizeListener(this);
 
-  transpose_ = std::make_unique<SynthSlider>("sample_transpose");
+  transpose_ = std::make_unique<SynthSlider>(kEngine + "transpose");
   addSlider(transpose_.get());
   transpose_->setLookAndFeel(TextLookAndFeel::instance());
   transpose_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
@@ -42,7 +47,7 @@ SampleSection::SampleSection(String name) : SynthSection(std::move(name)), sampl
   transpose_->overrideValue(Skin::kTextComponentOffset, 0.0f);
   transpose_->setModulationBarRight(false);
 
-  tune_ = std::make_unique<SynthSlider>("sample_tune");
+  tune_ = std::make_unique<SynthSlider>(kEngine + "tune");
   addSlider(tune_.get());
   tune_->setLookAndFeel(TextLookAndFeel::instance());
   tune_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
@@ -51,11 +56,11 @@ SampleSection::SampleSection(String name) : SynthSection(std::move(name)), sampl
   tune_->setTextEntrySizePercent(1.0f, 0.7f);
   tune_->overrideValue(Skin::kTextComponentOffset, 0.0f);
 
-  level_ = std::make_unique<SynthSlider>("sample_level");
+  level_ = std::make_unique<SynthSlider>(kEngine + "level");
   addSlider(level_.get());
   level_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
 
-  pan_ = std::make_unique<SynthSlider>("sample_pan");
+  pan_ = std::make_unique<SynthSlider>(kEngine + "pan");
   addSlider(pan_.get());
   pan_->setBipolar();
   pan_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
@@ -74,7 +79,7 @@ SampleSection::SampleSection(String name) : SynthSection(std::move(name)), sampl
                                                         Colour(0xffaaaaaa), Colour(0xff888888));
 
   current_destination_ = 0;
-  destination_control_name_ = "sample_destination";
+  destination_control_name_ = kEngine + "destination";
   destination_text_ = std::make_unique<PlainTextComponent>("Destination Text", "---");
   addOpenGlComponent(destination_text_.get());
 
@@ -95,14 +100,14 @@ SampleSection::SampleSection(String name) : SynthSection(std::move(name)), sampl
   next_destination_->addListener(this);
   next_destination_->setShape(Paths::next());
 
-  keytrack_ = std::make_unique<OpenGlShapeButton>("sample_keytrack");
+  keytrack_ = std::make_unique<OpenGlShapeButton>(kEngine + "sample_keytrack");
   keytrack_->useOnColors(true);
   keytrack_->setClickingTogglesState(true);
   addButton(keytrack_.get());
   keytrack_->addListener(this);
   keytrack_->setShape(Paths::keyboard());
 
-  random_phase_ = std::make_unique<OpenGlShapeButton>("sample_random_phase");
+  random_phase_ = std::make_unique<OpenGlShapeButton>(kEngine + "random_phase");
   random_phase_->useOnColors(true);
   random_phase_->setClickingTogglesState(true);
   addButton(random_phase_.get());
@@ -110,21 +115,21 @@ SampleSection::SampleSection(String name) : SynthSection(std::move(name)), sampl
   random_phase_->addListener(this);
   random_phase_->setShape(Paths::shuffle());
 
-  loop_ = std::make_unique<OpenGlShapeButton>("sample_loop");
+  loop_ = std::make_unique<OpenGlShapeButton>(kEngine + "sample_loop");
   loop_->useOnColors(true);
   loop_->setClickingTogglesState(true);
   addButton(loop_.get());
   loop_->addListener(this);
   loop_->setShape(Paths::loop());
 
-  bounce_ = std::make_unique<OpenGlShapeButton>("sample_bounce");
+  bounce_ = std::make_unique<OpenGlShapeButton>(kEngine + "sample_bounce");
   bounce_->useOnColors(true);
   bounce_->setClickingTogglesState(true);
   addButton(bounce_.get());
   bounce_->addListener(this);
   bounce_->setShape(Paths::bounce());
 
-  on_ = std::make_unique<SynthButton>("sample_on");
+  on_ = std::make_unique<SynthButton>(kEngine + "on");
   addButton(on_.get());
   setActivator(on_.get());
   setSkinOverride(Skin::kSample);
@@ -282,7 +287,7 @@ void SampleSection::loadFile(const File& file) {
 
 void SampleSection::setAllValues(vital::control_map& controls) {
   preset_selector_->setText(sample_viewer_->getName());
-  transpose_quantize_button_->setValue(static_cast<int>(controls["sample_transpose_quantize"]->value()));
+  transpose_quantize_button_->setValue(static_cast<int>(controls[kEngine + "transpose_quantize"]->value()));
   SynthSection::setAllValues(controls);
 
   current_destination_ = controls[destination_control_name_]->value();
@@ -368,5 +373,5 @@ void SampleSection::quantizeUpdated() {
   int value = transpose_quantize_button_->getValue();
   SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
   if (parent)
-    parent->getSynth()->valueChangedInternal("sample_transpose_quantize", value);
+    parent->getSynth()->valueChangedInternal(kEngine + "transpose_quantize", value);
 }

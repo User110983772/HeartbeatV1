@@ -23,6 +23,8 @@
 #include "synth_constants.h"
 #include "synth_oscillator.h"
 
+#include <algorithm>
+
 #define QUOTE(x) #x
 #define STRINGIFY(x) QUOTE(x)
 
@@ -97,9 +99,22 @@ json LoadSave::stateToJson(SynthBase* synth, const CriticalSection& critical_sec
   for (auto& control : controls)
     settings_data[control.first] = control.second->value();
 
-  vital::Sample* sample = synth->getSample();
-  if (sample)
-    settings_data["sample"] = sample->stateToJson();
+  json engine_samples;
+  for (int i = 0; i < vital::kNumOscillators; ++i) {
+    std::string source = "osc_" + std::to_string(i + 1) + "_source";
+    if (static_cast<int>(controls[source]->value()) != vital::SynthOscillator::kSampleSource)
+      continue;
+    json engine_sample;
+    engine_sample["engine"] = i;
+    engine_sample["sample"] = synth->getSample(i)->stateToJson();
+    engine_samples.push_back(engine_sample);
+  }
+  settings_data["engine_samples"] = engine_samples;
+
+  json engine_order;
+  for (int engine : synth->getEngineOrder())
+    engine_order.push_back(engine);
+  settings_data["engine_order"] = engine_order;
 
   json modulations;
   vital::ModulationConnectionBank& modulation_bank = synth->getModulationBank();
@@ -195,10 +210,37 @@ void LoadSave::loadModulations(SynthBase* synth, const json& modulations) {
   }
 }
 
-void LoadSave::loadSample(SynthBase* synth, const json& json_sample) {
-  vital::Sample* sample = synth->getSample();
-  if (sample)
-    sample->jsonToState(json_sample);
+void LoadSave::loadEngineSamples(SynthBase* synth, const json& engine_samples) {
+  bool loaded[vital::kNumOscillators] = {};
+  if (engine_samples.is_array()) {
+    for (const json& engine_sample : engine_samples) {
+      int engine = engine_sample.value("engine", -1);
+      if (engine < 0 || engine >= vital::kNumOscillators || !engine_sample.count("sample"))
+        continue;
+      synth->getSample(engine)->jsonToState(engine_sample["sample"]);
+      loaded[engine] = true;
+    }
+  }
+
+  for (int i = 0; i < vital::kNumOscillators; ++i) {
+    if (!loaded[i])
+      synth->getSample(i)->init();
+  }
+}
+
+void LoadSave::loadEngineOrder(SynthBase* synth, const json& order) {
+  vital::EngineOrder engine_order;
+  for (int i = 0; i < vital::kNumOscillators; ++i)
+    engine_order[i] = i;
+
+  if (order.is_array() && order.size() == vital::kNumOscillators) {
+    vital::EngineOrder loaded;
+    for (int i = 0; i < vital::kNumOscillators; ++i)
+      loaded[i] = order[i].is_number() ? order[i].get<int>() : -1;
+    if (synth->setEngineOrder(loaded))
+      return;
+  }
+  synth->setEngineOrder(engine_order);
 }
 
 void LoadSave::loadWavetables(SynthBase* synth, const json& wavetables) {
@@ -1030,6 +1072,116 @@ json LoadSave::updateFromOldVersion(json state) {
   return state;
 }
 
+namespace {
+  constexpr int kLegacyOscillators = 3;
+  constexpr int kLegacySampleEngine = 3;
+
+  // Vital's fixed FM/RM pairings: which oscillator (or the sample) each distortion type read.
+  int legacyModulator(int oscillator, int distortion_type) {
+    int first = oscillator == 0 ? 1 : 0;
+    int second = oscillator == 1 ? 2 : first + 1;
+    switch (distortion_type) {
+      case vital::SynthOscillator::kFmOscillatorA:
+      case vital::SynthOscillator::kRmOscillatorA:
+        return first;
+      case vital::SynthOscillator::kFmOscillatorB:
+      case vital::SynthOscillator::kRmOscillatorB:
+        return second;
+      case vital::SynthOscillator::kFmSample:
+      case vital::SynthOscillator::kRmSample:
+        return kLegacySampleEngine;
+      default:
+        return -1;
+    }
+  }
+
+  float settingOr(const json& settings, const std::string& name, float default_value) {
+    return settings.count(name) && settings[name].is_number() ? settings[name].get<float>() : default_value;
+  }
+}
+
+json LoadSave::convertToSoundEngines(json state) {
+  json settings = state["settings"];
+  std::string engine = "osc_" + std::to_string(kLegacySampleEngine + 1) + "_";
+
+  // The sample becomes sound engine 4.
+  settings[engine + "source"] = vital::SynthOscillator::kSampleSource;
+  settings[engine + "on"] = settingOr(settings, "sample_on", 0.0f);
+  settings[engine + "level"] = settingOr(settings, "sample_level", 0.70710678119f);
+  settings[engine + "pan"] = settingOr(settings, "sample_pan", 0.0f);
+  settings[engine + "transpose"] = settingOr(settings, "sample_transpose", 0.0f);
+  settings[engine + "transpose_quantize"] = settingOr(settings, "sample_transpose_quantize", 0.0f);
+  settings[engine + "tune"] = settingOr(settings, "sample_tune", 0.0f);
+  settings[engine + "random_phase"] = settingOr(settings, "sample_random_phase", 0.0f);
+  settings[engine + "sample_keytrack"] = settingOr(settings, "sample_keytrack", 0.0f);
+  settings[engine + "sample_loop"] = settingOr(settings, "sample_loop", 1.0f);
+  settings[engine + "sample_bounce"] = settingOr(settings, "sample_bounce", 0.0f);
+  settings[engine + "destination"] = settingOr(settings, "sample_destination", 3.0f);
+
+  if (settings.count("sample")) {
+    json engine_sample;
+    engine_sample["engine"] = kLegacySampleEngine;
+    engine_sample["sample"] = settings["sample"];
+    settings["engine_samples"] = json::array({ engine_sample });
+  }
+
+  if (settings["modulations"].is_array()) {
+    static const std::string kSamplePrefix = "sample_";
+    for (json& modulation : settings["modulations"]) {
+      if (!modulation.count("destination") || !modulation["destination"].is_string())
+        continue;
+      std::string destination = modulation["destination"];
+      if (destination.compare(0, kSamplePrefix.size(), kSamplePrefix) == 0)
+        modulation["destination"] = engine + destination.substr(kSamplePrefix.size());
+    }
+  }
+
+  // Engine above is the only modulator now, so order engines 1-4 to keep as many old pairings as possible.
+  int modulators[kLegacyOscillators];
+  for (int i = 0; i < kLegacyOscillators; ++i) {
+    std::string prefix = "osc_" + std::to_string(i + 1) + "_";
+    bool on = settingOr(settings, prefix + "on", i == 0 ? 1.0f : 0.0f) != 0.0f;
+    int type = static_cast<int>(settingOr(settings, prefix + "distortion_type", 0.0f));
+    modulators[i] = on ? legacyModulator(i, type) : -1;
+  }
+
+  int best[kLegacyOscillators + 1] = { 0, 1, 2, 3 };
+  int candidate[kLegacyOscillators + 1] = { 0, 1, 2, 3 };
+  int best_score = -1;
+  do {
+    int score = 0;
+    for (int position = 1; position <= kLegacyOscillators; ++position) {
+      int engine_index = candidate[position];
+      if (engine_index < kLegacyOscillators && modulators[engine_index] == candidate[position - 1])
+        score++;
+    }
+    if (score > best_score) {
+      best_score = score;
+      std::copy(candidate, candidate + kLegacyOscillators + 1, best);
+    }
+  } while (std::next_permutation(candidate, candidate + kLegacyOscillators + 1));
+
+  json engine_order = json::array();
+  for (int engine_index : best)
+    engine_order.push_back(engine_index);
+  for (int i = kLegacyOscillators + 1; i < vital::kNumOscillators; ++i)
+    engine_order.push_back(i);
+  settings["engine_order"] = engine_order;
+
+  // Every FM/RM option now reads the engine above, so keep one of each.
+  for (int i = 0; i < kLegacyOscillators; ++i) {
+    std::string name = "osc_" + std::to_string(i + 1) + "_distortion_type";
+    int type = static_cast<int>(settingOr(settings, name, 0.0f));
+    if (type == vital::SynthOscillator::kFmOscillatorB || type == vital::SynthOscillator::kFmSample)
+      settings[name] = vital::SynthOscillator::kFmOscillatorA;
+    else if (type == vital::SynthOscillator::kRmOscillatorB || type == vital::SynthOscillator::kRmSample)
+      settings[name] = vital::SynthOscillator::kRmOscillatorA;
+  }
+
+  state["settings"] = settings;
+  return state;
+}
+
 bool LoadSave::jsonToState(SynthBase* synth, std::map<std::string, String>& save_info, json data) {
   std::string version = data["synth_version"];
   
@@ -1041,15 +1193,18 @@ bool LoadSave::jsonToState(SynthBase* synth, std::map<std::string, String>& save
   if (compare_versions < 0 || data["settings"].count("sub_octave"))
     data = updateFromOldVersion(data);
   
+  if (!data["settings"].count("engine_order"))
+    data = convertToSoundEngines(data);
+
   json settings = data["settings"];
   json modulations = settings["modulations"];
-  json sample = settings["sample"];
   json wavetables = settings["wavetables"];
   json lfos = settings["lfos"];
 
   loadControls(synth, settings);
   loadModulations(synth, modulations);
-  loadSample(synth, sample);
+  loadEngineSamples(synth, settings["engine_samples"]);
+  loadEngineOrder(synth, settings["engine_order"]);
   loadWavetables(synth, wavetables);
   loadLfos(synth, lfos);
   loadSaveState(save_info, data);

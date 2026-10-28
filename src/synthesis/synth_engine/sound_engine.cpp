@@ -361,8 +361,20 @@ namespace vital {
     return voice_handler_->getWavetable(index);
   }
 
-  Sample* SoundEngine::getSample() {
-    return voice_handler_->getSample();
+  bool SoundEngine::setEngineOrder(const EngineOrder& order) {
+    return voice_handler_->setEngineOrder(order);
+  }
+
+  EngineOrder SoundEngine::getEngineOrder() const {
+    return voice_handler_->getEngineOrder();
+  }
+
+  int SoundEngine::getEngineAbove(int index) const {
+    return voice_handler_->getEngineAbove(index);
+  }
+
+  Sample* SoundEngine::getSample(int index) {
+    return voice_handler_->getSample(index);
   }
 
   LineGenerator* SoundEngine::getLfoSource(int index) {

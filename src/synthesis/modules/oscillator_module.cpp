@@ -22,7 +22,9 @@
 namespace vital {
 
   OscillatorModule::OscillatorModule(std::string prefix) :
-      SynthModule(kNumInputs, kNumOutputs), prefix_(std::move(prefix)), on_(nullptr), distortion_type_(nullptr) {
+      SynthModule(kNumInputs, kNumOutputs), prefix_(std::move(prefix)), on_(nullptr), source_(nullptr), oscillator_(nullptr),
+      distortion_type_(nullptr) {
+    sampler_ = new SampleSource();
     wavetable_ = std::make_shared<Wavetable>(kNumOscillatorWaveFrames);
     was_on_ = std::make_shared<bool>(true);
   }
@@ -37,7 +39,10 @@ namespace vital {
     Value* spectral_unison = createBaseControl(prefix_ + "_spectral_unison");
     Value* stack_style = createBaseControl(prefix_ + "_stack_style");
     Value* transpose_quantize = createBaseControl(prefix_ + "_transpose_quantize");
-    Value* source = createBaseControl(prefix_ + "_source");
+    source_ = createBaseControl(prefix_ + "_source");
+    Value* sample_keytrack = createBaseControl(prefix_ + "_sample_keytrack");
+    Value* sample_loop = createBaseControl(prefix_ + "_sample_loop");
+    Value* sample_bounce = createBaseControl(prefix_ + "_sample_bounce");
 
     Input* reset = input(kReset);
 
@@ -74,7 +79,7 @@ namespace vital {
     oscillator_->plug(smooth_interpolation, SynthOscillator::kSmoothlyInterpolate);
     oscillator_->plug(spectral_unison, SynthOscillator::kSpectralUnison);
     oscillator_->plug(transpose_quantize, SynthOscillator::kTransposeQuantize);
-    oscillator_->plug(source, SynthOscillator::kSource);
+    oscillator_->plug(source_, SynthOscillator::kSource);
     oscillator_->plug(transpose, SynthOscillator::kTranspose);
     oscillator_->plug(tune, SynthOscillator::kTune);
     oscillator_->plug(stack_style, SynthOscillator::kStackStyle);
@@ -101,18 +106,40 @@ namespace vital {
     oscillator_->useOutput(output(kRaw), SynthOscillator::kRaw);
     oscillator_->useOutput(output(kLevelled), SynthOscillator::kLevelled);
 
+    // A sample engine shares the oscillator's level, pan, tuning and random phase settings.
+    sampler_->useInput(input(kReset), SampleSource::kReset);
+    sampler_->useInput(input(kMidi), SampleSource::kMidi);
+    sampler_->useInput(input(kNoteCount), SampleSource::kNoteCount);
+    sampler_->plug(rand_phase, SampleSource::kRandomPhase);
+    sampler_->plug(sample_keytrack, SampleSource::kKeytrack);
+    sampler_->plug(sample_loop, SampleSource::kLoop);
+    sampler_->plug(sample_bounce, SampleSource::kBounce);
+    sampler_->plug(transpose, SampleSource::kTranspose);
+    sampler_->plug(transpose_quantize, SampleSource::kTransposeQuantize);
+    sampler_->plug(tune, SampleSource::kTune);
+    sampler_->plug(amplitude, SampleSource::kLevel);
+    sampler_->plug(pan, SampleSource::kPan);
+    sampler_->useOutput(output(kRaw), SampleSource::kRaw);
+    sampler_->useOutput(output(kLevelled), SampleSource::kLevelled);
+
     addProcessor(oscillator_);
+    addProcessor(sampler_);
     SynthModule::init();
   }
 
   void OscillatorModule::process(int num_samples) {
     bool on = on_->value();
 
-    if (on)
+    if (on) {
+      bool sample = isSample();
+      oscillator_->enable(!sample);
+      sampler_->enable(sample);
       SynthModule::process(num_samples);
+    }
     else if (*was_on_) {
       output(kRaw)->clearBuffer();
       output(kLevelled)->clearBuffer();
+      sampler_->getPhaseOutput()->buffer[0] = 0.0f;
     }
 
     *was_on_ = on;

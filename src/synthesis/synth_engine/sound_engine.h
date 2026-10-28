@@ -19,6 +19,7 @@
 #include "circular_queue.h"
 #include "synth_module.h"
 #include "note_handler.h"
+#include "synth_constants.h"
 
 class LineGenerator;
 class Tuning;
@@ -83,7 +84,11 @@ namespace vital {
       void setChannelSlide(int channel, mono_float value, int sample);
       void setChannelRangeSlide(int from_channel, int to_channel, mono_float value, int sample);
       Wavetable* getWavetable(int index);
-      Sample* getSample();
+      Sample* getSample(int index = kSampleSectionEngine);
+      // Sound engine chain order (a permutation of engine indices). Call setEngineOrder with processing locked.
+      bool setEngineOrder(const EngineOrder& order);
+      EngineOrder getEngineOrder() const;
+      int getEngineAbove(int index) const;
       LineGenerator* getLfoSource(int index);
 
       void sustainOn(int channel);

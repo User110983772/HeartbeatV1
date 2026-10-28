@@ -77,7 +77,9 @@ class SynthBase : public MidiManager::Listener {
 
     vital::Wavetable* getWavetable(int index);
     WavetableCreator* getWavetableCreator(int index);
-    vital::Sample* getSample();
+    vital::Sample* getSample(int index = vital::kSampleSectionEngine);
+    vital::EngineOrder getEngineOrder();
+    bool setEngineOrder(const vital::EngineOrder& order);
     LineGenerator* getLfoSource(int index);
 
     int getSampleRate();

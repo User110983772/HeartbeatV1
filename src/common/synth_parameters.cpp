@@ -176,28 +176,6 @@ namespace vital {
       ValueDetails::kLinear, false, "%", "Sub Pan", nullptr },
     { "sub_waveform", 0x000000, 0.0, PredefinedWaveFrames::kNumShapes - 1, 2.0, 0.0, 1.0,
       ValueDetails::kIndexed, false, "", "Sub Osc Waveform", nullptr },
-    { "sample_on", 0x000000, 0.0, 1.0, 0.0, 0.0, 1.0,
-      ValueDetails::kIndexed, false, "", "Sample Switch", strings::kOffOnNames },
-    { "sample_random_phase", 0x000000, 0.0, 1.0, 0.0, 0.0, 1.0,
-      ValueDetails::kIndexed, false, "", "Sample Random Phase", strings::kOffOnNames },
-    { "sample_keytrack", 0x000000, 0.0, 1.0, 0.0, 0.0, 1.0,
-      ValueDetails::kIndexed, false, "", "Sample Keytrack", strings::kOffOnNames },
-    { "sample_loop", 0x000000, 0.0, 1.0, 1.0, 0.0, 1.0,
-      ValueDetails::kIndexed, false, "", "Sample Loop", strings::kOffOnNames },
-    { "sample_bounce", 0x000603, 0.0, 1.0, 0.0, 0.0, 1.0,
-      ValueDetails::kIndexed, false, "", "Sample Bounce", strings::kOffOnNames },
-    { "sample_transpose", 0x000000, -48.0, 48.0, 0.0, 0.0, 1.0,
-      ValueDetails::kIndexed, false, "", "Sample Transpose", nullptr },
-    { "sample_transpose_quantize", 0x000000, 0.0, 8191.0, 0.0, 0.0, 1.0,
-      ValueDetails::kIndexed, false, "", "Sample Transpose Quantize", nullptr },
-    { "sample_tune", 0x000000, -1.0, 1.0, 0.0, 0.0, 100.0,
-      ValueDetails::kLinear, false, "", "Sample Tune", nullptr },
-    { "sample_level", 0x000000, 0.0, 1.0, 0.70710678119, 0.0, 1.0,
-      ValueDetails::kQuadratic, false, "", "Sample Level", nullptr },
-    { "sample_destination", 0x000500, 0.0, constants::kNumSourceDestinations + constants::kNumEffects, 3.0, 0.0, 1.0,
-      ValueDetails::kIndexed, false, "", "Sample Destination", strings::kDestinationNames },
-    { "sample_pan", 0x000000, -1.0, 1.0, 0.0, 0.0, 100.0,
-      ValueDetails::kLinear, false, "%", "Sample Pan", nullptr },
     { "velocity_track", 0x000000, -1.0, 1.0, 0.0, 0.0, 100.0,
       ValueDetails::kLinear, false, "%", "Velocity Track", nullptr },
     { "volume", 0x000000, 0.0, 7399.4404, 5473.0404, -80, 1.0,
@@ -528,6 +506,13 @@ namespace vital {
       ValueDetails::kLinear, false, "%", "Noise Focus", nullptr },
     { "group", 0x010008, 0.0, kNumOscillatorGroups - 1, 0.0, 0.0, 1.0,
       ValueDetails::kIndexed, false, "", "Group", strings::kGroupNames },
+    // Used when the sound engine's source is Sample; the other settings are shared with oscillators.
+    { "sample_keytrack", 0x010008, 0.0, 1.0, 0.0, 0.0, 1.0,
+      ValueDetails::kIndexed, false, "", "Sample Keytrack", strings::kOffOnNames },
+    { "sample_loop", 0x010008, 0.0, 1.0, 1.0, 0.0, 1.0,
+      ValueDetails::kIndexed, false, "", "Sample Loop", strings::kOffOnNames },
+    { "sample_bounce", 0x010008, 0.0, 1.0, 0.0, 0.0, 1.0,
+      ValueDetails::kIndexed, false, "", "Sample Bounce", strings::kOffOnNames },
   };
 
   const ValueDetails ValueDetailsLookup::group_parameter_list[] = {
@@ -613,6 +598,8 @@ namespace vital {
     }
 
     details_lookup_["osc_1_on"].default_value = 1.0f;
+    // The voice tab's sample panel shows sound engine 4 until the sound engine list replaces it.
+    details_lookup_["osc_4_source"].default_value = SynthOscillator::kSampleSource;
     details_lookup_["osc_2_destination"].default_value = 1.0f;
     details_lookup_["osc_3_destination"].default_value = 3.0f;
 

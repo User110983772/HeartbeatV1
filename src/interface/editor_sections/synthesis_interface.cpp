@@ -65,27 +65,8 @@ void SynthesisInterface::visibilityChanged() {
   }
 }
 
-void SynthesisInterface::distortionTypeChanged(OscillatorSection* section, int distortion_type) {
-  bool dependents[vital::kNumOscillatorSections];
-  for (int i = 0; i < vital::kNumOscillatorSections; ++i)
-    dependents[i] = false;
-
-  int index = section->index();
-  int last_index = index;
-  while (!dependents[index]) {
-    dependents[index] = true;
-    last_index = index;
-    int type = oscillators_[index]->getDistortion();
-    if (vital::SynthOscillator::isFirstModulation(type))
-      index = vital::ProducersModule::getFirstModulationIndex(index);
-    else if (vital::SynthOscillator::isSecondModulation(type))
-      index = vital::ProducersModule::getSecondModulationIndex(index);
-    else
-      return;
-  }
-
-  oscillators_[last_index]->resetOscillatorModulationDistortionType();
-}
+// FM/RM always read the sound engine directly above, so modulation can't form a loop.
+void SynthesisInterface::distortionTypeChanged(OscillatorSection* section, int distortion_type) { }
 
 // The oscillator and sample routers are kept for a later feature; with no voice filters they route nothing.
 void SynthesisInterface::oscillatorDestinationChanged(OscillatorSection* section, int destination) { }

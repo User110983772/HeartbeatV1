@@ -307,12 +307,12 @@ namespace strings {
     "Bend",
     "Squeeze",
     "Pulse",
-    "FM <- Osc",
-    "FM <- Osc",
-    "FM <- Sample",
-    "RM <- Osc",
-    "RM <- Osc",
-    "RM <- Sample"
+    "FM <- Above",
+    "FM <- Above",
+    "FM <- Above",
+    "RM <- Above",
+    "RM <- Above",
+    "RM <- Above"
   };
 
   const std::string kGroupNames[vital::kNumOscillatorGroups] = {
@@ -334,6 +334,7 @@ namespace strings {
   const std::string kOscillatorSourceNames[] = {
     "Wavetable",
     "Noise",
+    "Sample",
   };
 
   const std::string kSpectralMorphNames[] = {

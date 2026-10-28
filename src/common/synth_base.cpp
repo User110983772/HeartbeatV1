@@ -64,18 +64,25 @@ SynthBase::SynthBase() : expired_(false) {
 SynthBase::~SynthBase() { }
 
 namespace {
-  bool isOscillatorOnControl(const std::string& name) {
+  // Controls that decide whether a sound engine needs its spectral buffers.
+  bool isEngineMemoryControl(const std::string& name) {
     static const std::string kPrefix = "osc_";
-    static const std::string kSuffix = "_on";
-    return name.size() > kPrefix.size() + kSuffix.size() && name.compare(0, kPrefix.size(), kPrefix) == 0 &&
-           name.compare(name.size() - kSuffix.size(), kSuffix.size(), kSuffix) == 0;
+    static const std::string kSuffixes[] = { "_on", "_source" };
+    if (name.compare(0, kPrefix.size(), kPrefix) != 0)
+      return false;
+    for (const std::string& suffix : kSuffixes) {
+      if (name.size() > kPrefix.size() + suffix.size() &&
+          name.compare(name.size() - suffix.size(), suffix.size(), suffix) == 0)
+        return true;
+    }
+    return false;
   }
 }
 
 void SynthBase::valueChanged(const std::string& name, vital::mono_float value) {
   controls_[name]->set(value);
   // Changes from other threads post a ValueChangedCallback, which does this on the message thread.
-  if (isOscillatorOnControl(name) && MessageManager::existsAndIsCurrentThread())
+  if (isEngineMemoryControl(name) && MessageManager::existsAndIsCurrentThread())
     updateOscillatorMemory();
 }
 
@@ -304,8 +311,17 @@ WavetableCreator* SynthBase::getWavetableCreator(int index) {
   return wavetable_creators_[index].get();
 }
 
-vital::Sample* SynthBase::getSample() {
-  return engine_->getSample();
+vital::Sample* SynthBase::getSample(int index) {
+  return engine_->getSample(index);
+}
+
+vital::EngineOrder SynthBase::getEngineOrder() {
+  return engine_->getEngineOrder();
+}
+
+bool SynthBase::setEngineOrder(const vital::EngineOrder& order) {
+  ScopedLock lock(getCriticalSection());
+  return engine_->setEngineOrder(order);
 }
 
 LineGenerator* SynthBase::getLfoSource(int index) {
@@ -326,8 +342,14 @@ void SynthBase::initEngine() {
     for (int i = 0; i < vital::kNumOscillators; ++i)
       getWavetableCreator(i)->init();
 
-    engine_->getSample()->init();
+    for (int i = 0; i < vital::kNumOscillators; ++i)
+      engine_->getSample(i)->init();
   }
+
+  vital::EngineOrder order;
+  for (int i = 0; i < vital::kNumOscillators; ++i)
+    order[i] = i;
+  setEngineOrder(order);
 
   for (int i = 0; i < vital::kNumLfos; ++i)
     getLfoSource(i)->initTriangle();
@@ -778,7 +800,7 @@ void SynthBase::checkOversampling() {
 
 void SynthBase::ValueChangedCallback::messageCallback() {
   if (auto synth_base = listener.lock()) {
-    if (isOscillatorOnControl(control_name))
+    if (isEngineMemoryControl(control_name))
       (*synth_base)->updateOscillatorMemory();
 
     SynthGuiInterface* gui_interface = (*synth_base)->getGuiInterface();

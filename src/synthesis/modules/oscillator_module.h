@@ -18,6 +18,7 @@
 
 #include "synth_module.h"
 #include "synth_oscillator.h"
+#include "sample_source.h"
 
 namespace vital {
   class Wavetable;
@@ -29,6 +30,7 @@ namespace vital {
         kRetrigger,
         kMidi,
         kActiveVoices,
+        kNoteCount,
         kNumInputs
       };
 
@@ -52,6 +54,9 @@ namespace vital {
         return static_cast<SynthOscillator::DistortionType>(val);
       }
       bool isOn() const { return on_ && on_->value() != 0.0f; }
+      bool isSample() const { return source_ && static_cast<int>(source_->value()) == SynthOscillator::kSampleSource; }
+      Sample* getSample() { return sampler_->getSample(); }
+      Output* getSamplePhaseOutput() const { return sampler_->getPhaseOutput(); }
 
     protected:
       std::string prefix_;
@@ -59,7 +64,9 @@ namespace vital {
       std::shared_ptr<bool> was_on_;
 
       Value* on_;
+      Value* source_;
       SynthOscillator* oscillator_;
+      SampleSource* sampler_;
       Value* distortion_type_;
 
       JUCE_LEAK_DETECTOR(OscillatorModule)

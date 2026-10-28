@@ -38,8 +38,6 @@ namespace vital {
       random_lfos_(), note_mapping_(nullptr), velocity_mapping_(nullptr), aftertouch_mapping_(nullptr),
       slide_mapping_(nullptr), lift_mapping_(nullptr), mod_wheel_mapping_(nullptr),
       pitch_wheel_mapping_(nullptr), stereo_(nullptr), note_percentage_(nullptr), last_active_voice_mask_(0) {
-    output_ = new Multiply();
-    direct_output_ = new Multiply();
     velocity_amplitude_ = nullptr;
     group_mixer_ = new OscillatorGroupMixer();
     for (int g = 0; g < kNumOscillatorGroups; ++g)
@@ -47,11 +45,10 @@ namespace vital {
     for (int i = 0; i < kNumGroupAmpSources; ++i)
       amp_source_owners_[i] = nullptr;
 
-    // Voice outputs are the sample (still on Env 1) plus the oscillator groups.
-    fx_sum_ = new Add();
-    registerOutput(fx_sum_->output());
-    direct_sum_ = new Add();
-    registerOutput(direct_sum_->output());
+    // Every sound engine reaches the voice outputs through its group.
+    registerOutput(group_mixer_->output(OscillatorGroupMixer::kFxBusOut));
+    registerOutput(group_mixer_->output(OscillatorGroupMixer::kDirectOut));
+
 
     note_from_reference_ = new cr::Add();
     midi_offset_output_ = registerControlRateOutput(note_from_reference_->output(), true);
@@ -65,13 +62,6 @@ namespace vital {
     createModulators();
     createVoiceOutput();
 
-    output_->plug(producers_->output(ProducersModule::kRawOut), 0);
-    output_->plug(amplitude_, 1);
-    direct_output_->plug(producers_->output(ProducersModule::kDirectOut), 0);
-    direct_output_->plug(amplitude_, 1);
-
-    addProcessor(output_);
-    addProcessor(direct_output_);
     createOscillatorGroups();
 
     Output* macros[kNumMacros];
@@ -119,7 +109,7 @@ namespace vital {
 
     createStatusOutput("random", random_->output());
     createStatusOutput("stereo", stereo_->output());
-    createStatusOutput("sample_phase", producers_->samplePhaseOutput());
+    createStatusOutput("sample_phase", producers_->samplePhaseOutput(kSampleSectionEngine));
     createStatusOutput("num_voices", &num_voices_);
 
     std::string modulation_source_prefix = "modulation_source_";
@@ -182,12 +172,6 @@ namespace vital {
     }
     addProcessor(group_mixer_);
 
-    fx_sum_->plug(output_, 0);
-    fx_sum_->plug(group_mixer_->output(OscillatorGroupMixer::kFxBusOut), 1);
-    direct_sum_->plug(direct_output_, 0);
-    direct_sum_->plug(group_mixer_->output(OscillatorGroupMixer::kDirectOut), 1);
-    addProcessor(fx_sum_);
-    addProcessor(direct_sum_);
   }
 
   void SynthVoiceHandler::createModulators() {
