@@ -37,7 +37,7 @@ class SampleViewer : public OpenGlLineRenderer, public AudioFileDropSource {
         virtual void sampleLoaded(const File& file) = 0;
     };
 
-    SampleViewer();
+    SampleViewer(int engine);
     virtual ~SampleViewer();
 
     void init(OpenGlWrapper& open_gl) override {
@@ -80,6 +80,7 @@ class SampleViewer : public OpenGlLineRenderer, public AudioFileDropSource {
     std::vector<Listener*> listeners_;
 
     const vital::StatusOutput* sample_phase_output_;
+    std::string phase_status_name_;
     vital::poly_float last_phase_;
     vital::poly_float last_voice_;
     vital::Sample* sample_;

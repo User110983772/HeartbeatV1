@@ -28,6 +28,8 @@
 #include "wavetable_creator.h"
 #include "wavetable_organizer.h"
 #include "wavetable_playhead.h"
+#include "wavetable_playhead_info.h"
+#include "open_gl_image_component.h"
 
 class BarRenderer;
 class WavetablePlayheadInfo;
@@ -37,6 +39,8 @@ class WavetableEditSection : public SynthSection,
                              WavetableOrganizer::Listener,
                              WavetableComponentList::Listener,
                              WavetablePlayhead::Listener,
+                             WavetablePlayheadInfo::Listener,
+                             TextEditor::Listener,
                              WavetableComponentOverlay::Listener {
   public:
     static constexpr float kObscureAmount = 0.4f;
@@ -92,6 +96,16 @@ class WavetableEditSection : public SynthSection,
     }
 
     void playheadMoved(int position) override;
+
+    // Typing a frame (from right-clicking the frame readout) moves the playhead there and selects the keyframe
+    // at that frame, if there is one, for editing.
+    void frameEntryRequested() override;
+    void frameEntryRequestedAt(Component* source, Point<int> point, int initial_frame) override;
+    void showFrameEntry(Rectangle<int> bounds, int initial_frame);
+    void textEditorReturnKeyPressed(TextEditor& editor) override;
+    void textEditorEscapeKeyPressed(TextEditor& editor) override;
+    void textEditorFocusLost(TextEditor& editor) override;
+    void goToFrame(int position);
 
     void setWaveFrameSlider(Slider* slider) { wave_frame_slider_ = slider; }
 
@@ -161,6 +175,7 @@ class WavetableEditSection : public SynthSection,
     std::unique_ptr<WavetableComponentList> wavetable_component_list_;
     std::unique_ptr<WavetablePlayhead> wavetable_playhead_;
     std::unique_ptr<WavetablePlayheadInfo> wavetable_playhead_info_;
+    std::unique_ptr<OpenGlTextEditor> frame_entry_;
     std::unique_ptr<OpenGlShapeButton> exit_button_;
     std::unique_ptr<OpenGlShapeButton> frequency_amplitude_settings_;
     std::unique_ptr<PresetSelector> preset_selector_;

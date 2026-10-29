@@ -20,6 +20,7 @@
 #include "synth_constants.h"
 
 namespace vital {
+  class EnvelopeModule;
   class LfoModule;
   class ProducersModule;
 
@@ -38,14 +39,17 @@ namespace vital {
       enum {
         kReset,
         kTrigger,
+        kActiveVoices,
         kAmplitude,
         kGroupAudio,
-        kAmpSources = kGroupAudio + kNumOscillatorGroups,
+        kGroupDirectAudio = kGroupAudio + kNumOscillatorGroups,
+        kAmpSources = kGroupDirectAudio + kNumOscillatorGroups,
         kLfoPhases = kAmpSources + kNumGroupAmpSources,
         kLevels = kLfoPhases + kNumLfos,
         kAmpSourceIndices = kLevels + kNumOscillatorGroups,
         kOutputIndices = kAmpSourceIndices + kNumOscillatorGroups,
-        kNumInputs = kOutputIndices + kNumOscillatorGroups
+        kSmoothings = kOutputIndices + kNumOscillatorGroups,
+        kNumInputs = kSmoothings + kNumOscillatorGroups
       };
 
       enum {
@@ -59,21 +63,27 @@ namespace vital {
       virtual ~OscillatorGroupMixer() { }
 
       // Global modules, read for which groups are used and which LFOs are one-shot.
-      void setSources(const ProducersModule* producers, const LfoModule* const* lfos);
+      void setSources(const ProducersModule* producers, const EnvelopeModule* const* envelopes,
+                      const LfoModule* const* lfos);
 
       void process(int num_samples) override;
       virtual Processor* clone() const override { return new OscillatorGroupMixer(*this); }
 
     private:
+      bool isControlRateSource(int source_index, const Output* source) const;
+      // Voices whose one-shot LFO source hasn't reached the end of its shape.
+      poly_mask unfinishedMask(int source_index) const;
       poly_mask fadeMask(int source_index, poly_mask released_mask, poly_mask kill_mask) const;
 
       const ProducersModule* producers_;
+      const EnvelopeModule* envelopes_[kNumEnvelopes];
       const LfoModule* lfos_[kNumLfos];
 
       poly_float voice_state_;
       poly_float last_amplitude_;
       poly_float last_sources_[kNumOscillatorGroups];
       poly_float last_levels_[kNumOscillatorGroups];
+      poly_float smoothed_[kNumOscillatorGroups];
       poly_float fades_[kNumOscillatorGroups];
 
       JUCE_LEAK_DETECTOR(OscillatorGroupMixer)

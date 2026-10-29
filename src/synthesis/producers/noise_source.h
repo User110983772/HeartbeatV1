@@ -66,6 +66,17 @@ namespace vital {
 
       NoiseSource& operator=(const NoiseSource& other) = delete;
 
+      // Restarts the masked lanes' sequence at `take`: the same take and stream always give the same noise,
+      // whichever voice slot it lands in. Each voice's two lanes are its left and right channels.
+      void seedTake(uint32_t take, uint32_t stream, poly_mask mask) {
+        for (int i = 0; i < poly_int::kSize; ++i) {
+          if (mask[i] == 0)
+            continue;
+          uint32_t lane_seed = hash(hash(take + 0x9e3779b9u) ^ (stream * 2 + (i & 1)));
+          state_.set(i, lane_seed ? lane_seed : 1);
+        }
+      }
+
       void seed(uint32_t seed) {
         for (int i = 0; i < poly_int::kSize; ++i) {
           uint32_t lane_seed = hash(seed * poly_int::kSize + i);

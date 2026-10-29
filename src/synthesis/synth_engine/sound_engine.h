@@ -84,7 +84,7 @@ namespace vital {
       void setChannelSlide(int channel, mono_float value, int sample);
       void setChannelRangeSlide(int from_channel, int to_channel, mono_float value, int sample);
       Wavetable* getWavetable(int index);
-      Sample* getSample(int index = kSampleSectionEngine);
+      Sample* getSample(int index);
       // Sound engine chain order (a permutation of engine indices). Call setEngineOrder with processing locked.
       bool setEngineOrder(const EngineOrder& order);
       EngineOrder getEngineOrder() const;

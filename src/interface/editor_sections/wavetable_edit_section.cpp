@@ -165,6 +165,22 @@ WavetableEditSection::WavetableEditSection(int index, WavetableCreator* wavetabl
   wavetable_playhead_info_ = std::make_unique<WavetablePlayheadInfo>();
   addAndMakeVisible(wavetable_playhead_info_.get());
   wavetable_playhead_->addListener(wavetable_playhead_info_.get());
+  wavetable_playhead_info_->addListener(this);
+  wavetable_playhead_info_->setMouseCursor(MouseCursor::PointingHandCursor);
+
+  frame_entry_ = std::make_unique<OpenGlTextEditor>("frame_entry");
+  frame_entry_->setMonospace();
+  frame_entry_->setMultiLine(false);
+  frame_entry_->setScrollToShowCursor(false);
+  frame_entry_->addListener(this);
+  frame_entry_->setSelectAllWhenFocused(true);
+  frame_entry_->setKeyboardType(TextEditor::numericKeyboard);
+  frame_entry_->setInputRestrictions(3, "0123456789");
+  frame_entry_->setJustification(Justification::centredRight);
+  frame_entry_->setAlwaysOnTop(true);
+  frame_entry_->getImageComponent()->setAlwaysOnTop(true);
+  addChildComponent(frame_entry_.get());
+  addOpenGlComponent(frame_entry_->getImageComponent());
 
   exit_button_ = std::make_unique<OpenGlShapeButton>("Exit");
   addAndMakeVisible(exit_button_.get());
@@ -359,6 +375,82 @@ void WavetableEditSection::playheadMoved(int position) {
   updateGlDisplay();
   if (wave_frame_slider_)
     wave_frame_slider_->setValue(position);
+}
+
+void WavetableEditSection::frameEntryRequested() {
+  Rectangle<int> info = wavetable_playhead_info_->getBounds();
+  int width = info.getHeight() * 2.5f;
+  showFrameEntry(Rectangle<int>(info.getRight() - width - info.getHeight() / 2, info.getY(), width, info.getHeight()),
+                 wavetable_playhead_->position());
+}
+
+void WavetableEditSection::frameEntryRequestedAt(Component* source, Point<int> point, int initial_frame) {
+  // A small box just above the clicked point, kept inside the editor.
+  Point<int> local = getLocalPoint(source, point);
+  int height = wavetable_playhead_info_->getHeight();
+  int width = height * 2.5f;
+  Rectangle<int> bounds(local.x - width / 2, local.y - height - height / 2, width, height);
+  bounds = bounds.constrainedWithin(getLocalBounds());
+  showFrameEntry(bounds, initial_frame);
+}
+
+void WavetableEditSection::showFrameEntry(Rectangle<int> bounds, int initial_frame) {
+  frame_entry_->setColour(CaretComponent::caretColourId, findColour(Skin::kTextEditorCaret, true));
+  frame_entry_->setColour(TextEditor::textColourId, findColour(Skin::kBodyText, true));
+  frame_entry_->setColour(TextEditor::highlightedTextColourId, findColour(Skin::kBodyText, true));
+  frame_entry_->setColour(TextEditor::highlightColourId, findColour(Skin::kTextEditorSelection, true));
+  frame_entry_->setColour(TextEditor::backgroundColourId, findColour(Skin::kTextComponentBackground, true));
+
+  frame_entry_->setBounds(bounds);
+  frame_entry_->setVisible(true);
+  frame_entry_->redoImage();
+  frame_entry_->setText(String(initial_frame));
+  frame_entry_->selectAll();
+  if (frame_entry_->isShowing())
+    frame_entry_->grabKeyboardFocus();
+}
+
+void WavetableEditSection::goToFrame(int position) {
+  position = std::max(0, std::min(vital::kNumOscillatorWaveFrames - 1, position));
+  wavetable_playhead_->setPosition(position);
+
+  // Edit the keyframe at that frame: in the row being edited if it has one there, otherwise the first row that does.
+  WavetableKeyframe* found = nullptr;
+  for (int g = 0; g < wavetable_creator_->numGroups(); ++g) {
+    WavetableGroup* group = wavetable_creator_->getGroup(g);
+    for (int c = 0; c < group->numComponents(); ++c) {
+      WavetableComponent* component = group->getComponent(c);
+      for (int f = 0; f < component->numFrames(); ++f) {
+        WavetableKeyframe* keyframe = component->getFrameAt(f);
+        if (keyframe->position() != position)
+          continue;
+        bool current = current_overlay_ && current_overlay_->getComponent() == component;
+        if (found == nullptr || current)
+          found = keyframe;
+      }
+    }
+  }
+  if (found)
+    wavetable_organizer_->selectFrame(found);
+}
+
+void WavetableEditSection::textEditorReturnKeyPressed(TextEditor& editor) {
+  if (&editor != frame_entry_.get())
+    return;
+  String text = frame_entry_->getText().trim();
+  frame_entry_->setVisible(false);
+  if (text.isNotEmpty())
+    goToFrame(text.getIntValue());
+}
+
+void WavetableEditSection::textEditorEscapeKeyPressed(TextEditor& editor) {
+  if (&editor == frame_entry_.get())
+    frame_entry_->setVisible(false);
+}
+
+void WavetableEditSection::textEditorFocusLost(TextEditor& editor) {
+  if (&editor == frame_entry_.get())
+    frame_entry_->setVisible(false);
 }
 
 void WavetableEditSection::frameDoneEditing() {

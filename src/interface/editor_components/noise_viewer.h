@@ -61,7 +61,7 @@ class NoiseViewer : public OpenGlComponent {
     vital::poly_float getOutputsTotal(std::pair<vital::Output*, vital::Output*> outputs,
                                       vital::poly_float default_value);
     struct State {
-      vital::poly_float color, focus, midi, voices, cents, power, blend;
+      vital::poly_float color, focus, midi, voices, cents, power, blend, color_spread, focus_spread;
       float stack_style;
       bool operator==(const State& other) const;
     };
@@ -83,10 +83,14 @@ class NoiseViewer : public OpenGlComponent {
     std::pair<vital::Output*, vital::Output*> detune_power_outputs_;
     std::pair<vital::Output*, vital::Output*> detune_range_outputs_;
     std::pair<vital::Output*, vital::Output*> blend_outputs_;
+    std::pair<vital::Output*, vital::Output*> color_spread_outputs_;
+    std::pair<vital::Output*, vital::Output*> focus_spread_outputs_;
     std::string prefix_;
     vital::Value* detune_range_control_;
     vital::Value* blend_control_;
     vital::Value* stack_style_control_;
+    vital::Value* color_spread_control_;
+    vital::Value* focus_spread_control_;
     float evaluate_frequencies_[kResolution + 1];
     float power_[2][kResolution + 1];
 

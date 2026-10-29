@@ -208,6 +208,9 @@ class ModulationMatrix : public SynthSection, public ModulationViewport::Listene
     void sliderValueChanged(Slider* changed_slider) override;
     void buttonClicked(Button* button) override;
     void setAllValues(vital::control_map& controls) override;
+    void visibilityChanged() override;
+    // Only added sound engines and shown groups are offered as destinations.
+    void rebuildDestinationMenu();
 
     void initOpenGlComponents(OpenGlWrapper& open_gl) override;
     void renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) override;

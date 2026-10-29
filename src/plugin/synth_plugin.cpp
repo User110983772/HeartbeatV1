@@ -217,6 +217,8 @@ void SynthPlugin::setStateInformation(const void* data, int size_in_bytes) {
     AlertWindow::showNativeDialogBox("Error opening preset", error, false);
   }
   pauseProcessing(false);
+  // The host restored its project: nothing from before belongs to it.
+  clearUndoHistory();
 
   SynthGuiInterface* editor = getGuiInterface();
   if (editor)

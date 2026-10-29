@@ -21,6 +21,10 @@
 
 class TextLookAndFeel : public DefaultLookAndFeel {
   public:
+    // Slider properties read when drawing a text selector.
+    static constexpr const char* kCentreTextProperty = "centre_text";
+    static constexpr const char* kOnTextProperty = "on_text";
+
     virtual ~TextLookAndFeel() { }
 
     void drawRotarySlider(Graphics& g, int x, int y, int width, int height,

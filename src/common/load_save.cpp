@@ -116,6 +116,27 @@ json LoadSave::stateToJson(SynthBase* synth, const CriticalSection& critical_sec
     engine_order.push_back(engine);
   settings_data["engine_order"] = engine_order;
 
+  json engines_added = json::array();
+  for (int i = 0; i < vital::kNumOscillators; ++i) {
+    if (synth->isEngineAdded(i))
+      engines_added.push_back(i);
+  }
+  settings_data["engines_added"] = engines_added;
+  // Marks engine destinations as Group / Direct Out rather than Vital's filter routing.
+  settings_data["engine_outputs"] = 1;
+
+  json groups_shown = json::array();
+  for (int g = 0; g < vital::kNumOscillatorGroups; ++g) {
+    if (synth->isGroupShown(g))
+      groups_shown.push_back(g);
+  }
+  settings_data["groups_shown"] = groups_shown;
+
+  json group_order = json::array();
+  for (int group : synth->getGroupOrder())
+    group_order.push_back(group);
+  settings_data["group_order"] = group_order;
+
   json modulations;
   vital::ModulationConnectionBank& modulation_bank = synth->getModulationBank();
   for (int i = 0; i < vital::kMaxModulationConnections; ++i) {
@@ -226,6 +247,53 @@ void LoadSave::loadEngineSamples(SynthBase* synth, const json& engine_samples) {
     if (!loaded[i])
       synth->getSample(i)->init();
   }
+}
+
+void LoadSave::loadEngineLayout(SynthBase* synth, const json& settings) {
+  std::array<bool, vital::kNumOscillators> engines_added;
+  engines_added.fill(false);
+  std::array<bool, vital::kNumOscillatorGroups> groups_shown;
+  groups_shown.fill(false);
+
+  if (settings.count("engines_added") && settings["engines_added"].is_array()) {
+    for (const json& engine : settings["engines_added"]) {
+      int index = engine.is_number() ? engine.get<int>() : -1;
+      if (index >= 0 && index < vital::kNumOscillators)
+        engines_added[index] = true;
+    }
+  }
+  else {
+    vital::control_map& controls = synth->getControls();
+    for (int i = 0; i < vital::kNumOscillators; ++i)
+      engines_added[i] = controls["osc_" + std::to_string(i + 1) + "_on"]->value() != 0.0f;
+  }
+
+  if (settings.count("groups_shown") && settings["groups_shown"].is_array()) {
+    for (const json& group : settings["groups_shown"]) {
+      int index = group.is_number() ? group.get<int>() : -1;
+      if (index >= 0 && index < vital::kNumOscillatorGroups)
+        groups_shown[index] = true;
+    }
+  }
+
+  synth->setEngineLayout(engines_added, groups_shown);
+
+  SynthBase::GroupOrder group_order;
+  for (int g = 0; g < vital::kNumOscillatorGroups; ++g)
+    group_order[g] = g;
+  if (settings.count("group_order") && settings["group_order"].is_array() &&
+      settings["group_order"].size() == vital::kNumOscillatorGroups) {
+    for (int g = 0; g < vital::kNumOscillatorGroups; ++g) {
+      const json& group = settings["group_order"][g];
+      group_order[g] = group.is_number() ? group.get<int>() : -1;
+    }
+  }
+  // Invalid orders are ignored, which leaves the default order from the init.
+  SynthBase::GroupOrder identity;
+  for (int g = 0; g < vital::kNumOscillatorGroups; ++g)
+    identity[g] = g;
+  synth->setGroupOrder(identity);
+  synth->setGroupOrder(group_order);
 }
 
 void LoadSave::loadEngineOrder(SynthBase* synth, const json& order) {
@@ -1100,6 +1168,20 @@ namespace {
   }
 }
 
+json LoadSave::convertEngineOutputs(json state) {
+  // Vital routed each source to Filter 1, Filter 2, both, Effects or Direct Out. Heartbeat has no voice
+  // filters, so an engine either goes through its group or straight to Direct Out.
+  json& settings = state["settings"];
+  for (int i = 0; i < vital::kNumOscillators; ++i) {
+    std::string name = "osc_" + std::to_string(i + 1) + "_destination";
+    if (!settings.count(name) || !settings[name].is_number())
+      continue;
+    bool direct = static_cast<int>(settings[name].get<float>()) == vital::constants::kDirectOut;
+    settings[name] = static_cast<float>(direct ? vital::constants::kEngineDirectOut : vital::constants::kEngineToGroup);
+  }
+  return state;
+}
+
 json LoadSave::convertToSoundEngines(json state) {
   json settings = state["settings"];
   std::string engine = "osc_" + std::to_string(kLegacySampleEngine + 1) + "_";
@@ -1195,6 +1277,8 @@ bool LoadSave::jsonToState(SynthBase* synth, std::map<std::string, String>& save
   
   if (!data["settings"].count("engine_order"))
     data = convertToSoundEngines(data);
+  if (!data["settings"].count("engine_outputs"))
+    data = convertEngineOutputs(data);
 
   json settings = data["settings"];
   json modulations = settings["modulations"];
@@ -1205,6 +1289,7 @@ bool LoadSave::jsonToState(SynthBase* synth, std::map<std::string, String>& save
   loadModulations(synth, modulations);
   loadEngineSamples(synth, settings["engine_samples"]);
   loadEngineOrder(synth, settings["engine_order"]);
+  loadEngineLayout(synth, settings);
   loadWavetables(synth, wavetables);
   loadLfos(synth, lfos);
   loadSaveState(save_info, data);

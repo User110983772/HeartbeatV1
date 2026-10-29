@@ -25,6 +25,7 @@
 #include "effects_interface.h"
 #include "memory.h"
 #include "modulation_matrix.h"
+#include "sound_engine_list.h"
 #include "open_gl_background.h"
 #include "shaders.h"
 #include "synth_section.h"
@@ -54,6 +55,7 @@ class VoiceSection;
 class FullInterface : public SynthSection, public AuthenticationSection::Listener, public HeaderSection::Listener,
                       public DownloadSection::Listener, public UpdateCheckSection::Listener,
                       public EffectsInterface::Listener, public ModulationMatrix::Listener,
+                      public SoundEngineList::Listener,
                       public OpenGLRenderer, DragAndDropContainer {
   public:
     static constexpr double kMinOpenGlVersion = 1.4;
@@ -83,6 +85,8 @@ class FullInterface : public SynthSection, public AuthenticationSection::Listene
       checkShouldReposition();
     }
     virtual void resized() override;
+    // Ctrl/Cmd+Z undoes (removed engines and groups, loaded patches); Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y redoes.
+    bool keyPressed(const KeyPress& key) override;
     void animate(bool animate) override;
     void reset() override;
     void setAllValues(vital::control_map& controls) override;
@@ -110,6 +114,11 @@ class FullInterface : public SynthSection, public AuthenticationSection::Listene
     void bankImported() override;
 
     void effectsMoved() override;
+    void soundEnginesMoved() override;
+    void renderSoundEngineMeters(OpenGlWrapper& open_gl, bool animate, Viewport* viewport) override;
+    void soundEngineCardShown(SynthSection* card) override;
+    // Marks the modulator tabs that are a group's amp source.
+    void updateAmpSourceGlyphs();
     void modulationsScrolled() override;
 
     void setFocus();
@@ -159,7 +168,7 @@ class FullInterface : public SynthSection, public AuthenticationSection::Listene
 
   private:
     bool wavetableEditorsInitialized() {
-      for (int i = 0; i < vital::kNumOscillatorSections; ++i) {
+      for (int i = 0; i < vital::kNumOscillators; ++i) {
         if (wavetable_edits_[i] == nullptr)
           return false;
       }
@@ -181,9 +190,10 @@ class FullInterface : public SynthSection, public AuthenticationSection::Listene
     std::unique_ptr<SynthesisInterface> synthesis_interface_;
     std::unique_ptr<MasterControlsInterface> master_controls_interface_;
     std::unique_ptr<ModulationInterface> modulation_interface_;
+    bool amp_glyphs_dirty_ = false;
     std::unique_ptr<ExtraModSection> extra_mod_section_;
     std::unique_ptr<EffectsInterface> effects_interface_;
-    std::unique_ptr<WavetableEditSection> wavetable_edits_[vital::kNumOscillatorSections];
+    std::unique_ptr<WavetableEditSection> wavetable_edits_[vital::kNumOscillators];
     std::unique_ptr<KeyboardInterface> keyboard_interface_;
     std::unique_ptr<BendSection> bend_section_;
     std::unique_ptr<PortamentoSection> portamento_section_;

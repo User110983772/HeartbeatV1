@@ -33,13 +33,29 @@ namespace vital {
         kMidi,
         kActiveVoices,
         kNoteCount,
+        // For the groups' voice settings, glide and humanise.
+        kNote,
+        kLastNote,
+        kVoiceEvent,
+        kNotesPressed,
+        kNewest,
+        kLegatoVoice,
+        kLegatoNote,
+        // The global glide's current note, which a group's own glide replaces.
+        kGlobalGlide,
         kNumInputs
       };
 
       enum {
         kGroupOutputStart,
-        kModulatorStart = kGroupOutputStart + kNumOscillatorGroups,
-        kNumOutputs = kModulatorStart + kNumOscillators
+        // Engines in the group routed straight to Direct Out.
+        kGroupDirectStart = kGroupOutputStart + kNumOscillatorGroups,
+        kModulatorStart = kGroupDirectStart + kNumOscillatorGroups,
+        // Per engine values its group sets: see OscillatorModule's kMidiOffset onwards.
+        kEngineMidiOffsetStart = kModulatorStart + kNumOscillators,
+        kEnginePhaseOffsetStart = kEngineMidiOffsetStart + kNumOscillators,
+        kEngineGroupUnisonStart = kEnginePhaseOffsetStart + kNumOscillators,
+        kNumOutputs = kEngineGroupUnisonStart + kNumOscillators * OscillatorModule::kNumGroupUnisonInputs
       };
 
       ProducersModule();
@@ -53,6 +69,8 @@ namespace vital {
         return oscillators_[index]->getWavetable();
       }
 
+      bool isGroupOn(int group) const;
+      // On, with at least one engine on.
       bool isGroupUsed(int group) const;
       void updateOscillatorMemory();
       Sample* getSample(int index) { return oscillators_[index]->getSample(); }
@@ -65,11 +83,57 @@ namespace vital {
       int getEngineAbove(int index) const;
 
     protected:
+      // A smooth random value per voice, for drift.
+      struct DriftStream {
+        mono_float position = 0.0f;
+        poly_float points[4];
+      };
+
+      struct GroupControls {
+        Output* drift = nullptr;
+        Output* drift_rate = nullptr;
+        Output* drift_spread = nullptr;
+        Value* humanize_pitch = nullptr;
+        Value* humanize_level = nullptr;
+        Value* humanize_pan = nullptr;
+        Value* humanize_phase = nullptr;
+        const Output* unison[OscillatorModule::kNumGroupUnisonInputs] = {};
+        Value* voice_mode = nullptr;
+        Output* glide = nullptr;
+        Output* glide_slope = nullptr;
+        Processor* glide_note = nullptr;
+      };
+
       int groupOf(int index) const;
+      void advanceDrift(DriftStream& stream, mono_float rate, int num_samples);
+      poly_float driftValue(const DriftStream& stream) const;
+      void rollHumanize(poly_mask reset_mask);
+      void setEngineInputs(int index, int group, const poly_float group_pitch[]);
+      poly_float groupGain(int group);
+      bool isLegato(int group) const;
+      // The pitch a legato group plays: the newest held note, glided to from wherever the phrase was.
+      poly_float legatoNote(int group, poly_mask reset_mask, int num_samples);
+      void applyGroupGain(int group, poly_mask reset_mask, int num_samples);
 
       OscillatorModule* oscillators_[kNumOscillators];
       Value* oscillator_groups_[kNumOscillators];
+      Value* oscillator_outputs_[kNumOscillators];
+      Value* group_on_[kNumOscillatorGroups] = {};
       std::shared_ptr<EngineOrder> engine_order_;
+      GroupControls group_controls_[kNumOscillatorGroups];
+
+      // Per voice state; every voice processor has its own copy.
+      utils::RandomGenerator random_;
+      DriftStream group_drift_[kNumOscillatorGroups];
+      DriftStream engine_drift_[kNumOscillators];
+      poly_float humanize_pitch_[kNumOscillatorGroups];
+      poly_float humanize_level_[kNumOscillatorGroups];
+      poly_float humanize_pan_[kNumOscillatorGroups];
+      poly_float humanize_phase_[kNumOscillators];
+      poly_float group_gain_[kNumOscillatorGroups];
+      poly_float legato_from_[kNumOscillatorGroups];
+      poly_float legato_to_[kNumOscillatorGroups];
+      poly_float legato_position_[kNumOscillatorGroups];
 
       JUCE_LEAK_DETECTOR(ProducersModule)
   };

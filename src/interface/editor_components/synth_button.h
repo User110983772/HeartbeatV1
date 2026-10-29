@@ -196,6 +196,8 @@ class OpenGlButtonComponent : public OpenGlComponent {
   
     void setDown(bool down) { down_ = down; }
     void setHover(bool hover) { hover_ = hover; }
+    // Drawn faded, for a power button whose section is switched off from further up (an engine in an off group).
+    void setDimmed(bool dimmed) { dimmed_ = dimmed; }
 
     virtual void destroy(OpenGlWrapper& open_gl) override {
       background_.destroy(open_gl);
@@ -218,6 +220,7 @@ class OpenGlButtonComponent : public OpenGlComponent {
     Button* button_;
     bool show_on_colors_;
     bool primary_ui_button_;
+    bool dimmed_ = false;
     bool down_;
     bool hover_;
     float hover_amount_;

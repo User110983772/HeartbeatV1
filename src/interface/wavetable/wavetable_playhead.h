@@ -28,6 +28,8 @@ class WavetablePlayhead : public SynthSection {
         virtual ~Listener() { }
       
         virtual void playheadMoved(int new_position) = 0;
+        // Right-click or Alt+click on the playhead: type a frame to jump to. `point` is in `source`'s coordinates.
+        virtual void frameEntryRequestedAt(Component* source, Point<int> point, int initial_frame) { }
     };
 
     WavetablePlayhead(int num_positions);
@@ -37,6 +39,9 @@ class WavetablePlayhead : public SynthSection {
     void setPositionQuad();
 
     void mouseDown(const MouseEvent& event) override;
+    void mouseMove(const MouseEvent& event) override;
+    void mouseExit(const MouseEvent& event) override;
+    int getPlayheadX();
     void mouseDrag(const MouseEvent& event) override;
     void mouseEvent(const MouseEvent& event);
 
@@ -48,6 +53,8 @@ class WavetablePlayhead : public SynthSection {
 
   protected:
     OpenGlQuad position_quad_;
+    // Where the hover bubble points.
+    Component hover_anchor_;
 
     std::vector<Listener*> listeners_;
   

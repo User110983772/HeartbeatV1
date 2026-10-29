@@ -21,6 +21,71 @@
 
 namespace vital {
 
+  namespace {
+    // The larger of the engine's and group's value while the engine uses its group's unison, else the engine's.
+    class WiderWhenOn : public Processor {
+      public:
+        enum { kOn, kOwn, kGroup, kNumInputs };
+
+        WiderWhenOn() : Processor(kNumInputs, 1, true) { }
+        Processor* clone() const override { return new WiderWhenOn(*this); }
+
+        void process(int num_samples) override {
+          poly_float own = input(kOwn)->at(0);
+          bool on = input(kOn)->at(0)[0] != 0.0f;
+          output()->buffer[0] = on ? utils::max(own, input(kGroup)->at(0)) : own;
+        }
+    };
+
+    // 0 while the engine ignores its group's unison, otherwise 1 + its constants::GroupUnisonMode.
+    class GroupUnisonMode : public Processor {
+      public:
+        enum { kOn, kMode, kNumInputs };
+
+        GroupUnisonMode() : Processor(kNumInputs, 1, true) { }
+        Processor* clone() const override { return new GroupUnisonMode(*this); }
+
+        void process(int num_samples) override {
+          bool on = input(kOn)->at(0)[0] != 0.0f;
+          output()->buffer[0] = on ? input(kMode)->at(0) + 1.0f : 0.0f;
+        }
+    };
+
+    // The voice's note plus the group's pitch offset. Not an Operator, so it runs whatever is plugged in when.
+    class AddOffset : public Processor {
+      public:
+        AddOffset() : Processor(2, 1, true) { }
+        Processor* clone() const override { return new AddOffset(*this); }
+
+        void process(int num_samples) override {
+          output()->buffer[0] = input(0)->at(0) + input(1)->at(0);
+        }
+    };
+
+    // Start phase plus the group's humanise offset, wrapped to one cycle. The phase control is audio rate.
+    class PhaseOffset : public Processor {
+      public:
+        enum { kPhase, kOffset, kNumInputs };
+
+        PhaseOffset() : Processor(kNumInputs, 1) { }
+        Processor* clone() const override { return new PhaseOffset(*this); }
+
+        void process(int num_samples) override {
+          const Output* phase = input(kPhase)->source;
+          poly_float offset = input(kOffset)->at(0);
+          poly_float* destination = output()->buffer;
+          if (phase->buffer_size == 1) {
+            poly_float value = utils::mod(phase->buffer[0] + offset);
+            for (int i = 0; i < num_samples; ++i)
+              destination[i] = value;
+            return;
+          }
+          for (int i = 0; i < num_samples; ++i)
+            destination[i] = utils::mod(phase->buffer[i] + offset);
+        }
+    };
+  }
+
   OscillatorModule::OscillatorModule(std::string prefix) :
       SynthModule(kNumInputs, kNumOutputs), prefix_(std::move(prefix)), on_(nullptr), source_(nullptr), oscillator_(nullptr),
       distortion_type_(nullptr) {
@@ -69,11 +134,41 @@ namespace vital {
     Output* spectral_morph_amount = createPolyModControl(prefix_ + "_spectral_morph_amount");
     Output* noise_color = createPolyModControl(prefix_ + "_noise_color");
     Output* noise_focus = createPolyModControl(prefix_ + "_noise_focus");
+    Output* noise_focus_spread = createPolyModControl(prefix_ + "_noise_focus_spread");
+
+    Value* group_unison = createBaseControl(prefix_ + "_group_unison");
+    Value* group_unison_mode = createBaseControl(prefix_ + "_group_unison_mode");
+    GroupUnisonMode* unison_mode = new GroupUnisonMode();
+    unison_mode->plug(group_unison, GroupUnisonMode::kOn);
+    unison_mode->plug(group_unison_mode, GroupUnisonMode::kMode);
+    addProcessor(unison_mode);
+
+    auto wider = [&](const Output* own, int group_input) {
+      WiderWhenOn* select = new WiderWhenOn();
+      select->plug(group_unison, WiderWhenOn::kOn);
+      select->plug(own, WiderWhenOn::kOwn);
+      select->useInput(input(group_input), WiderWhenOn::kGroup);
+      addProcessor(select);
+      return select->output();
+    };
+    blend = wider(blend, kGroupUnisonBlend);
+    stereo_spread = wider(stereo_spread, kGroupStereoSpread);
+
+    AddOffset* engine_midi = new AddOffset();
+    engine_midi->useInput(input(kMidi), 0);
+    engine_midi->useInput(input(kMidiOffset), 1);
+    addProcessor(engine_midi);
+
+    PhaseOffset* engine_phase = new PhaseOffset();
+    engine_phase->plug(phase, PhaseOffset::kPhase);
+    engine_phase->useInput(input(kPhaseOffset), PhaseOffset::kOffset);
+    addProcessor(engine_phase);
+    phase = engine_phase->output();
 
     oscillator_->useInput(input(kReset), SynthOscillator::kReset);
     oscillator_->useInput(input(kRetrigger), SynthOscillator::kRetrigger);
     oscillator_->useInput(input(kActiveVoices), SynthOscillator::kActiveVoices);
-    oscillator_->useInput(input(kMidi), SynthOscillator::kMidiNote);
+    oscillator_->plug(engine_midi, SynthOscillator::kMidiNote);
     oscillator_->plug(wave_frame, SynthOscillator::kWaveFrame);
     oscillator_->plug(midi_track, SynthOscillator::kMidiTrack);
     oscillator_->plug(smooth_interpolation, SynthOscillator::kSmoothlyInterpolate);
@@ -83,6 +178,10 @@ namespace vital {
     oscillator_->plug(transpose, SynthOscillator::kTranspose);
     oscillator_->plug(tune, SynthOscillator::kTune);
     oscillator_->plug(stack_style, SynthOscillator::kStackStyle);
+    oscillator_->plug(unison_mode, SynthOscillator::kGroupUnisonMode);
+    oscillator_->useInput(input(kGroupUnisonVoices), SynthOscillator::kGroupUnisonVoices);
+    oscillator_->useInput(input(kGroupUnisonDetune), SynthOscillator::kGroupUnisonDetune);
+    oscillator_->useInput(input(kGroupStackStyle), SynthOscillator::kGroupStackStyle);
     oscillator_->plug(unison_detune, SynthOscillator::kUnisonDetune);
     oscillator_->plug(unison_voices, SynthOscillator::kUnisonVoices);
     oscillator_->plug(phase, SynthOscillator::kPhase);
@@ -103,12 +202,13 @@ namespace vital {
     oscillator_->plug(spectral_morph_amount, SynthOscillator::kSpectralMorphAmount);
     oscillator_->plug(noise_color, SynthOscillator::kNoiseColor);
     oscillator_->plug(noise_focus, SynthOscillator::kNoiseFocus);
+    oscillator_->plug(noise_focus_spread, SynthOscillator::kNoiseFocusSpread);
     oscillator_->useOutput(output(kRaw), SynthOscillator::kRaw);
     oscillator_->useOutput(output(kLevelled), SynthOscillator::kLevelled);
 
     // A sample engine shares the oscillator's level, pan, tuning and random phase settings.
     sampler_->useInput(input(kReset), SampleSource::kReset);
-    sampler_->useInput(input(kMidi), SampleSource::kMidi);
+    sampler_->plug(engine_midi, SampleSource::kMidi);
     sampler_->useInput(input(kNoteCount), SampleSource::kNoteCount);
     sampler_->plug(rand_phase, SampleSource::kRandomPhase);
     sampler_->plug(sample_keytrack, SampleSource::kKeytrack);

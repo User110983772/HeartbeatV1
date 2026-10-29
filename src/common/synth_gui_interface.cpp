@@ -96,13 +96,17 @@ void SynthGuiInterface::notifyModulationValueChanged(int index) {
 
 void SynthGuiInterface::connectModulation(std::string source, std::string destination) {
   bool created = synth_->connectModulation(source, destination);
-  if (created)
+  if (created) {
     initModulationValues(source, destination);
+    synth_->recordConnection(source, destination);
+  }
   notifyModulationsChanged();
 }
 
 void SynthGuiInterface::connectModulation(vital::ModulationConnection* connection) {
   synth_->connectModulation(connection);
+  if (!connection->source_name.empty() && !connection->destination_name.empty())
+    synth_->recordConnection(connection->source_name, connection->destination_name);
   notifyModulationsChanged();
 }
 
@@ -147,11 +151,13 @@ void SynthGuiInterface::setModulationValues(const std::string& source, const std
 }
 
 void SynthGuiInterface::disconnectModulation(std::string source, std::string destination) {
+  synth_->recordDisconnection(source, destination);
   synth_->disconnectModulation(source, destination);
   notifyModulationsChanged();
 }
 
 void SynthGuiInterface::disconnectModulation(vital::ModulationConnection* connection) {
+  synth_->recordDisconnection(connection->source_name, connection->destination_name);
   synth_->disconnectModulation(connection);
   notifyModulationsChanged();
 }

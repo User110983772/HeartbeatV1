@@ -18,7 +18,7 @@
 
 #include "JuceHeader.h"
 #include "memory.h"
-#include "oscillator_advanced_section.h"
+#include "group_settings_section.h"
 #include "synth_constants.h"
 #include "synth_section.h"
 
@@ -71,13 +71,14 @@ class MasterControlsInterface  : public SynthSection {
     void paintBackground(Graphics& g) override;
     void resized() override;
 
-    void setOscillatorBounds(int index, Rectangle<int> bounds) { oscillator_advanceds_[index]->setBounds(bounds); }
-    void passOscillatorSection(int index, const OscillatorSection* oscillator);
+    // The GROUPS page fills the space the voice tab's top three cards take up.
+    void setGroupSettingsBounds(Rectangle<int> bounds) { group_settings_->setBounds(bounds); }
+    GroupSettingsList* getGroupSettingsList() { return group_settings_.get(); }
     void setOscilloscopeMemory(const vital::poly_float* memory);
     void setAudioMemory(const vital::StereoMemory* memory);
 
   private:
-    std::unique_ptr<OscillatorAdvancedSection> oscillator_advanceds_[vital::kNumOscillatorSections];
+    std::unique_ptr<GroupSettingsList> group_settings_;
     std::unique_ptr<DisplaySettings> display_settings_;
     std::unique_ptr<OversampleSettings> oversample_settings_;
     std::unique_ptr<VoiceSettings> voice_settings_;

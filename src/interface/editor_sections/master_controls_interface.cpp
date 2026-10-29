@@ -581,11 +581,8 @@ MasterControlsInterface::MasterControlsInterface(
     const vital::output_map& poly_modulations, bool synth) : SynthSection("master_controls") {
 
   if (synth) {
-    for (int i = 0; i < vital::kNumOscillatorSections; ++i) {
-      oscillator_advanceds_[i] = std::make_unique<OscillatorAdvancedSection>(i + 1, mono_modulations,
-                                                                             poly_modulations);
-      addSubSection(oscillator_advanceds_[i].get());
-    }
+    group_settings_ = std::make_unique<GroupSettingsList>();
+    addSubSection(group_settings_.get());
   }
 
   voice_settings_ = std::make_unique<VoiceSettings>();
@@ -615,8 +612,8 @@ void MasterControlsInterface::resized() {
   int large_padding = findValue(Skin::kLargePadding);
   int padding = findValue(Skin::kPadding);
   int settings_top = padding;
-  if (oscillator_advanceds_[vital::kNumOscillatorSections - 1])
-    settings_top = oscillator_advanceds_[vital::kNumOscillatorSections - 1]->getBottom() + large_padding;
+  if (group_settings_)
+    settings_top = group_settings_->getBottom() + large_padding;
 
   int settings_height = getHeight() - settings_top;
   int panel_width = getWidth() * 0.22f;
@@ -632,10 +629,6 @@ void MasterControlsInterface::resized() {
   int displays_x = display_settings_->getRight() + padding;
   int displays_width = getWidth() - displays_x;
   output_displays_->setBounds(displays_x, settings_top, displays_width, settings_height);
-}
-
-void MasterControlsInterface::passOscillatorSection(int index, const OscillatorSection* oscillator) {
-  oscillator_advanceds_[index]->passOscillatorSection(oscillator);
 }
 
 void MasterControlsInterface::setOscilloscopeMemory(const vital::poly_float* memory) {

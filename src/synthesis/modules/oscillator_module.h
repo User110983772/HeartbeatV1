@@ -31,8 +31,19 @@ namespace vital {
         kMidi,
         kActiveVoices,
         kNoteCount,
+        // Set per engine by its group: pitch in semitones (octave, glide, drift, humanise) and start phase.
+        kMidiOffset,
+        kPhaseOffset,
+        // The group's unison, used instead of the engine's own when the engine follows its group.
+        kGroupUnisonVoices,
+        kGroupUnisonDetune,
+        kGroupUnisonBlend,
+        kGroupStereoSpread,
+        kGroupStackStyle,
         kNumInputs
       };
+
+      static constexpr int kNumGroupUnisonInputs = kGroupStackStyle - kGroupUnisonVoices + 1;
 
       enum {
         kRaw,

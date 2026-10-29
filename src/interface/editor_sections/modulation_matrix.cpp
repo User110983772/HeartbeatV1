@@ -25,6 +25,7 @@
 #include "modulation_connection_processor.h"
 #include "paths.h"
 #include "synth_strings.h"
+#include "synth_base.h"
 #include "synth_gui_interface.h"
 #include "synth_module.h"
 #include "text_look_and_feel.h"
@@ -44,6 +45,8 @@ namespace {
     std::string prefix;
     std::string name;
     bool local_description = false;
+    // Kept out of the destination menu altogether.
+    bool hidden = false;
   };
 
   const std::string kNoConnectionString = "-";
@@ -66,7 +69,7 @@ namespace {
     { "osc_15_", "Sound Engine 15", true },
     { "osc_16_", "Sound Engine 16", true },
     { "group_", "Groups" },
-    { "filter_fx_", "Filter FX", true },
+    { "filter_fx_", "Filter FX", true, true },
     { "", "" },
     { "lfo_", "LFOs" },
     { "random_", "Randoms" },
@@ -295,7 +298,18 @@ class ModulationMeterReadouts : public BarRenderer {
 
 String ModulationSelector::getTextFromValue(double value) {
   int index = std::round(value);
-  return ModulationMatrix::getMenuSourceDisplayName(selections_->at(index));
+  String name = selections_->at(index);
+  // Groups are named by their position in the list, not their slot: "group_5_level" on the top group is Group 1.
+  SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
+  if (parent && name.startsWith("group_")) {
+    int slot = name.fromFirstOccurrenceOf("group_", false, false).getIntValue();
+    int number = parent->getSynth()->getGroupDisplayNumber(slot - 1);
+    if (slot > 0 && number > 0) {
+      String rest = name.fromFirstOccurrenceOf("group_" + String(slot) + "_", false, false);
+      return "Group " + String(number) + " " + ModulationMatrix::getMenuSourceDisplayName(rest);
+    }
+  }
+  return ModulationMatrix::getMenuSourceDisplayName(name);
 }
 
 void ModulationSelector::setValueFromName(const String& name, NotificationType notification_type) {
@@ -587,18 +601,7 @@ ModulationMatrix::ModulationMatrix(const vital::output_map& sources, const vital
     source_popup_items_.addItem(i, display_name);
   }
 
-  destination_popup_items_.addItem(0, kNoConnectionString);
-  destination_popup_items_.addItem(createMiscSubMenu("Global", destination_strings_));
-  for (const auto& sub_menu_prefix : kDestinationSubMenuPrefixes) {
-    if (sub_menu_prefix.prefix.empty())
-      destination_popup_items_.addItem(-1, "");
-    else {
-      bool local = sub_menu_prefix.local_description;
-      PopupItems sub_items = createSubMenuForParameterPrefix(sub_menu_prefix.name, sub_menu_prefix.prefix,
-                                                             destination_strings_, local);
-      destination_popup_items_.addItem(sub_items);
-    }
-  }
+  rebuildDestinationMenu();
 
   for (int i = 0; i < vital::kMaxModulationConnections; ++i) {
     rows_[i] = std::make_unique<ModulationMatrixRow>(i, &source_popup_items_, &destination_popup_items_,
@@ -956,8 +959,60 @@ void ModulationMatrix::buttonClicked(Button* clicked_button) {
     SynthSection::buttonClicked(clicked_button);
 }
 
+void ModulationMatrix::rebuildDestinationMenu() {
+  SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
+  SynthBase* synth = parent ? parent->getSynth() : nullptr;
+
+  // Rebuilt in place: every row's selector points at this menu.
+  destination_popup_items_ = PopupItems();
+  destination_popup_items_.addItem(0, kNoConnectionString);
+  destination_popup_items_.addItem(createMiscSubMenu("Global", destination_strings_));
+  for (const auto& sub_menu_prefix : kDestinationSubMenuPrefixes) {
+    const std::string& prefix = sub_menu_prefix.prefix;
+    if (sub_menu_prefix.hidden)
+      continue;
+    if (prefix.empty()) {
+      destination_popup_items_.addItem(-1, "");
+      continue;
+    }
+
+    // Only the sound engines that have been added, and a menu for each shown group.
+    if (synth && prefix.rfind("osc_", 0) == 0) {
+      int engine = std::stoi(prefix.substr(4)) - 1;
+      if (!synth->isEngineAdded(engine))
+        continue;
+    }
+    if (synth && prefix == "group_") {
+      for (int g : synth->getGroupOrder()) {
+        if (!synth->isGroupShown(g))
+          continue;
+        std::string slot = std::to_string(g + 1);
+        std::string number = std::to_string(synth->getGroupDisplayNumber(g));
+        destination_popup_items_.addItem(createSubMenuForParameterPrefix("Group " + number, "group_" + slot + "_",
+                                                                         destination_strings_, true));
+      }
+      continue;
+    }
+
+    destination_popup_items_.addItem(createSubMenuForParameterPrefix(sub_menu_prefix.name, prefix,
+                                                                     destination_strings_,
+                                                                     sub_menu_prefix.local_description));
+  }
+}
+
+void ModulationMatrix::visibilityChanged() {
+  SynthSection::visibilityChanged();
+  if (isShowing()) {
+    rebuildDestinationMenu();
+    // Group names follow the list order, which may have changed.
+    for (auto& row : rows_)
+      row->updateDisplay();
+  }
+}
+
 void ModulationMatrix::setAllValues(vital::control_map& controls) {
   SynthSection::setAllValues(controls);
+  rebuildDestinationMenu();
   if (map_editors_[selected_index_])
     smooth_->setToggleState(map_editors_[selected_index_]->getSmooth(), dontSendNotification);
 }

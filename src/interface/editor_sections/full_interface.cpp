@@ -61,7 +61,7 @@ FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_inte
                                                                 synth_data->mono_modulations,
                                                                 synth_data->poly_modulations);
 
-    for (int i = 0; i < vital::kNumOscillatorSections; ++i) {
+    for (int i = 0; i < vital::kNumOscillators; ++i) {
       wavetable_edits_[i] = std::make_unique<WavetableEditSection>(i, synth_data->wavetable_creators[i]);
       addSubSection(wavetable_edits_[i].get());
       wavetable_edits_[i]->setVisible(false);
@@ -69,6 +69,7 @@ FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_inte
     }
 
     addSubSection(synthesis_interface_.get());
+    synthesis_interface_->getSoundEngineList()->addListener(this);
   }
 
   effects_interface_ = std::make_unique<EffectsInterface>(synth_data->mono_modulations);
@@ -82,10 +83,8 @@ FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_inte
   addSubSection(master_controls_interface_.get());
   master_controls_interface_->setVisible(false);
 
-  if (synthesis_interface_) {
-    for (int i = 0; i < vital::kNumOscillatorSections; ++i)
-      master_controls_interface_->passOscillatorSection(i, synthesis_interface_->getOscillatorSection(i));
-  }
+  if (master_controls_interface_->getGroupSettingsList())
+    master_controls_interface_->getGroupSettingsList()->addListener(this);
 
   header_ = std::make_unique<HeaderSection>();
   addSubSection(header_.get());
@@ -320,13 +319,21 @@ void FullInterface::repaintChildBackground(SynthSection* child) {
   if (!background_image_.isValid() || setting_all_values_)
     return; 
 
-  if (child->getParentComponent() == synthesis_interface_.get()) {
+  // The voice tab draws its scrolling list from its own background image.
+  if (synthesis_interface_ && synthesis_interface_->isParentOf(child)) {
     repaintSynthesisSection();
     return;
   }
 
   if (effects_interface_ != nullptr && effects_interface_->isParentOf(child))
     child = effects_interface_.get();
+
+  // The GROUPS page draws its scrolling list from its own background image.
+  GroupSettingsList* group_settings = master_controls_interface_ ? master_controls_interface_->getGroupSettingsList() : nullptr;
+  if (group_settings && group_settings->isParentOf(child)) {
+    group_settings->repaintBackground();
+    return;
+  }
 
   background_.lock();
   Graphics g(background_image_);
@@ -386,6 +393,26 @@ void FullInterface::checkShouldReposition(bool resize) {
 
   if (resize && (old_scale != display_scale_ || old_pixel_multiple != pixel_multiple_))
     resized();
+}
+
+bool FullInterface::keyPressed(const KeyPress& key) {
+  bool command = key.getModifiers().isCommandDown();
+  bool shift = key.getModifiers().isShiftDown();
+  int code = key.getKeyCode();
+  bool undo = command && !shift && (code == 'Z' || code == 'z');
+  bool redo = command && ((shift && (code == 'Z' || code == 'z')) || code == 'Y' || code == 'y');
+  if (!undo && !redo)
+    return false;
+
+  SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
+  if (parent == nullptr)
+    return false;
+  SynthBase* synth = parent->getSynth();
+  if (!(undo ? synth->undoRemoval() : synth->redoRemoval()))
+    return false;
+  parent->updateFullGui();
+  parent->notifyFresh();
+  return true;
 }
 
 void FullInterface::resized() {
@@ -494,14 +521,15 @@ void FullInterface::resized() {
 
   modulation_manager_->setBounds(bounds);
   
-  for (int i = 0; i < vital::kNumOscillatorSections; ++i) {
+  for (int i = 0; i < vital::kNumOscillators; ++i) {
     if (wavetable_edits_[i])
       wavetable_edits_[i]->setBounds(left, 0, width, height);
   }
 
   if (synthesis_interface_) {
-    for (int i = 0; i < vital::kNumOscillatorSections; ++i)
-      master_controls_interface_->setOscillatorBounds(i, synthesis_interface_->getOscillatorBounds(i));
+    Rectangle<int> top = synthesis_interface_->getOscillatorBounds(0);
+    Rectangle<int> bottom = synthesis_interface_->getOscillatorBounds(vital::kAdvancedGroupRows - 1);
+    master_controls_interface_->setGroupSettingsBounds(top.getUnion(bottom));
   }
   master_controls_interface_->setBounds(main_bounds);
 
@@ -543,6 +571,8 @@ void FullInterface::createModulationSliders(const vital::output_map& mono_modula
                                                             modulatable_sliders, mono_modulations, poly_modulations);
   modulation_manager_->setOpaque(false);
   addSubSection(modulation_manager_.get());
+  if (synthesis_interface_)
+    modulation_manager_->drawMetersInsideViewport(synthesis_interface_->getSoundEngineList()->getViewport());
 }
 
 void FullInterface::animate(bool animate) {
@@ -567,6 +597,7 @@ void FullInterface::reset() {
 
   setWavetableNames();
   setting_all_values_ = false;
+  updateAmpSourceGlyphs();
   repaintSynthesisSection();
 }
 
@@ -578,7 +609,7 @@ void FullInterface::setAllValues(vital::control_map& controls) {
 }
 
 void FullInterface::setWavetableNames() {
-  for (int i = 0; i < vital::kNumOscillatorSections; ++i) {
+  for (int i = 0; i < vital::kNumOscillators; ++i) {
     if (wavetable_edits_[i])
       synthesis_interface_->setWavetableName(i, wavetable_edits_[i]->getName());
   }
@@ -723,6 +754,59 @@ void FullInterface::effectsMoved() {
   modulation_manager_->setVisibleMeterBounds();
 }
 
+void FullInterface::renderSoundEngineMeters(OpenGlWrapper& open_gl, bool animate, Viewport* viewport) {
+  modulation_manager_->renderViewportMeters(open_gl, animate, viewport);
+}
+
+void FullInterface::soundEngineCardShown(SynthSection* card) {
+  for (auto& slider : card->getAllSliders()) {
+    // Automation and preset changes update the slider found here, so it has to be the one on screen.
+    all_sliders_[slider.first] = slider.second;
+    if (modulation_manager_)
+      modulation_manager_->rebindDestination(slider.first, slider.second);
+  }
+}
+
+void FullInterface::soundEnginesMoved() {
+  modulation_manager_->setVisibleMeterBounds();
+  updateAmpSourceGlyphs();
+}
+
+void FullInterface::updateAmpSourceGlyphs() {
+  SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
+  if (parent == nullptr)
+    return;
+
+  SynthBase* synth = parent->getSynth();
+  std::map<std::string, std::vector<int>> groups_by_source;
+  // In list order, numbered by position like the group bars.
+  for (int g : synth->getGroupOrder()) {
+    if (!synth->isGroupShown(g))
+      continue;
+    int source = static_cast<int>(synth->getControls()["group_" + std::to_string(g + 1) + "_amp_source"]->value());
+    std::string name;
+    if (source < vital::kNumEnvelopes)
+      name = "env_" + std::to_string(source + 1);
+    else if (source < vital::kNumEnvelopes + vital::kNumLfos)
+      name = "lfo_" + std::to_string(source - vital::kNumEnvelopes + 1);
+    else
+      name = "random_" + std::to_string(source - vital::kNumEnvelopes - vital::kNumLfos + 1);
+    groups_by_source[name].push_back(synth->getGroupDisplayNumber(g));
+  }
+
+  bool changed = false;
+  for (auto& button : getAllModulationButtons()) {
+    auto groups = groups_by_source.find(button.first);
+    changed = button.second->setAmpGroups(groups == groups_by_source.end() ? std::vector<int>() : groups->second) || changed;
+  }
+  // Background repaints are skipped while a patch's values load; reset() catches up afterwards.
+  amp_glyphs_dirty_ = amp_glyphs_dirty_ || changed;
+  if (amp_glyphs_dirty_ && modulation_interface_ && !setting_all_values_) {
+    amp_glyphs_dirty_ = false;
+    modulation_interface_->repaintBackground();
+  }
+}
+
 void FullInterface::modulationsScrolled() {
   modulation_manager_->setVisibleMeterBounds();
 }
@@ -758,7 +842,7 @@ void FullInterface::showFullScreenSection(SynthSection* full_screen) {
     full_screen_section_->setBounds(getLocalBounds());
   }
 
-  for (int i = 0; i < vital::kNumOscillatorSections; ++i)
+  for (int i = 0; i < vital::kNumOscillators; ++i)
     wavetable_edits_[i]->setVisible(false);
 
   bool show_rest = full_screen == nullptr;
@@ -779,7 +863,7 @@ void FullInterface::showWavetableEditSection(int index) {
     return;
 
   ScopedLock lock(open_gl_critical_section_);
-  for (int i = 0; i < vital::kNumOscillatorSections; ++i)
+  for (int i = 0; i < vital::kNumOscillators; ++i)
     wavetable_edits_[i]->setVisible(i == index);
 
   bool show_rest = index < 0;

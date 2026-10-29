@@ -46,7 +46,7 @@ namespace vital {
       virtual Processor* clone() const override { return new LfoModule(*this); }
       void correctToTime(double seconds) override;
       void setControlRate(bool control_rate) override;
-      // Envelope and Sustain Envelope modes play once instead of looping.
+      // Envelope, Sustain Envelope and Loop Hold play to the end of the shape once released instead of looping.
       bool isOneShot() const;
 
     protected:

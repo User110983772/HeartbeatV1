@@ -27,12 +27,10 @@
 #include "synth_strings.h"
 #include "text_look_and_feel.h"
 
-namespace {
-  // The sample panel edits sound engine 4 until the sound engine list replaces it.
-  const std::string kEngine = "osc_" + std::to_string(vital::kSampleSectionEngine + 1) + "_";
-}
-
-SampleSection::SampleSection(String name) : SynthSection(std::move(name)), sample_(nullptr) {
+SampleSection::SampleSection(String name, int engine) : SynthSection(std::move(name)), engine_(engine),
+                                                        sample_(nullptr) {
+  engine_prefix_ = "osc_" + std::to_string(engine + 1) + "_";
+  const std::string& kEngine = engine_prefix_;
   transpose_quantize_button_ = std::make_unique<TransposeQuantizeButton>();
   addOpenGlComponent(transpose_quantize_button_.get());
   transpose_quantize_button_->addQuantizeListener(this);
@@ -65,7 +63,7 @@ SampleSection::SampleSection(String name) : SynthSection(std::move(name)), sampl
   pan_->setBipolar();
   pan_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
 
-  sample_viewer_ = std::make_unique<SampleViewer>();
+  sample_viewer_ = std::make_unique<SampleViewer>(engine);
   addOpenGlComponent(sample_viewer_.get());
   addAndMakeVisible(sample_viewer_.get());
   sample_viewer_->addListener(this);
@@ -141,7 +139,7 @@ void SampleSection::parentHierarchyChanged() {
   SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
 
   if (sample_ == nullptr && parent) {
-    sample_ = parent->getSynth()->getSample();
+    sample_ = parent->getSynth()->getSample(engine_);
     sample_viewer_->setSample(sample_);
     sample_viewer_->repaintAudio();
     reset();
@@ -287,7 +285,7 @@ void SampleSection::loadFile(const File& file) {
 
 void SampleSection::setAllValues(vital::control_map& controls) {
   preset_selector_->setText(sample_viewer_->getName());
-  transpose_quantize_button_->setValue(static_cast<int>(controls[kEngine + "transpose_quantize"]->value()));
+  transpose_quantize_button_->setValue(static_cast<int>(controls[engine_prefix_ + "transpose_quantize"]->value()));
   SynthSection::setAllValues(controls);
 
   current_destination_ = controls[destination_control_name_]->value();
@@ -297,19 +295,19 @@ void SampleSection::setAllValues(vital::control_map& controls) {
 void SampleSection::buttonClicked(Button* clicked_button) {
   if (clicked_button == destination_selector_.get()) {
     PopupItems options;
-    int num_source_destinations = vital::constants::kNumSourceDestinations;
-    for (int i = 0; i < num_source_destinations; ++i)
-      options.addItem(i, strings::kDestinationMenuNames[i]);
+    int num_engine_outputs = vital::constants::kNumEngineOutputs;
+    for (int i = 0; i < num_engine_outputs; ++i)
+      options.addItem(i, strings::kEngineOutputMenuNames[i]);
 
     showPopupSelector(this, Point<int>(clicked_button->getX(), clicked_button->getBottom()),options,
                       [=](int selection) { setDestinationSelected(selection); });
   }
   else if (clicked_button == prev_destination_.get()) {
-    int new_destination = current_destination_ - 1 + vital::constants::kNumSourceDestinations;
-    setDestinationSelected(new_destination % vital::constants::kNumSourceDestinations);
+    int new_destination = current_destination_ - 1 + vital::constants::kNumEngineOutputs;
+    setDestinationSelected(new_destination % vital::constants::kNumEngineOutputs);
   }
   else if (clicked_button == next_destination_.get()) {
-    int new_destination = (current_destination_ + 1) % vital::constants::kNumSourceDestinations;
+    int new_destination = (current_destination_ + 1) % vital::constants::kNumEngineOutputs;
     setDestinationSelected(new_destination);
   }
   else
@@ -329,16 +327,9 @@ void SampleSection::setupDestination() {
   for (Listener* listener : listeners_)
     listener->sampleDestinationChanged(this, current_destination_);
 
-  destination_text_->setText(strings::kDestinationNames[current_destination_]);
+  destination_text_->setText(strings::kEngineOutputNames[current_destination_]);
 }
 
-void SampleSection::toggleFilterInput(int filter_index, bool on) {
-  vital::constants::SourceDestination current_destination = (vital::constants::SourceDestination)current_destination_;
-  if (filter_index == 0)
-    setDestinationSelected(vital::constants::toggleFilter1(current_destination, on));
-  else
-    setDestinationSelected(vital::constants::toggleFilter2(current_destination, on));
-}
 
 void SampleSection::prevClicked() {
   File sample_file = LoadSave::getShiftedFile(LoadSave::kSampleFolderName, vital::kSampleExtensionsList,
@@ -373,5 +364,5 @@ void SampleSection::quantizeUpdated() {
   int value = transpose_quantize_button_->getValue();
   SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
   if (parent)
-    parent->getSynth()->valueChangedInternal(kEngine + "transpose_quantize", value);
+    parent->getSynth()->valueChangedInternal(engine_prefix_ + "transpose_quantize", value);
 }

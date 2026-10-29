@@ -461,7 +461,9 @@ namespace vital {
       ValueDetails::kLinear, false, "", "Detune Power", nullptr },
     { "detune_range", 0x000000, 0.0, 48.0, 2.0, 0.0, 1.0,
       ValueDetails::kLinear, false, "", "Detune Range", nullptr },
-    { "level", 0x000000, 0.0, 1.0, 0.70710678119, 0.0, 1.0,
+    // Wavetable and noise gain is level squared, so the top is double the old unity gain (samples, which square
+    // again, reach the same double at the top through their amplitude limit). The popup reads 0 to 1.
+    { "level", 0x000000, 0.0, 1.4142135624, 0.70710678119, 0.0, 0.5,
       ValueDetails::kQuadratic, false, "", "Level", nullptr },
     { "midi_track", 0x000000, 0.0, 1.0, 1.0, 0.0, 1.0,
       ValueDetails::kIndexed, false, "", "Midi Track", strings::kOffOnNames },
@@ -493,8 +495,8 @@ namespace vital {
       ValueDetails::kLinear, false, "%", "Frequency Morph Amount", nullptr },
     { "spectral_morph_spread", 0x000407, -0.5, 0.5, 0.0, 0.0, 200.0,
       ValueDetails::kLinear, false, "%", "Frequency Morph Spread", nullptr },
-    { "destination", 0x000500, 0.0, constants::kNumSourceDestinations + constants::kNumEffects, 0.0, 0.0, 1.0,
-      ValueDetails::kIndexed, false, "", "Destination", strings::kDestinationNames },
+    { "destination", 0x010008, 0.0, constants::kNumEngineOutputs - 1, constants::kEngineToGroup, 0.0, 1.0,
+      ValueDetails::kIndexed, false, "", "Output", strings::kEngineOutputNames },
     { "view_2d", 0x000402, 0.0, 2.0, 1.0, 0.0, 1.0,
       ValueDetails::kIndexed, false, "", "View 2D", strings::kOffOnNames },
     // Newer than every Vital parameter so it sorts last and existing host parameter indices are kept.
@@ -513,15 +515,62 @@ namespace vital {
       ValueDetails::kIndexed, false, "", "Sample Loop", strings::kOffOnNames },
     { "sample_bounce", 0x010008, 0.0, 1.0, 0.0, 0.0, 1.0,
       ValueDetails::kIndexed, false, "", "Sample Bounce", strings::kOffOnNames },
+    // On: the engine's unison works together with its group's, as set by group_unison_mode.
+    { "group_unison", 0x010009, 0.0, 1.0, 0.0, 0.0, 1.0,
+      ValueDetails::kIndexed, false, "", "Group Unison", strings::kOffOnNames },
+    { "group_unison_mode", 0x010009, 0.0, constants::kNumGroupUnisonModes - 1, 0.0, 0.0, 1.0,
+      ValueDetails::kIndexed, false, "", "Group Unison Mode", strings::kGroupUnisonModeNames },
+    // Noise: how far the unison voices' focus rises above the Focus knob (Vital's spreads run the same way).
+    { "noise_focus_spread", 0x010009, 0.0, 0.5, 0.0, 0.0, 200.0,
+      ValueDetails::kLinear, false, "%", "Noise Focus Spread", nullptr },
   };
 
   const ValueDetails ValueDetailsLookup::group_parameter_list[] = {
     { "amp_source", 0x010008, 0.0, kNumGroupAmpSources - 1, 0.0, 0.0, 1.0,
       ValueDetails::kIndexed, false, "", "Amp Source", strings::kGroupAmpSourceNames },
-    { "level", 0x010008, 0.0, 1.0, 1.0, 0.0, 1.0,
+    // Gain is level squared: the top is double unity. The popup reads 0 to 1.
+    { "level", 0x010008, 0.0, 1.4142135624, 1.0, 0.0, 0.5,
       ValueDetails::kQuadratic, false, "", "Level", nullptr },
     { "output", 0x010008, 0.0, constants::kNumGroupOutputs - 1, constants::kGroupFxBus1, 0.0, 1.0,
       ValueDetails::kIndexed, false, "", "Output", strings::kGroupOutputNames },
+    { "on", 0x010008, 0.0, 1.0, 1.0, 0.0, 1.0,
+      ValueDetails::kIndexed, false, "", "Switch", strings::kOffOnNames },
+    { "smoothing", 0x010008, 0.0, constants::kGroupSmoothingMax, constants::kGroupEnvelopeSmoothingDefault, 0.0, 1000.0,
+      ValueDetails::kQuadratic, false, " ms", "Amp Smoothing", nullptr },
+    // Analog drift: a slow random pitch wander for every engine in every voice.
+    { "drift", 0x010009, 0.0, 50.0, 0.0, 0.0, 1.0,
+      ValueDetails::kLinear, false, " cents", "Drift", nullptr },
+    { "drift_rate", 0x010009, -4.0, 3.0, -1.0, 0.0, 1.0,
+      ValueDetails::kExponential, false, " Hz", "Drift Rate", nullptr },
+    { "drift_spread", 0x010009, 0.0, 1.0, 0.5, 0.0, 100.0,
+      ValueDetails::kLinear, false, "%", "Drift Spread", nullptr },
+    // Humanise: a random offset rolled once per note.
+    { "humanize_pitch", 0x010009, 0.0, 50.0, 0.0, 0.0, 1.0,
+      ValueDetails::kLinear, false, " cents", "Humanise Pitch", nullptr },
+    { "humanize_level", 0x010009, 0.0, 6.0, 0.0, 0.0, 1.0,
+      ValueDetails::kLinear, false, " dB", "Humanise Level", nullptr },
+    { "humanize_pan", 0x010009, 0.0, 1.0, 0.0, 0.0, 100.0,
+      ValueDetails::kLinear, false, "%", "Humanise Pan", nullptr },
+    { "humanize_phase", 0x010009, 0.0, 1.0, 0.0, 0.0, 100.0,
+      ValueDetails::kLinear, false, "%", "Humanise Phase", nullptr },
+    // Unison for the group's engines that follow it.
+    { "unison_voices", 0x010009, 1.0, 16.0, 1.0, 0.0, 1.0,
+      ValueDetails::kIndexed, false, "v", "Unison Voices", nullptr },
+    { "unison_detune", 0x010009, 0.0, 10.0, 4.472135955, 0.0, 1.0,
+      ValueDetails::kQuadratic, false, "%", "Unison Detune", nullptr },
+    { "unison_blend", 0x010009, 0.0, 1.0, 0.8, 0.0, 100.0,
+      ValueDetails::kLinear, false, "%", "Unison Blend", nullptr },
+    { "stereo_spread", 0x010009, 0.0, 1.0, 1.0, 0.0, 100.0,
+      ValueDetails::kLinear, false, "%", "Stereo Spread", nullptr },
+    { "stack_style", 0x010009, 0.0, SynthOscillator::kNumUnisonStackTypes - 1, 0.0, 0.0, 1.0,
+      ValueDetails::kIndexed, false, "", "Stack Style", strings::kUnisonStackNames },
+    // Voice: which notes the group plays and how.
+    { "voice_mode", 0x010009, 0.0, constants::kNumGroupVoiceModes - 1, 0.0, 0.0, 1.0,
+      ValueDetails::kIndexed, false, "", "Voice Mode", strings::kGroupVoiceModeNames },
+    { "glide", 0x010009, -10.0, 4.0, -10.0, 0.0, 1.0,
+      ValueDetails::kExponential, false, " secs", "Glide Time", nullptr },
+    { "glide_slope", 0x010009, -8.0, 8.0, 0.0, 0.0, 1.0,
+      ValueDetails::kLinear, false, "", "Glide Slope", nullptr },
   };
 
   const ValueDetails ValueDetailsLookup::mod_parameter_list[] = {
@@ -597,11 +646,7 @@ namespace vital {
         kModulationIdPrefix, kModulationNamePrefix, kNewModulationVersion);
     }
 
-    details_lookup_["osc_1_on"].default_value = 1.0f;
-    // The voice tab's sample panel shows sound engine 4 until the sound engine list replaces it.
-    details_lookup_["osc_4_source"].default_value = SynthOscillator::kSampleSource;
-    details_lookup_["osc_2_destination"].default_value = 1.0f;
-    details_lookup_["osc_3_destination"].default_value = 3.0f;
+    // A new patch starts with no sound engines; they're added from the voice tab's list.
 
     std::sort(details_list_.begin(), details_list_.end(), compareValueDetails);
   }

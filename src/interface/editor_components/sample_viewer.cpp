@@ -19,8 +19,9 @@
 #include "skin.h"
 #include "synth_gui_interface.h"
 
-SampleViewer::SampleViewer() : OpenGlLineRenderer(kResolution), bottom_(kResolution),
-                               dragging_overlay_(Shaders::kColorFragment) {
+SampleViewer::SampleViewer(int engine) : OpenGlLineRenderer(kResolution), bottom_(kResolution),
+                                         dragging_overlay_(Shaders::kColorFragment) {
+  phase_status_name_ = "osc_" + std::to_string(engine + 1) + "_sample_phase";
   addAndMakeVisible(bottom_);
   animate_ = false;
   active_ = true;
@@ -89,7 +90,7 @@ void SampleViewer::resized() {
   if (sample_phase_output_ == nullptr) {
     SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
     if (parent)
-      sample_phase_output_ = parent->getSynth()->getStatusOutput("sample_phase");
+      sample_phase_output_ = parent->getSynth()->getStatusOutput(phase_status_name_);
   }
 
   OpenGlLineRenderer::resized();

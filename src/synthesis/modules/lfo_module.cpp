@@ -33,7 +33,8 @@ namespace vital {
     if (sync_type_ == nullptr)
       return false;
     int sync_type = static_cast<int>(sync_type_->value());
-    return sync_type == SynthLfo::kEnvelope || sync_type == SynthLfo::kSustainEnvelope;
+    return sync_type == SynthLfo::kEnvelope || sync_type == SynthLfo::kSustainEnvelope ||
+           sync_type == SynthLfo::kLoopHold;
   }
 
   void LfoModule::init() {

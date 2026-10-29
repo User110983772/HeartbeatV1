@@ -53,7 +53,8 @@ class WavetableOrganizer : public SynthSection,
     enum OrganizerMenu {
       kCancel = 0,
       kCreate,
-      kRemove
+      kRemove,
+      kGoToFrame
     };
 
     enum MouseMode {
@@ -72,6 +73,8 @@ class WavetableOrganizer : public SynthSection,
         virtual void frameSelected(WavetableKeyframe* keyframe) = 0;
         virtual void frameDragged(WavetableKeyframe* keyframe, int position) = 0;
         virtual void wheelMoved(const MouseEvent& e, const MouseWheelDetails& wheel) { }
+        // Type a frame to jump to; `point` is in the organizer's coordinates.
+        virtual void frameEntryRequestedAt(Component* source, Point<int> point, int initial_frame) { }
     };
 
     WavetableOrganizer(WavetableCreator* wavetable_creator, int max_frames);
@@ -90,6 +93,14 @@ class WavetableOrganizer : public SynthSection,
     }
 
     void playheadMoved(int position) override;
+    void mouseMove(const MouseEvent& e) override;
+    void mouseExit(const MouseEvent& e) override;
+    void requestFrameEntry(Point<int> point, int initial_frame);
+    Point<int> menuPosition() const { return menu_created_position_; }
+    int menuFrame() const { return menu_frame_; }
+    int getPlayheadX() { return handleWidth() / 2 + playhead_position_ * frame_width_; }
+    // The keyframe (in a row with keyframes) under the mouse, or nullptr.
+    WavetableKeyframe* getKeyframeAt(const MouseEvent& e);
 
     void componentAdded(WavetableComponent* component) override;
     void componentRemoved(WavetableComponent* component) override;
@@ -113,6 +124,7 @@ class WavetableOrganizer : public SynthSection,
       recreateVisibleFrames();
     }
     bool hasSelectedFrames() const { return !currently_selected_.empty(); }
+    void selectFrame(WavetableKeyframe* keyframe);
 
   private:
     void clearVisibleFrames();
@@ -123,7 +135,6 @@ class WavetableOrganizer : public SynthSection,
     void deselect();
     void deleteKeyframe(WavetableKeyframe* keyframe);
     void createKeyframeAtPosition(Point<int> position);
-    void selectFrame(WavetableKeyframe* keyframe);
     void selectFrames(std::vector<WavetableKeyframe*> keyframes);
     void positionSelectionBox(const MouseEvent& event);
     void setRowQuads();
@@ -142,6 +153,8 @@ class WavetableOrganizer : public SynthSection,
     OpenGlMultiQuad active_rows_;
     OpenGlQuad selection_quad_;
     OpenGlQuad playhead_quad_;
+    Component hover_anchor_;
+    int menu_frame_ = 0;
 
     MouseMode mouse_mode_;
     Point<int> mouse_down_position_;

@@ -77,6 +77,9 @@ class LoadSave {
     static void loadModulations(SynthBase* synth, const json& modulations);
     static void loadEngineSamples(SynthBase* synth, const json& engine_samples);
     static void loadEngineOrder(SynthBase* synth, const json& order);
+    // Engines and groups shown in the voice tab. Presets without this show the engines that are on.
+    static json convertEngineOutputs(json state);
+    static void loadEngineLayout(SynthBase* synth, const json& settings);
     static void loadWavetables(SynthBase* synth, const json& wavetables);
     static void loadLfos(SynthBase* synth, const json& lfos);
     static void loadSaveState(std::map<std::string, String>& save_info, json data);

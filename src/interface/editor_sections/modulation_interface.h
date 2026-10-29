@@ -29,6 +29,7 @@ struct SynthGuiData;
 
 class ModulationInterface  : public SynthSection, public ModulationTabSelector::Listener {
   public:
+    // Every modulator's tab is always shown; these only set each column's share of the height.
     static constexpr int kMinEnvelopeModulationsToShow = 3;
     static constexpr int kMinLfoModulationsToShow = 4;
     static constexpr int kMinRandomModulationsToShow = 2;

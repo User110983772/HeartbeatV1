@@ -138,8 +138,25 @@ void ModulationButton::paintBackground(Graphics& g) {
     text = ModulationMatrix::getUiSourceDisplayName(getName());
 
   int font_area_height = kFontAreaHeightRatio * width;
-  g.drawText(text, meter_bounds.getRight(), 0, width - meter_bounds.getRight(),
+  // With the amp glyph in the name row's right corner, the name centres in the space left of it.
+  int text_right = amp_groups_.empty() ? width : getAmpGlyphBounds().getX();
+  g.drawText(text, meter_bounds.getRight(), 0, text_right - meter_bounds.getRight(),
              font_area_height, Justification::centred);
+
+  if (!amp_groups_.empty()) {
+    // The glyph: an envelope shape at the right end of the name row, clear of the modulation knobs below.
+    Rectangle<float> glyph = getAmpGlyphBounds().toFloat().reduced(1.0f);
+    Path shape;
+    shape.startNewSubPath(glyph.getX(), glyph.getBottom());
+    shape.lineTo(glyph.getX(), glyph.getY() + glyph.getHeight() * 0.6f);
+    shape.lineTo(glyph.getX() + glyph.getWidth() * 0.25f, glyph.getY());
+    shape.lineTo(glyph.getX() + glyph.getWidth() * 0.5f, glyph.getY() + glyph.getHeight() * 0.65f);
+    shape.lineTo(glyph.getX() + glyph.getWidth() * 0.75f, glyph.getY() + glyph.getHeight() * 0.25f);
+    shape.lineTo(glyph.getRight(), glyph.getBottom());
+    g.setColour(findColour(Skin::kWidgetPrimary1, true));
+    g.strokePath(shape, PathStrokeType(std::max(1.0f, glyph.getHeight() * 0.14f), PathStrokeType::curved,
+                                       PathStrokeType::rounded));
+  }
 
   if (connect_right_ && !selected_) {
     int shadow_width = width * kShadowArea;
@@ -277,6 +294,48 @@ void ModulationButton::mouseEnter(const MouseEvent& e) {
 void ModulationButton::mouseExit(const MouseEvent& e) {
   mouse_state_ = kNone;
   show_drag_drop_ = false;
+  showAmpGroups(false);
+}
+
+bool ModulationButton::setAmpGroups(std::vector<int> groups) {
+  if (groups == amp_groups_)
+    return false;
+  amp_groups_ = std::move(groups);
+  if (amp_groups_.empty())
+    showAmpGroups(false);
+  return true;
+}
+
+Rectangle<int> ModulationButton::getAmpGlyphBounds() {
+  int font_area_height = kFontAreaHeightRatio * getWidth();
+  int size = std::max(6.0f, font_area_height * 0.42f);
+  int margin = std::max(2.0f, font_area_height * 0.15f);
+  int width = size * 1.3f;
+  return Rectangle<int>(getWidth() - margin - width, (font_area_height - size) / 2, width, size);
+}
+
+void ModulationButton::mouseMove(const MouseEvent& e) {
+  bool over_glyph = !amp_groups_.empty() && getAmpGlyphBounds().expanded(2).contains(e.getPosition());
+  showAmpGroups(over_glyph);
+}
+
+void ModulationButton::showAmpGroups(bool show) {
+  if (show == showing_amp_groups_)
+    return;
+  showing_amp_groups_ = show;
+
+  SynthSection* section = findParentComponentOfClass<SynthSection>();
+  if (section == nullptr)
+    return;
+  if (!show) {
+    section->hidePopupDisplay(true);
+    return;
+  }
+
+  std::string text = amp_groups_.size() == 1 ? "Amp source for Group " : "Amp source for Groups ";
+  for (size_t i = 0; i < amp_groups_.size(); ++i)
+    text += (i ? ", " : "") + std::to_string(amp_groups_[i]);
+  section->showPopupDisplay(this, text, BubbleComponent::below, true);
 }
 
 void ModulationButton::mouseWheelMove(const MouseEvent& e, const MouseWheelDetails& wheel) {

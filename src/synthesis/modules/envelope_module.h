@@ -40,6 +40,9 @@ namespace vital {
       void init() override;
       virtual Processor* clone() const override { return new EnvelopeModule(*this); }
 
+      // The module's own state isn't switched, only the envelope inside it, which writes the outputs.
+      bool writesControlRate() const { return envelope_->isControlRate(); }
+
       void setControlRate(bool control_rate) override { 
         if (!force_audio_rate_)
           envelope_->setControlRate(control_rate);

@@ -22,6 +22,29 @@ WavetablePlayhead::WavetablePlayhead(int num_positions) :
     SynthSection("Playhead"), position_quad_(Shaders::kColorFragment),
     padding_(0), num_positions_(num_positions), position_(0), drag_start_x_(0) {
   addOpenGlComponent(&position_quad_);
+  hover_anchor_.setInterceptsMouseClicks(false, false);
+  addChildComponent(hover_anchor_);
+}
+
+int WavetablePlayhead::getPlayheadX() {
+  float active_width = getWidth() - 2 * padding_ + 1;
+  return (active_width * position_) / (num_positions_ - 1) + padding_;
+}
+
+void WavetablePlayhead::mouseMove(const MouseEvent& event) {
+  // Near the playhead line, a bubble shows its frame.
+  static constexpr int kHoverDistance = 4;
+  int x = getPlayheadX();
+  if (std::abs(event.x - x) > kHoverDistance) {
+    hidePopupDisplay(true);
+    return;
+  }
+  hover_anchor_.setBounds(x - 1, 0, 2, getHeight());
+  showPopupDisplay(&hover_anchor_, "Frame " + std::to_string(position_), BubbleComponent::above, true);
+}
+
+void WavetablePlayhead::mouseExit(const MouseEvent& event) {
+  hidePopupDisplay(true);
 }
 
 void WavetablePlayhead::setPosition(int position) {
@@ -40,11 +63,21 @@ void WavetablePlayhead::setPositionQuad() {
 }
 
 void WavetablePlayhead::mouseDown(const MouseEvent& event) {
+  if (event.mods.isPopupMenu() || event.mods.isAltDown()) {
+    hidePopupDisplay(true);
+    for (Listener* listener : listeners_)
+      listener->frameEntryRequestedAt(this, Point<int>(getPlayheadX(), getHeight() / 2), position_);
+    return;
+  }
   mouseEvent(event);
 }
 
 void WavetablePlayhead::mouseDrag(const MouseEvent& event) {
+  if (event.mods.isPopupMenu() || event.mods.isAltDown())
+    return;
   mouseEvent(event);
+  hover_anchor_.setBounds(getPlayheadX() - 1, 0, 2, getHeight());
+  showPopupDisplay(&hover_anchor_, "Frame " + std::to_string(position_), BubbleComponent::above, true);
 }
 
 void WavetablePlayhead::mouseEvent(const MouseEvent& event) {

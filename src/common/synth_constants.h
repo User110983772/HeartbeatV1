@@ -28,10 +28,8 @@ namespace vital {
   constexpr int kNumOscillators = 16;
   // Oscillators are summed into groups; each group has its own amplitude source, level and output.
   constexpr int kNumOscillatorGroups = 8;
-  // Fixed oscillator panels in the voice tab until the scrolling oscillator list replaces them.
-  constexpr int kNumOscillatorSections = 3;
-  // Sound engine shown in the voice tab's sample panel until the sound engine list replaces it.
-  constexpr int kSampleSectionEngine = 3;
+  // The Advanced tab's GROUPS page is as tall as this many oscillator cards.
+  constexpr int kAdvancedGroupRows = 3;
   // Sound engine chain order: a permutation of engine indices, top to bottom.
   using EngineOrder = std::array<int, kNumOscillators>;
   constexpr int kNumOscillatorWaveFrames = 257;
@@ -68,6 +66,40 @@ namespace vital {
   const std::string kBankExtension = "vitalbank";
 
   namespace constants {
+    // Group amp smoothing is a quadratic control: the time in seconds is the control value squared.
+    constexpr mono_float kGroupSmoothingMax = 0.316228f;           // 100 ms
+    // Defaults follow the amp source: envelopes are smooth already, LFOs can jump, randoms jump the most.
+    constexpr mono_float kGroupEnvelopeSmoothingDefault = 0.0f;
+    constexpr mono_float kGroupLfoSmoothingDefault = 0.044721f;    // 2 ms
+    constexpr mono_float kGroupRandomSmoothingDefault = 0.173205f; // 30 ms
+
+    // Where a sound engine's audio goes: through its group's output, or straight to Direct Out. Either way
+    // the group's amp source and level still apply.
+    enum EngineOutput {
+      kEngineToGroup,
+      kEngineDirectOut,
+      kNumEngineOutputs
+    };
+
+    // Mono: the group plays only in the newest held note (or the newest note once all are released).
+    // Legato: mono, but the group stays in the note its phrase started in, so its envelopes don't restart;
+    // its pitch follows the newest held note.
+    enum GroupVoiceMode {
+      kGroupPoly,
+      kGroupMono,
+      kGroupLegato,
+      kNumGroupVoiceModes
+    };
+
+    // How an engine's own unison and its group's unison work together when GROUP UNISON is on.
+    // Combined: one set of voices, the larger voice count, the two detunes added, the wider blend and stereo.
+    // Nested: every group voice holds a copy of the engine's own unison (voices multiply, up to 16).
+    enum GroupUnisonMode {
+      kGroupUnisonCombined,
+      kGroupUnisonNested,
+      kNumGroupUnisonModes
+    };
+
     enum GroupOutput {
       kGroupDirectOut,
       kGroupFxBus1,

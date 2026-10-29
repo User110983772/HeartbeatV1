@@ -75,7 +75,21 @@ void SynthSection::paintSidewaysHeadingText(Graphics& g) {
   if (activator_)
     height = getHeight() - title_width / 2;
 
-  g.drawText(getName(), Rectangle<int>(0, 0, height, title_width), Justification::centred, false);
+  // Rotated, x runs up from the bottom edge.
+  if (sideways_heading_top_inset_ > 0 || sideways_heading_bottom_inset_ > 0) {
+    // With buttons kept clear at the ends, centre the name's visible glyphs (not its advance width) between them.
+    int bottom = sideways_heading_bottom_inset_;
+    int top = sideways_heading_top_inset_ > 0 ? sideways_heading_top_inset_ : (activator_ ? title_width : 0);
+    GlyphArrangement glyphs;
+    glyphs.addLineOfText(g.getCurrentFont(), getName(), 0.0f, 0.0f);
+    Rectangle<float> ink = glyphs.getBoundingBox(0, -1, true);
+    float centre = (bottom + getHeight() - top) * 0.5f;
+    float baseline = (title_width - g.getCurrentFont().getHeight()) * 0.5f + g.getCurrentFont().getAscent();
+    glyphs.moveRangeOfGlyphs(0, -1, centre - ink.getCentreX(), baseline);
+    glyphs.draw(g);
+  }
+  else
+    g.drawText(getName(), Rectangle<int>(0, 0, height, title_width), Justification::centred, false);
   g.restoreState();
 }
 

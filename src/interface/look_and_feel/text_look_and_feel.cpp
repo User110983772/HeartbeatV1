@@ -46,7 +46,13 @@ void TextLookAndFeel::drawRotarySlider(Graphics& g, int x, int y, int width, int
       font_size = s_slider->findValue(Skin::kTextComponentFontSize);
   }
 
+  // Heartbeat: a selector can centre its text vertically (no label under it) and draw it in the "on" color.
+  if (slider.getProperties()[kCentreTextProperty])
+    offset = 0.0f;
+
   Colour text_color = slider.findColour(Skin::kTextComponentText, true);
+  if (slider.getProperties()[kOnTextProperty])
+    text_color = slider.findColour(Skin::kIconButtonOn, true);
   if (!active)
     text_color = text_color.withMultipliedAlpha(0.5f);
 

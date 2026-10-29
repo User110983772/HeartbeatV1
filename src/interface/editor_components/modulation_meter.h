@@ -45,6 +45,8 @@ class ModulationMeter : public Component {
     vital::poly_float getModPercent() { return mod_percent_; }
 
     const SynthSlider* destination() { return destination_; }
+    // Sound engine cards that share a parameter (an engine's oscillator and sample cards) hand it over.
+    void setDestination(const SynthSlider* slider) { destination_ = slider; }
 
   private:
     ModulationMeter() = delete;

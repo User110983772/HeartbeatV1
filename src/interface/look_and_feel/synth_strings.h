@@ -282,6 +282,16 @@ namespace strings {
     "REVERB",
   };
 
+  const std::string kEngineOutputNames[vital::constants::kNumEngineOutputs] = {
+    "GROUP",
+    "DIRECT OUT",
+  };
+
+  const std::string kEngineOutputMenuNames[vital::constants::kNumEngineOutputs] = {
+    "Group",
+    "Direct Out",
+  };
+
   const std::string kDestinationMenuNames[vital::constants::kNumSourceDestinations + vital::constants::kNumEffects] = {
     "Filter 1",
     "Filter 2",
@@ -324,6 +334,17 @@ namespace strings {
     "Env 1", "Env 2", "Env 3", "Env 4", "Env 5", "Env 6",
     "LFO 1", "LFO 2", "LFO 3", "LFO 4", "LFO 5", "LFO 6", "LFO 7", "LFO 8",
     "Random 1", "Random 2", "Random 3", "Random 4"
+  };
+
+  const std::string kGroupUnisonModeNames[vital::constants::kNumGroupUnisonModes] = {
+    "Combined",
+    "Nested"
+  };
+
+  const std::string kGroupVoiceModeNames[vital::constants::kNumGroupVoiceModes] = {
+    "Poly",
+    "Mono",
+    "Legato"
   };
 
   const std::string kGroupOutputNames[vital::constants::kNumGroupOutputs] = {

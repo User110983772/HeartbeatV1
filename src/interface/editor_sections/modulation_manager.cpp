@@ -39,15 +39,12 @@ namespace {
   }
 }
 
+// Shown in a modulator's last knob slot when it has more connections than fit: "+N" opens the rest.
 class ExpandModulationButton : public OpenGlToggleButton {
   public:
-    ExpandModulationButton() : OpenGlToggleButton("expand modulation"),
-                               num_sliders_(0), amount_quad_(Shaders::kRingFragment) {
-      setLightenButton();
+    ExpandModulationButton() : OpenGlToggleButton("expand modulation") {
       setTriggeredOnMouseDown(true);
       setMouseClickGrabsKeyboardFocus(false);
-      amount_quad_.setTargetComponent(this);
-      amount_quad_.setThickness(2.0f);
     }
 
     int getNumColumns(int num_sliders) {
@@ -61,51 +58,13 @@ class ExpandModulationButton : public OpenGlToggleButton {
 
     void setSliders(std::vector<ModulationAmountKnob*> sliders) {
       sliders_ = sliders;
-      for (int i = 0; i < sliders.size(); ++i)
-        colors_[i] = sliders_[i]->findColour(Skin::kRotaryArc, true);
-      num_sliders_ = static_cast<int>(sliders_.size());
+      setText("+" + String(sliders_.size()));
     }
 
     std::vector<ModulationAmountKnob*> getSliders() { return sliders_; }
 
-    void renderSliderQuads(OpenGlWrapper& open_gl, bool animate) {
-      int num_sliders = num_sliders_;
-
-      float width = getWidth();
-      float height = getHeight();
-
-      int columns = getNumColumns(num_sliders);
-      float cell_width = width / columns;
-      int rows = (num_sliders + columns - 1) / columns;
-      int y_offset = (height - (rows * cell_width)) / 2;
-      float gl_width = 2.0f * cell_width / width;
-      float gl_height = 2.0f * cell_width / height;
-
-      int row = 0;
-      int column = 0;
-      for (int i = 0; i < num_sliders; ++i) {
-        float x = column * cell_width;
-        float y = height - y_offset - (row + 1) * cell_width;
-
-        amount_quad_.setColor(colors_[i]);
-        amount_quad_.setAltColor(colors_[i].withMultipliedAlpha(0.5f));
-        amount_quad_.setQuad(0, 2.0f * x / width - 1.0f, 1.0f - 2.0f * y / height - gl_height, gl_width, gl_height);
-        amount_quad_.render(open_gl, animate);
-
-        column++;
-        if (column >= columns) {
-          row++;
-          column = 0;
-        }
-      }
-    }
-
   private:
     std::vector<ModulationAmountKnob*> sliders_;
-    int num_sliders_;
-    Colour colors_[vital::kMaxModulationConnections];
-
-    OpenGlQuad amount_quad_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ExpandModulationButton)
 };
@@ -122,6 +81,7 @@ class ModulationDestination : public Component {
     virtual ~ModulationDestination() { }
 
     SynthSlider* getDestinationSlider() { return destination_slider_; }
+    void setDestinationSlider(SynthSlider* slider) { destination_slider_ = slider; }
     void setActive(bool active) { active_ = active; }
 
     void setSizeMultiple(float multiple) {
@@ -472,6 +432,7 @@ ModulationManager::ModulationManager(
     }
 
     slider.second->addSliderListener(this);
+    listened_sliders_.insert(slider.second);
     createModulationSlider(name, slider.second, poly_total != nullptr);
   }
 
@@ -514,6 +475,24 @@ void ModulationManager::createModulationMeter(const vital::Output* mono_total,
   meter->setName(name);
   meter->setBounds(getLocalArea(slider, slider->getLocalBounds()));
   meter_lookup_[name] = std::move(meter);
+}
+
+void ModulationManager::rebindDestination(const std::string& name, SynthSlider* slider) {
+  auto model = slider_model_lookup_.find(name);
+  if (model == slider_model_lookup_.end() || model->second == slider)
+    return;
+
+  model->second = slider;
+  if (destination_lookup_.count(name))
+    destination_lookup_[name]->setDestinationSlider(slider);
+  if (meter_lookup_.count(name))
+    meter_lookup_[name]->setDestination(slider);
+  if (listened_sliders_.insert(slider).second)
+    slider->addSliderListener(this);
+
+  if (slider->isShowing())
+    meter_lookup_[name]->setBounds(getLocalArea(slider, slider->getModulationMeterBounds()));
+  positionModulationAmountSliders();
 }
 
 void ModulationManager::createModulationSlider(std::string name, SynthSlider* slider, bool poly) {
@@ -1070,10 +1049,6 @@ void ModulationManager::renderOpenGlComponents(OpenGlWrapper& open_gl, bool anim
     return;
 
   drawCurrentModulator(open_gl);
-  for (auto& callout_button : modulation_callout_buttons_) {
-    if (callout_button.second->isVisible())
-      callout_button.second->renderSliderQuads(open_gl, animate);
-  }
 
   OpenGlComponent::setViewPort(this, open_gl);
   drawModulationDestinations(open_gl);
@@ -1113,11 +1088,26 @@ void ModulationManager::renderMeters(OpenGlWrapper& open_gl, bool animate) {
   }
 
   OpenGlComponent::setViewPort(this, open_gl);
-  for (auto& rotary_meter_group : rotary_meters_)
-    rotary_meter_group.second->render(open_gl, animate);
+  for (auto& rotary_meter_group : rotary_meters_) {
+    if (owner_drawn_viewports_.count(rotary_meter_group.first) == 0)
+      rotary_meter_group.second->render(open_gl, animate);
+  }
 
-  for (auto& linear_meter_group : linear_meters_)
-    linear_meter_group.second->render(open_gl, animate);
+  for (auto& linear_meter_group : linear_meters_) {
+    if (owner_drawn_viewports_.count(linear_meter_group.first) == 0)
+      linear_meter_group.second->render(open_gl, animate);
+  }
+}
+
+void ModulationManager::renderViewportMeters(OpenGlWrapper& open_gl, bool animate, Viewport* viewport) {
+  if (!animate)
+    return;
+
+  OpenGlComponent::setViewPort(this, open_gl);
+  if (rotary_meters_.count(viewport))
+    rotary_meters_[viewport]->render(open_gl, animate);
+  if (linear_meters_.count(viewport))
+    linear_meters_[viewport]->render(open_gl, animate);
 }
 
 void ModulationManager::renderSourceMeters(OpenGlWrapper& open_gl, int index) {
@@ -1786,15 +1776,18 @@ void ModulationManager::makeModulationsVisible(SynthSlider* destination, bool vi
 }
 
 void ModulationManager::positionModulationAmountSlidersInside(const std::string& source,
-                                                              std::vector<vital::ModulationConnection*> connections) {
+                                                              std::vector<vital::ModulationConnection*> connections,
+                                                              int total_slots) {
   static constexpr float kRightPopupPositionX = 150;
   int total_connections = static_cast<int>(connections.size());
   ModulationButton* modulation_button = modulation_buttons_[source];
-  ExpandModulationButton* expand_button = modulation_callout_buttons_[source].get();
-  expand_button->setVisible(false);
-
-  if (expand_button == current_expanded_modulation_)
-    hideModulationAmountCallout();
+  if (total_slots == 0) {
+    ExpandModulationButton* expand_button = modulation_callout_buttons_[source].get();
+    expand_button->setVisible(false);
+    if (expand_button == current_expanded_modulation_)
+      hideModulationAmountCallout();
+    total_slots = total_connections;
+  }
 
   for (int i = 0; i < total_connections; ++i) {
     vital::ModulationConnection* connection = connections[i];
@@ -1802,7 +1795,7 @@ void ModulationManager::positionModulationAmountSlidersInside(const std::string&
     ModulationAmountKnob* slider = modulation_amount_sliders_[index].get();
     slider->setVisible(showingInParents(modulation_button));
     Point<int> point = getLocalPoint(modulation_button, Point<int>(0, 0));
-    slider->setBounds(modulation_button->getModulationAmountBounds(i, total_connections) + point);
+    slider->setBounds(modulation_button->getModulationAmountBounds(i, total_slots) + point);
 
     BubbleComponent::BubblePlacement popup_position = BubbleComponent::below;
     if (slider->getX() < kRightPopupPositionX)
@@ -1823,10 +1816,12 @@ void ModulationManager::positionModulationAmountSlidersInside(const std::string&
 }
 
 void ModulationManager::positionModulationAmountSlidersCallout(const std::string& source,
-                                                               std::vector<vital::ModulationConnection*> connections) {  
+                                                               std::vector<vital::ModulationConnection*> connections,
+                                                               int slot, int total_slots) {
   ModulationButton* modulation_button = modulation_buttons_[source];
   ExpandModulationButton* expand_button = modulation_callout_buttons_[source].get();
-  expand_button->setBounds(getLocalArea(modulation_button, modulation_button->getModulationAreaBounds()));
+  Rectangle<int> chip = modulation_button->getModulationAmountBounds(slot, total_slots);
+  expand_button->setBounds(getLocalArea(modulation_button, chip.reduced(chip.getWidth() / 8)));
   expand_button->setVisible(showingInParents(modulation_button));
 
   std::vector<ModulationAmountKnob*> amount_controls;
@@ -1922,8 +1917,14 @@ void ModulationManager::positionModulationAmountSliders(const std::string& sourc
   std::vector<vital::ModulationConnection*> connections = parent->getSynth()->getSourceConnections(source);
   int total_connections = static_cast<int>(connections.size());
   if (total_connections) {
-    if (total_connections && total_connections > max_modulations_inside)
-      positionModulationAmountSlidersCallout(source, connections);
+    if (total_connections > max_modulations_inside && max_modulations_inside > 0) {
+      // The first knobs stay on the tab; the last slot becomes a "+N" chip that opens the rest.
+      int shown = max_modulations_inside - 1;
+      std::vector<vital::ModulationConnection*> inside(connections.begin(), connections.begin() + shown);
+      std::vector<vital::ModulationConnection*> rest(connections.begin() + shown, connections.end());
+      positionModulationAmountSlidersInside(source, inside, max_modulations_inside);
+      positionModulationAmountSlidersCallout(source, rest, shown, max_modulations_inside);
+    }
     else
       positionModulationAmountSlidersInside(source, connections);
   }

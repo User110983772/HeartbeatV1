@@ -533,7 +533,7 @@ namespace vital {
   SynthOscillator::SynthOscillator(Wavetable* wavetable) :
       Processor(kNumInputs, kNumOutputs), random_generator_(-1.0f, 1.0f),
       transpose_quantize_(0), last_quantized_transpose_(0.0f), last_quantize_ratio_(1.0f),
-      unison_(1), active_oscillators_(2), wavetable_(wavetable), wavetable_version_(wavetable->getVersion()),
+      unison_(1), engine_unison_(1), group_unison_(1), active_oscillators_(2), wavetable_(wavetable), wavetable_version_(wavetable->getVersion()),
       first_mod_oscillator_(nullptr), second_mod_oscillator_(nullptr), sample_(nullptr),
       spectral_memory_(std::make_shared<SpectralMemory>()), spectral_slot_(0), spectral_generation_(-1),
       spectral_frames_(nullptr) {
@@ -650,12 +650,71 @@ namespace vital {
     *detuned_amplitude = adjustment * detuned;
   }
 
+  int SynthOscillator::groupUnisonMode() {
+    // 0 when the engine doesn't use its group's unison, otherwise 1 + constants::GroupUnisonMode.
+    return std::roundf(input(kGroupUnisonMode)->at(0)[0]);
+  }
+
+  void SynthOscillator::setUnisonVoices() {
+    int mode = groupUnisonMode();
+    engine_unison_ = utils::clamp(roundf(input(kUnisonVoices)->at(0)[0]), 1.0f, kMaxUnison);
+    group_unison_ = 1;
+    if (mode)
+      group_unison_ = utils::clamp(roundf(input(kGroupUnisonVoices)->at(0)[0]), 1.0f, kMaxUnison);
+
+    if (mode == constants::kGroupUnisonNested + 1) {
+      // Every group voice holds a copy of the engine's unison; the engine's count gives way to stay within 16.
+      engine_unison_ = std::min(engine_unison_, kMaxUnison / group_unison_);
+      unison_ = engine_unison_ * group_unison_;
+    }
+    else
+      unison_ = std::max(engine_unison_, group_unison_);
+
+    setActiveOscillators(unison_ + (unison_ % 2));
+  }
+
   void SynthOscillator::setPhaseIncMults() {
+    // The detune knob is quadratic, so its control arrives squared: 10 on the knob is 100 here.
+    static constexpr mono_float kMaxUnisonDetune = 100.0f;
+
     poly_float range = input(kDetuneRange)->at(0);
-    poly_float cents = range * input(kUnisonDetune)->at(0);
     poly_float power = input(kDetunePower)->at(0);
-    int stack_style = std::roundf(input(kStackStyle)->at(0)[0]);
-    computeUnisonDetunings(unison_, cents, power, stack_style, detunings_);
+    poly_float engine_detune = input(kUnisonDetune)->at(0);
+    int engine_stack = std::roundf(input(kStackStyle)->at(0)[0]);
+    poly_float group_detune = input(kGroupUnisonDetune)->at(0);
+    int group_stack = utils::iclamp(std::roundf(input(kGroupStackStyle)->at(0)[0]), 0, kNumUnisonStackTypes - 1);
+
+    int mode = groupUnisonMode();
+    if (mode == constants::kGroupUnisonCombined + 1) {
+      // One set of voices: the detune amounts (cents) add, and the engine's stack style wins unless it has none.
+      poly_float detune = utils::clamp(engine_detune + group_detune, 0.0f, kMaxUnisonDetune);
+      int stack = engine_stack ? engine_stack : group_stack;
+      computeUnisonDetunings(unison_, range * detune, power, stack, detunings_);
+    }
+    else if (mode == constants::kGroupUnisonNested + 1) {
+      // Each entry is a stereo pair of voices (left and right lanes). Every engine pair is placed around every
+      // group pair, once as is and once with the group pair mirrored, so all combinations sound. A centre
+      // (odd count, first entry) is a single voice, so it pairs once.
+      poly_float engine_detunings[kNumPolyPhase];
+      poly_float group_detunings[kNumPolyPhase];
+      computeUnisonDetunings(engine_unison_, range * engine_detune, power, engine_stack, engine_detunings);
+      computeUnisonDetunings(group_unison_, range * group_detune, power, group_stack, group_detunings);
+
+      int engine_entries = (engine_unison_ + 1) / 2;
+      int group_entries = (group_unison_ + 1) / 2;
+      int entry = 0;
+      for (int g = 0; g < group_entries; ++g) {
+        bool group_center = g == 0 && group_unison_ % 2;
+        for (int e = 0; e < engine_entries; ++e) {
+          bool engine_center = e == 0 && engine_unison_ % 2;
+          detunings_[entry++] = engine_detunings[e] * group_detunings[g];
+          if (!group_center && !engine_center)
+            detunings_[entry++] = engine_detunings[e] * utils::swapStereo(group_detunings[g]);
+        }
+      }
+    }
+    else
+      computeUnisonDetunings(unison_, range * engine_detune, power, engine_stack, detunings_);
 
     int num_updates = active_oscillators_ / 2;
     for (int i = 0; i < num_updates; ++i) {
@@ -1272,8 +1331,7 @@ namespace vital {
     bool left_active = active_voice[0] == 1.0f;
     bool right_active = active_voice[2] == 1.0f;
 
-    unison_ = utils::clamp(roundf(input(kUnisonVoices)->at(0)[0]), 1.0f, kMaxUnison);
-    setActiveOscillators(unison_ + (unison_ % 2));
+    setUnisonVoices();
 
     SpectralMorph spectral_morph = static_cast<SpectralMorph>((int)input(kSpectralMorphType)->at(0)[0]);
     DistortionType distortion_type = static_cast<DistortionType>((int)input(kDistortionType)->at(0)[0]);
@@ -1575,13 +1633,37 @@ namespace vital {
   // Unison works as for wavetables: each unison pair's sharp voice plays left and its flat voice right,
   // with the same detune, stacking and center/detuned blend. Detuning moves each voice's focus band.
   // Phase, frequency morph, distortion and wavetable controls do not apply to noise.
+  // Noise has no cycle, so phase picks a "take": where its random sequence starts. With no phase randomisation
+  // every note plays the same take; turning it up adds variations, up to a new take on every note.
+  void SynthOscillator::seedNoiseTakes(poly_mask reset_mask) {
+    static constexpr mono_float kNumTakes = 65536.0f;
+    static constexpr mono_float kMaxVariationOctaves = 16.0f;
+
+    poly_float phase = input(kPhase)->source->buffer[0];
+    poly_float random_amount = input(kRandomPhase)->at(0);
+    for (int v = 0; v < kNumVoicesPerProcess; ++v) {
+      if (reset_mask[2 * v] == 0)
+        continue;
+
+      mono_float amount = utils::clamp(random_amount[2 * v], 0.0f, 1.0f);
+      mono_float variations = amount > 0.0f ? std::exp2(kMaxVariationOctaves * amount) : 1.0f;
+      mono_float random = (random_generator_.next() + 1.0f) * 0.5f;
+      mono_float start = phase[2 * v] - std::floor(phase[2 * v]);
+      uint32_t take = static_cast<uint32_t>(start * kNumTakes) +
+                      static_cast<uint32_t>(random * variations);
+
+      poly_mask voice_mask = v == 0 ? constants::kFirstMask : constants::kSecondMask;
+      for (int i = 0; i < kNumPolyPhase; ++i)
+        noises_[i].seedTake(take, i, voice_mask);
+    }
+  }
+
   void SynthOscillator::processNoise(int num_samples) {
     poly_mask active_voice_mask = poly_float::equal(input(kActiveVoices)->at(0), 1.0f);
     poly_mask reset_mask = getResetMask(kReset);
     poly_mask all_mask = poly_float::equal(0.0f, 0.0f);
 
-    unison_ = utils::clamp(roundf(input(kUnisonVoices)->at(0)[0]), 1.0f, kMaxUnison);
-    setActiveOscillators(unison_ + (unison_ % 2));
+    setUnisonVoices();
     int num_noises = active_oscillators_ / 2;
     setAmplitude();
     setPhaseIncMults();
@@ -1617,16 +1699,25 @@ namespace vital {
     int last = num_samples - 1;
     midi += input(kTranspose)->at(last) + input(kTune)->at(last);
 
+    if (reset_mask.anyMask())
+      seedNoiseTakes(reset_mask);
+
     poly_float* audio_out = output(kRaw)->buffer;
     utils::zeroBuffer(audio_out, num_samples);
     poly_float color = input(kNoiseColor)->at(0);
     poly_float focus = input(kNoiseFocus)->at(0);
+    // Spreads run like Vital's: the centre pair keeps the knob's value and the outer pairs move away from it.
+    poly_float color_spread = input(kUnisonSpectralMorphSpread)->at(0);
+    poly_float focus_spread = input(kNoiseFocusSpread)->at(0);
     poly_float frequency = utils::midiNoteToFrequency(midi);
     for (int i = 0; i < kNumPolyPhase; ++i) {
       bool audible = poly_float::notEqual(gain_starts[i], 0.0f).anyMask() ||
                      poly_float::notEqual(gain_ends[i], 0.0f).anyMask();
       if (audible) {
-        noises_[i].addTo(audio_out, num_samples, color, focus, frequency * phase_inc_mults_[i],
+        mono_float t = 2.0f * i / (std::max(2, num_noises) - 1.0f);
+        poly_float pair_color = utils::clamp(color + color_spread * t, 0.0f, 1.0f);
+        poly_float pair_focus = utils::clamp(focus + focus_spread * t, 0.0f, 1.0f);
+        noises_[i].addTo(audio_out, num_samples, pair_color, pair_focus, frequency * phase_inc_mults_[i],
                          gain_starts[i], gain_ends[i]);
       }
     }

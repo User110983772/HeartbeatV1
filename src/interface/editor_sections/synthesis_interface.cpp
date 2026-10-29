@@ -16,24 +16,11 @@
 
 #include "synthesis_interface.h"
 
-#include "oscillator_section.h"
-#include "producers_module.h"
-#include "synth_oscillator.h"
-#include "sample_section.h"
-
 SynthesisInterface::SynthesisInterface(Authentication* auth,
                                        const vital::output_map& mono_modulations,
                                        const vital::output_map& poly_modulations) : SynthSection("synthesis") {
-  for (int i = 0; i < vital::kNumOscillatorSections; ++i) {
-    oscillators_[i] = std::make_unique<OscillatorSection>(auth, i, mono_modulations, poly_modulations);
-    addSubSection(oscillators_[i].get());
-    oscillators_[i]->addListener(this);
-  }
-
-  sample_section_ = std::make_unique<SampleSection>("SMP");
-  addSubSection(sample_section_.get());
-  sample_section_->addListener(this);
-
+  sound_engines_ = std::make_unique<SoundEngineList>(auth, mono_modulations, poly_modulations);
+  addSubSection(sound_engines_.get());
   setOpaque(false);
 }
 
@@ -44,31 +31,18 @@ void SynthesisInterface::paintBackground(Graphics& g) {
 }
 
 void SynthesisInterface::resized() {
-  int padding = getPadding();
-
-  int oscillator_margin = oscillators_[0]->findValue(Skin::kWidgetMargin);
-  int oscillator_height = 2 * (int)oscillators_[0]->getKnobSectionHeight() - oscillator_margin;
-
-  for (int i = 0; i < vital::kNumOscillatorSections; ++i)
-    oscillators_[i]->setBounds(0, i * (oscillator_height + padding), getWidth(), oscillator_height);
-
-  int sample_y = oscillators_[vital::kNumOscillatorSections - 1]->getBottom() + padding;
-  int sample_height = sample_section_->getKnobSectionHeight();
-  sample_section_->setBounds(0, sample_y, getWidth(), sample_height);
+  sound_engines_->setBounds(getLocalBounds());
   SynthSection::resized();
+}
+
+Rectangle<int> SynthesisInterface::getOscillatorBounds(int index) {
+  int height = sound_engines_->getOscillatorHeight();
+  return Rectangle<int>(0, index * (height + getPadding()), getWidth(), height);
 }
 
 void SynthesisInterface::visibilityChanged() {
   if (isShowing()) {
-    for (int i = 0; i < vital::kNumOscillatorSections; ++i)
-      oscillators_[i]->loadBrowserState();
+    for (int i = 0; i < vital::kNumOscillators; ++i)
+      getOscillatorSection(i)->loadBrowserState();
   }
 }
-
-// FM/RM always read the sound engine directly above, so modulation can't form a loop.
-void SynthesisInterface::distortionTypeChanged(OscillatorSection* section, int distortion_type) { }
-
-// The oscillator and sample routers are kept for a later feature; with no voice filters they route nothing.
-void SynthesisInterface::oscillatorDestinationChanged(OscillatorSection* section, int destination) { }
-
-void SynthesisInterface::sampleDestinationChanged(SampleSection* section, int destination) { }

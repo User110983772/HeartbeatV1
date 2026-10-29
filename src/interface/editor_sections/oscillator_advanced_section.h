@@ -34,6 +34,8 @@ class OscillatorAdvancedSection : public SynthSection {
     void paintBackground(Graphics& g) override { paintChildrenBackgrounds(g); }
     void resized() override;
     void passOscillatorSection(const OscillatorSection* oscillator);
+    // Noise engines spread color and focus instead of spectral morph and distortion.
+    void setNoise(bool noise);
 
   private:
     std::unique_ptr<OscillatorOptions> oscillator_options_;

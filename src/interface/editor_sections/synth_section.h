@@ -148,6 +148,15 @@ class AppLogo : public OpenGlImageComponent {
 class SynthSection : public Component, public Slider::Listener,
                      public Button::Listener, public SynthButton::ButtonListener {
   public:
+    // Space kept clear at the top and bottom of a sideways title (for buttons there); the name centres between.
+    // A top of 0 keeps the usual space for the power button.
+    void setSidewaysHeadingInsets(int top, int bottom) {
+      if (top == sideways_heading_top_inset_ && bottom == sideways_heading_bottom_inset_)
+        return;
+      sideways_heading_top_inset_ = top;
+      sideways_heading_bottom_inset_ = bottom;
+      repaintBackground();
+    }
     static constexpr int kDefaultPowerButtonOffset = 0;
     static constexpr float kPowerButtonPaddingPercent = 0.29f;
     static constexpr float kTransposeHeightPercent = 0.5f;
@@ -360,6 +369,8 @@ class SynthSection : public Component, public Slider::Listener,
     float size_ratio_;
     bool active_;
     bool sideways_heading_;
+    int sideways_heading_top_inset_ = 0;
+    int sideways_heading_bottom_inset_ = 0;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SynthSection)
 };

@@ -150,10 +150,9 @@ void OpenGlButtonComponent::renderPowerButton(OpenGlWrapper& open_gl, bool anima
   static constexpr float kPowerRadius = 0.45f;
   static constexpr float kPowerHoverRadius = 0.65f;
 
-  if (button_->getToggleState())
-    background_.setColor(on_color_);
-  else
-    background_.setColor(off_color_);
+  static constexpr float kDimmedAlpha = 0.35f;
+  Colour color = button_->getToggleState() ? on_color_ : off_color_;
+  background_.setColor(dimmed_ ? color.withMultipliedAlpha(kDimmedAlpha) : color);
 
   background_.setQuad(0, -kPowerRadius, -kPowerRadius, 2.0f * kPowerRadius, 2.0f * kPowerRadius);
   background_.render(open_gl, animate);

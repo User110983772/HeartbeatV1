@@ -20,16 +20,28 @@
 
 #include "wavetable_playhead.h"
 
+// Shows which frame the playhead is on; right-click to type a frame to go to.
 class WavetablePlayheadInfo : public Component, public WavetablePlayhead::Listener {
   public: 
+    class Listener {
+      public:
+        virtual ~Listener() { }
+        virtual void frameEntryRequested() = 0;
+    };
+
     WavetablePlayheadInfo() : playhead_position_(0) { }
 
     void paint(Graphics& g) override;
     void resized() override;
     void playheadMoved(int position) override;
+    void mouseDown(const MouseEvent& e) override;
+
+    void addListener(Listener* listener) { listeners_.push_back(listener); }
+    int position() const { return playhead_position_; }
 
   protected:  
     int playhead_position_;
+    std::vector<Listener*> listeners_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(WavetablePlayheadInfo)
 };

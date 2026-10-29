@@ -97,8 +97,18 @@ class ModulationButton : public PlainShapeComponent {
     void setDrawBorder(bool border) { draw_border_ = border; repaint(); }
     void overrideText(String text) { text_override_ = std::move(text); repaint(); }
 
+    // Groups (1-based) that use this modulator as their amp source. Shown as a glyph; hovering it lists them.
+    // Returns whether anything changed, so the caller knows to repaint the background.
+    bool setAmpGroups(std::vector<int> groups);
+    Rectangle<int> getAmpGlyphBounds();
+    void mouseMove(const MouseEvent& e) override;
+
   private:
     void disconnectModulation(vital::ModulationConnection* connection);
+    void showAmpGroups(bool show);
+
+    std::vector<int> amp_groups_;
+    bool showing_amp_groups_ = false;
 
     String text_override_;
     SynthGuiInterface* parent_;

@@ -231,6 +231,12 @@ class ModulationManager : public SynthSection,
     void drawDraggingModulation(OpenGlWrapper& open_gl);
     void renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) override;
     void renderMeters(OpenGlWrapper& open_gl, bool animate);
+    // A scrolling section that paints its own opaque background draws its meters after it, or the
+    // background would cover them.
+    // Points a destination at another slider for the same parameter; only one of them is shown at a time.
+    void rebindDestination(const std::string& name, SynthSlider* slider);
+    void drawMetersInsideViewport(Viewport* viewport) { owner_drawn_viewports_.insert(viewport); }
+    void renderViewportMeters(OpenGlWrapper& open_gl, bool animate, Viewport* viewport);
     void renderSourceMeters(OpenGlWrapper& open_gl, int index);
     void updateSmoothModValues();
     void destroyOpenGlComponents(OpenGlWrapper& open_gl) override;
@@ -265,10 +271,13 @@ class ModulationManager : public SynthSection,
     void setDestinationQuadBounds(ModulationDestination* destination);
     void makeCurrentModulatorAmountsVisible();
     void makeModulationsVisible(SynthSlider* destination, bool visible);
+    // total_slots: how many knob slots the tab is laid out for; 0 means one per connection.
     void positionModulationAmountSlidersInside(const std::string& source,
-                                               std::vector<vital::ModulationConnection*> connections);
+                                               std::vector<vital::ModulationConnection*> connections,
+                                               int total_slots = 0);
     void positionModulationAmountSlidersCallout(const std::string& source,
-                                                std::vector<vital::ModulationConnection*> connections);
+                                                std::vector<vital::ModulationConnection*> connections,
+                                                int slot, int total_slots);
     void showModulationAmountCallout(const std::string& source);
     void hideModulationAmountCallout();
     void positionModulationAmountSliders(const std::string& source);
@@ -294,6 +303,8 @@ class ModulationManager : public SynthSection,
     std::map<Viewport*, std::unique_ptr<OpenGlMultiQuad>> linear_destinations_;
     std::map<Viewport*, std::unique_ptr<OpenGlMultiQuad>> rotary_meters_;
     std::map<Viewport*, std::unique_ptr<OpenGlMultiQuad>> linear_meters_;
+    std::set<Viewport*> owner_drawn_viewports_;
+    std::set<SynthSlider*> listened_sliders_;
     Point<int> mouse_drag_start_;
     Point<int> mouse_drag_position_;
     bool modifying_;

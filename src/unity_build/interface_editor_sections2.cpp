@@ -21,6 +21,8 @@
 #include "flanger_section.cpp"
 #include "macro_knob_section.cpp"
 #include "effects_interface.cpp"
+#include "sound_engine_list.cpp"
+#include "group_settings_section.cpp"
 #include "synthesis_interface.cpp"
 #include "filter_section.cpp"
 #include "modulation_interface.cpp"

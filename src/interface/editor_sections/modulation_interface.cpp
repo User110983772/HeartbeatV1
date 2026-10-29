@@ -53,7 +53,6 @@ ModulationInterface::ModulationInterface(SynthGuiData* synth_data) : SynthSectio
   envelope_tab_selector_->addListener(this);
   envelope_tab_selector_->registerModulationButtons(this);
   envelope_tab_selector_->enableSelections();
-  envelope_tab_selector_->setMinModulationsShown(kMinEnvelopeModulationsToShow);
   envelope_tab_selector_->connectRight(true);
   envelope_tab_selector_->drawBorders(true);
 
@@ -71,7 +70,6 @@ ModulationInterface::ModulationInterface(SynthGuiData* synth_data) : SynthSectio
   lfo_tab_selector_->addListener(this);
   lfo_tab_selector_->registerModulationButtons(this);
   lfo_tab_selector_->enableSelections();
-  lfo_tab_selector_->setMinModulationsShown(kMinLfoModulationsToShow);
   lfo_tab_selector_->connectRight(true);
   lfo_tab_selector_->drawBorders(true);
 
@@ -89,7 +87,6 @@ ModulationInterface::ModulationInterface(SynthGuiData* synth_data) : SynthSectio
   random_tab_selector_->addListener(this);
   random_tab_selector_->registerModulationButtons(this);
   random_tab_selector_->enableSelections();
-  random_tab_selector_->setMinModulationsShown(kMinRandomModulationsToShow);
   random_tab_selector_->connectRight(true);
   random_tab_selector_->drawBorders(true);
 

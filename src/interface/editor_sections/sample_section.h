@@ -35,7 +35,8 @@ class SampleSection : public SynthSection, public SampleViewer::Listener, public
         virtual void sampleDestinationChanged(SampleSection* sample, int destination) = 0;
     };
 
-    SampleSection(String name);
+    SampleSection(String name, int engine);
+    int engine() const { return engine_; }
     ~SampleSection();
 
     void parentHierarchyChanged() override;
@@ -49,7 +50,6 @@ class SampleSection : public SynthSection, public SampleViewer::Listener, public
     void buttonClicked(Button* clicked_button) override;
     void setDestinationSelected(int selection);
     void setupDestination();
-    void toggleFilterInput(int filter_index, bool on);
 
     void loadFile(const File& file) override;
     void sampleLoaded(const File& file) override { loadFile(file); }
@@ -86,6 +86,8 @@ class SampleSection : public SynthSection, public SampleViewer::Listener, public
     std::unique_ptr<OpenGlShapeButton> random_phase_;
 
     AudioSampleBuffer sample_buffer_;
+    int engine_;
+    std::string engine_prefix_;
     vital::Sample* sample_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SampleSection)

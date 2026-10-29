@@ -18,12 +18,11 @@
 
 #include "JuceHeader.h"
 
-#include "oscillator_section.h"
-#include "sample_section.h"
+#include "sound_engine_list.h"
 #include "synth_section.h"
 
-class SynthesisInterface : public SynthSection, public OscillatorSection::Listener,
-                           public SampleSection::Listener {
+// The voice tab: the scrolling list of oscillator groups and sound engines.
+class SynthesisInterface : public SynthSection {
   public:
     SynthesisInterface(Authentication* auth,
                        const vital::output_map& mono_modulations,
@@ -35,23 +34,16 @@ class SynthesisInterface : public SynthSection, public OscillatorSection::Listen
     void visibilityChanged() override;
 
     void setFocus() { grabKeyboardFocus(); }
-    void distortionTypeChanged(OscillatorSection* section, int type) override;
-    void oscillatorDestinationChanged(OscillatorSection* section, int destination) override;
 
-    void sampleDestinationChanged(SampleSection* section, int destination) override;
-
-    Slider* getWaveFrameSlider(int index) { return oscillators_[index]->getWaveFrameSlider(); }
-    Rectangle<int> getOscillatorBounds(int index) { return oscillators_[index]->getBounds(); }
-    const OscillatorSection* getOscillatorSection(int index) const { return oscillators_[index].get(); }
-
-    void setWavetableName(int index, String name) { oscillators_[index]->setName(name); }
-
-    OscillatorSection* getOscillatorSection(int index) { return oscillators_[index].get(); }
+    Slider* getWaveFrameSlider(int index) { return getOscillatorSection(index)->getWaveFrameSlider(); }
+    // Where the Advanced tab places its panel for sound engine `index` (it still shows a fixed stack).
+    Rectangle<int> getOscillatorBounds(int index);
+    void setWavetableName(int index, String name) { getOscillatorSection(index)->setName(name); }
+    OscillatorSection* getOscillatorSection(int index) { return sound_engines_->getOscillatorSection(index); }
+    SoundEngineList* getSoundEngineList() { return sound_engines_.get(); }
 
   private:
-    std::unique_ptr<OscillatorSection> oscillators_[vital::kNumOscillatorSections];
-    std::unique_ptr<SampleSection> sample_section_;
+    std::unique_ptr<SoundEngineList> sound_engines_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SynthesisInterface)
 };
-

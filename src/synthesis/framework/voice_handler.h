@@ -349,6 +349,12 @@ namespace vital {
       force_inline Output* last_note() { return &last_note_; }
       force_inline Output* note_pressed() { return &note_pressed_; }
       force_inline Output* note_count() { return &note_count_; }
+      // 1 for the newest held voice (or the newest voice when none are held), 0 for the others.
+      force_inline Output* newest() { return &newest_; }
+      // Legato: 1 for the voice a held phrase started in (the oldest held voice; kept once all are released).
+      force_inline Output* legato_voice() { return &legato_voice_; }
+      // The newest held note, for every voice: where a legato phrase's pitch goes.
+      force_inline Output* legato_note() { return &legato_note_; }
       force_inline Output* note_in_octave() { return &note_in_octave_; }
       force_inline Output* channel() { return &channel_; }
       force_inline Output* velocity() { return &velocity_; }
@@ -449,6 +455,12 @@ namespace vital {
       cr::Output last_note_;
       cr::Output note_pressed_;
       cr::Output note_count_;
+      cr::Output newest_;
+      int newest_note_count_;
+      cr::Output legato_voice_;
+      cr::Output legato_note_;
+      int legato_note_count_;
+      mono_float legato_target_note_;
       cr::Output note_in_octave_;
       cr::Output channel_;
       cr::Output velocity_;

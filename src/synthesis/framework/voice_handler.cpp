@@ -80,6 +80,9 @@ namespace vital {
       sustain_(), sostenuto_(), mod_wheel_values_(), pitch_wheel_values_(), zoned_pitch_wheel_values_(),
       pressure_values_(), slide_values_(), tuning_(nullptr),
       voice_priority_(kRoundRobin), voice_override_(kKill), total_notes_(0) {
+    newest_note_count_ = -1;
+    legato_note_count_ = -1;
+    legato_target_note_ = 0.0f;
     pressed_notes_.reserve(kMidiSize);
     all_voices_.reserve(kMaxPolyphony + kParallelVoices);
     free_voices_.reserve(kMaxPolyphony + kParallelVoices);
@@ -96,6 +99,9 @@ namespace vital {
     last_note_.owner = &voice_router_;
     note_pressed_.owner = &voice_router_;
     note_count_.owner = &voice_router_;
+    newest_.owner = &voice_router_;
+    legato_voice_.owner = &voice_router_;
+    legato_note_.owner = &voice_router_;
     note_in_octave_.owner = &voice_router_;
     channel_.owner = &voice_router_;
     velocity_.owner = &voice_router_;
@@ -187,6 +193,11 @@ namespace vital {
 
       note_pressed_.trigger_value = utils::maskLoad(note_pressed_.trigger_value, voice->state().note_pressed, mask);
       note_count_.trigger_value = utils::maskLoad(note_count_.trigger_value, voice->state().note_count, mask);
+      mono_float newest = voice->state().note_count == newest_note_count_ ? 1.0f : 0.0f;
+      newest_.trigger_value = utils::maskLoad(newest_.trigger_value, newest, mask);
+      mono_float legato = voice->state().note_count == legato_note_count_ ? 1.0f : 0.0f;
+      legato_voice_.trigger_value = utils::maskLoad(legato_voice_.trigger_value, legato, mask);
+      legato_note_.trigger_value = legato_target_note_;
       note_in_octave_.trigger_value = utils::mod(note * (1.0f / kNotesPerOctave));
       channel_.trigger_value = utils::maskLoad(channel_.trigger_value, channel, mask);
       velocity_.trigger_value = utils::maskLoad(velocity_.trigger_value, voice->state().velocity, mask);
@@ -294,6 +305,26 @@ namespace vital {
     voice_override_ = static_cast<VoiceOverride>(voice_override);
 
     clearAccumulatedOutputs();
+
+    int newest_held = -1;
+    int newest_any = -1;
+    int oldest_held = -1;
+    for (Voice* active_voice : active_voices_) {
+      int count = active_voice->state().note_count;
+      Voice::KeyState key_state = active_voice->key_state();
+      bool held = key_state == Voice::kTriggering || key_state == Voice::kHeld || key_state == Voice::kSustained;
+      if (held) {
+        if (count > newest_held)
+          legato_target_note_ = active_voice->state().tuned_note;
+        newest_held = std::max(newest_held, count);
+        oldest_held = oldest_held < 0 ? count : std::min(oldest_held, count);
+      }
+      newest_any = std::max(newest_any, count);
+    }
+    newest_note_count_ = newest_held >= 0 ? newest_held : newest_any;
+    // Once every key is up the phrase's voice keeps playing its release.
+    if (oldest_held >= 0)
+      legato_note_count_ = oldest_held;
 
     active_aggregate_voices_.clear();
     AggregateVoice* last_aggregate_voice = nullptr;

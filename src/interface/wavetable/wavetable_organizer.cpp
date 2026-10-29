@@ -25,6 +25,8 @@ namespace {
       organizer->createKeyframeAtMenu();
     else if (result == WavetableOrganizer::kRemove)
       organizer->deleteSelectedKeyframes();
+    else if (result == WavetableOrganizer::kGoToFrame)
+      organizer->requestFrameEntry(organizer->menuPosition(), organizer->menuFrame());
   }
 }
 
@@ -51,6 +53,8 @@ WavetableOrganizer::WavetableOrganizer(WavetableCreator* wavetable_creator, int 
   addOpenGlComponent(&selected_frame_quads_);
   addOpenGlComponent(&selection_quad_);
   addOpenGlComponent(&playhead_quad_);
+  hover_anchor_.setInterceptsMouseClicks(false, false);
+  addChildComponent(hover_anchor_);
 
   wavetable_creator_ = wavetable_creator;
   max_frames_ = max_frames;
@@ -378,9 +382,55 @@ WavetableKeyframe* WavetableOrganizer::getFrameAtMouseEvent(const MouseEvent& e)
   return nullptr;
 }
 
+WavetableKeyframe* WavetableOrganizer::getKeyframeAt(const MouseEvent& e) {
+  WavetableComponent* component = getComponentAtRow(getRowFromY(e.y));
+  if (component == nullptr || !component->hasKeyframes())
+    return nullptr;
+  return getFrameAtMouseEvent(e);
+}
+
+void WavetableOrganizer::requestFrameEntry(Point<int> point, int initial_frame) {
+  hidePopupDisplay(true);
+  for (Listener* listener : listeners_)
+    listener->frameEntryRequestedAt(this, point, initial_frame);
+}
+
+void WavetableOrganizer::mouseMove(const MouseEvent& e) {
+  // Over a keyframe or near the playhead line, a bubble shows the frame.
+  static constexpr int kHoverDistance = 4;
+  SynthSection::mouseMove(e);
+  WavetableKeyframe* keyframe = getKeyframeAt(e);
+  if (keyframe && frame_lookup_.count(keyframe)) {
+    hover_anchor_.setBounds(frame_lookup_[keyframe]->getBounds());
+    showPopupDisplay(&hover_anchor_, "Keyframe: Frame " + std::to_string(keyframe->position()),
+                     BubbleComponent::above, true);
+  }
+  else if (std::abs(e.x - getPlayheadX()) <= kHoverDistance) {
+    hover_anchor_.setBounds(getPlayheadX() - 1, e.y - 1, 2, 2);
+    showPopupDisplay(&hover_anchor_, "Frame " + std::to_string(playhead_position_), BubbleComponent::above, true);
+  }
+  else
+    hidePopupDisplay(true);
+}
+
+void WavetableOrganizer::mouseExit(const MouseEvent& e) {
+  SynthSection::mouseExit(e);
+  hidePopupDisplay(true);
+}
+
 void WavetableOrganizer::mouseDown(const MouseEvent& e) {
   Component::mouseDown(e);
   mouse_down_position_ = e.position.toInt();
+
+  // Alt+click on a keyframe or the playhead line, or right-click on the line: type a frame to jump to.
+  static constexpr int kHoverDistance = 4;
+  WavetableKeyframe* hovered = getKeyframeAt(e);
+  bool on_line = hovered == nullptr && std::abs(e.x - getPlayheadX()) <= kHoverDistance;
+  if ((e.mods.isAltDown() && (hovered || on_line)) || (e.mods.isPopupMenu() && on_line)) {
+    mouse_mode_ = kRightClick;
+    requestFrameEntry(e.getPosition(), hovered ? hovered->position() : playhead_position_);
+    return;
+  }
 
   WavetableKeyframe* keyframe = getFrameAtMouseEvent(e);
   if (keyframe) {
@@ -397,6 +447,9 @@ void WavetableOrganizer::mouseDown(const MouseEvent& e) {
 
 void WavetableOrganizer::mouseDrag(const MouseEvent& e) {
   Component::mouseDrag(e);
+  if (mouse_mode_ == kRightClick)
+    return;
+  hidePopupDisplay(true);
 
   int x_movement = e.x - mouse_down_position_.x;
   if (mouse_mode_ == kWaiting) {
@@ -436,6 +489,10 @@ void WavetableOrganizer::mouseDrag(const MouseEvent& e) {
 
 void WavetableOrganizer::mouseUp(const MouseEvent& e) {
   Component::mouseUp(e);
+  if (mouse_mode_ == kRightClick) {
+    mouse_mode_ = kWaiting;
+    return;
+  }
 
   if (mouse_mode_ == kWaiting)
     deselect();
@@ -489,6 +546,11 @@ void WavetableOrganizer::mouseUp(const MouseEvent& e) {
 
     menu_created_position_ = e.getPosition();
     PopupItems options;
+    WavetableKeyframe* hovered = getKeyframeAt(e);
+    if (hovered) {
+      menu_frame_ = hovered->position();
+      options.addItem(kGoToFrame, "Go To Frame...");
+    }
 
     if (!currently_selected_.empty()) {
       if (currently_selected_.size() > 1)

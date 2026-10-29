@@ -851,9 +851,9 @@ void OscillatorSection::buttonClicked(Button* clicked_button) {
   else if (clicked_button == destination_selector_.get()) {
     PopupItems options;
 
-    int num_source_destinations = vital::constants::kNumSourceDestinations;
-    for (int i = 0; i < num_source_destinations; ++i)
-      options.addItem(i, strings::kDestinationMenuNames[i]);
+    int num_engine_outputs = vital::constants::kNumEngineOutputs;
+    for (int i = 0; i < num_engine_outputs; ++i)
+      options.addItem(i, strings::kEngineOutputMenuNames[i]);
 
     Point<int> position(destination_selector_->getX(), destination_selector_->getBottom());
     showPopupSelector(this, position, options, [=](int selection) { setDestinationSelected(selection); });
@@ -876,11 +876,11 @@ void OscillatorSection::buttonClicked(Button* clicked_button) {
     wavetable_->setRenderType(static_cast<Wavetable3d::RenderType>(render_type));
   }
   else if (clicked_button == prev_destination_.get()) {
-    int new_destination = current_destination_ - 1 + vital::constants::kNumSourceDestinations;
-    setDestinationSelected(new_destination % vital::constants::kNumSourceDestinations);
+    int new_destination = current_destination_ - 1 + vital::constants::kNumEngineOutputs;
+    setDestinationSelected(new_destination % vital::constants::kNumEngineOutputs);
   }
   else if (clicked_button == next_destination_.get()) {
-    int new_destination = (current_destination_ + 1) % vital::constants::kNumSourceDestinations;
+    int new_destination = (current_destination_ + 1) % vital::constants::kNumEngineOutputs;
     setDestinationSelected(new_destination);
   }
   else if (clicked_button == prev_spectral_.get()) {
@@ -1040,14 +1040,6 @@ void OscillatorSection::setSourceSelected(int selection) {
   notifySourceChange();
 }
 
-void OscillatorSection::toggleFilterInput(int filter_index, bool on) {
-  vital::constants::SourceDestination current_destination = (vital::constants::SourceDestination)current_destination_;
-  if (filter_index == 0)
-    current_destination_ = vital::constants::toggleFilter1(current_destination, on);
-  else
-    current_destination_ = vital::constants::toggleFilter2(current_destination, on);
-  notifyDestinationChange();
-}
 
 void OscillatorSection::loadBrowserState() {
   FullInterface* parent = findParentComponentOfClass<FullInterface>();
@@ -1238,7 +1230,7 @@ void OscillatorSection::setupDestination() {
   for (Listener* listener : listeners_)
     listener->oscillatorDestinationChanged(this, current_destination_);
 
-  destination_text_->setText(strings::kDestinationNames[current_destination_]);
+  destination_text_->setText(strings::kEngineOutputNames[current_destination_]);
 }
 
 void OscillatorSection::setDistortionPhaseVisible(bool visible) {
@@ -1272,8 +1264,8 @@ bool OscillatorSection::isNoise() const {
   return current_source_ == vital::SynthOscillator::kNoiseSource;
 }
 
-// Noise keeps the panel's layout: the display, the two big knobs and their labels change role, and
-// the phase controls, which do not apply to noise, stay in place drawn inactive.
+// Noise keeps the panel's layout: the display, the two big knobs and their labels change role. Phase and
+// phase randomisation pick noise "takes"; the wave frame, which does not apply to noise, is drawn inactive.
 void OscillatorSection::setupSource() {
   bool noise = isNoise();
   source_button_->setText(kSourceButtonText[current_source_]);
@@ -1321,9 +1313,9 @@ void OscillatorSection::setSourceControlsActive() {
   noise_color_->setActive(active);
   noise_focus_->setActive(active);
 
-  SynthSlider* wavetable_controls[] = { wave_frame_.get(), phase_.get(), random_phase_.get() };
-  for (SynthSlider* wavetable_control : wavetable_controls)
-    wavetable_control->setActive(active && !noise);
+  wave_frame_->setActive(active && !noise);
+  phase_->setActive(active);
+  random_phase_->setActive(active);
 }
 
 void OscillatorSection::setNoiseTitle() {
@@ -1351,6 +1343,9 @@ void OscillatorSection::notifySourceChange() {
   SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
   if (parent)
     parent->getSynth()->valueChangedInternal(source_control_name_, current_source_);
+
+  for (Listener* listener : listeners_)
+    listener->oscillatorSourceChanged(this, current_source_);
 }
 
 void OscillatorSection::notifyDestinationChange() {

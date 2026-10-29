@@ -42,6 +42,18 @@ class OscillatorOptions : public SynthSection {
       addButton(smooth_interpolation_.get());
       smooth_interpolation_->setLookAndFeel(TextLookAndFeel::instance());
       smooth_interpolation_->setButtonText("HI-RES WAVETABLE");
+
+      follow_group_ = std::make_unique<SynthButton>("osc_" + number + "_group_unison");
+      addButton(follow_group_.get());
+      follow_group_->setLookAndFeel(TextLookAndFeel::instance());
+      follow_group_->setButtonText("GROUP UNISON");
+
+      group_mode_ = std::make_unique<TextSelector>("osc_" + number + "_group_unison_mode");
+      addSlider(group_mode_.get());
+      group_mode_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+      group_mode_->setLookAndFeel(TextLookAndFeel::instance());
+      group_mode_->setLongStringLookup(strings::kGroupUnisonModeNames);
+      group_mode_->getProperties().set(TextLookAndFeel::kCentreTextProperty, true);
     }
 
     virtual ~OscillatorOptions() { }
@@ -52,7 +64,10 @@ class OscillatorOptions : public SynthSection {
       g.setColour(findColour(Skin::kTextComponentBackground, true));
       float rounding = findValue(Skin::kLabelBackgroundRounding);
       g.fillRoundedRectangle(midi_track_->getBounds().toFloat(), rounding);
-      g.fillRoundedRectangle(smooth_interpolation_->getBounds().toFloat(), rounding);
+      if (!noise_)
+        g.fillRoundedRectangle(smooth_interpolation_->getBounds().toFloat(), rounding);
+      g.fillRoundedRectangle(follow_group_->getBounds().toFloat(), rounding);
+      drawTextComponentBackground(g, group_mode_->getBounds(), true);
     }
 
     void paintBackgroundShadow(Graphics& g) override {
@@ -67,12 +82,37 @@ class OscillatorOptions : public SynthSection {
       int widget_margin = getWidgetMargin();
       int x = title_width + widget_margin;
       int width = getWidth() - x - widget_margin;
-      int section_height = getKnobSectionHeight();
+      // Noise has no wavetable, so HI-RES WAVETABLE is gone and the other rows share its space evenly.
+      std::vector<Component*> rows = { midi_track_.get(), follow_group_.get(), group_mode_.get() };
+      if (!noise_)
+        rows.insert(rows.begin() + 1, smooth_interpolation_.get());
+      smooth_interpolation_->setVisible(!noise_);
 
-      midi_track_->setBounds(x, widget_margin, width, section_height - 2 * widget_margin);
+      int count = static_cast<int>(rows.size());
+      float row_height = (getHeight() - (count + 1) * widget_margin) / (1.0f * count);
+      for (int i = 0; i < count; ++i) {
+        int top = std::round(widget_margin + i * (row_height + widget_margin));
+        int bottom = std::round(widget_margin + i * (row_height + widget_margin) + row_height);
+        rows[i]->setBounds(x, top, width, bottom - top);
+      }
+    }
 
-      int smooth_y = midi_track_->getBottom() + widget_margin;
-      smooth_interpolation_->setBounds(x, smooth_y, width, getHeight() - smooth_y - widget_margin);
+    void setNoise(bool noise) {
+      if (noise == noise_)
+        return;
+      noise_ = noise;
+      resized();
+      repaintBackground();
+    }
+
+    // The mode only matters while the engine uses its group's unison; then its text is red like a switched on
+    // button, otherwise dimmed.
+    void updateGroupModeActive() {
+      bool engine_on = oscillator_active_ == nullptr || oscillator_active_->getToggleState();
+      bool group_unison = follow_group_->getToggleState();
+      group_mode_->getProperties().set(TextLookAndFeel::kOnTextProperty, group_unison);
+      group_mode_->setActive(group_unison && engine_on);
+      group_mode_->redoImage();
     }
 
     void setAllValues(vital::control_map& controls) override {
@@ -80,6 +120,7 @@ class OscillatorOptions : public SynthSection {
 
       if (oscillator_active_)
         setActive(oscillator_active_->getToggleState());
+      updateGroupModeActive();
     }
 
     void buttonClicked(Button* clicked_button) override {
@@ -87,20 +128,25 @@ class OscillatorOptions : public SynthSection {
         setActive(oscillator_active_->getToggleState());
       else
         SynthSection::buttonClicked(clicked_button);
+      updateGroupModeActive();
     }
 
     void passOscillatorSection(const OscillatorSection* oscillator) {
       oscillator_active_ = oscillator->activator();
       oscillator_active_->addListener(this);
       setActive(oscillator_active_->getToggleState());
+      updateGroupModeActive();
     }
 
   private:
     int index_;
+    bool noise_ = false;
     ToggleButton* oscillator_active_;
 
     std::unique_ptr<SynthButton> midi_track_;
     std::unique_ptr<SynthButton> smooth_interpolation_;
+    std::unique_ptr<SynthButton> follow_group_;
+    std::unique_ptr<TextSelector> group_mode_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OscillatorOptions)
 };
@@ -156,6 +202,18 @@ class SpreadVisualizer : public BarRenderer {
         poly_modulations.at(distortion_spread_name)
       };
 
+      // Noise: the middle row shows color and its spread, the bottom row focus and its spread.
+      std::string color_name = "osc_" + number + "_noise_color";
+      color_outputs_ = { mono_modulations.at(color_name), poly_modulations.at(color_name) };
+      std::string focus_name = "osc_" + number + "_noise_focus";
+      focus_outputs_ = { mono_modulations.at(focus_name), poly_modulations.at(focus_name) };
+      std::string focus_spread_name = "osc_" + number + "_noise_focus_spread";
+      focus_spread_outputs_ = { mono_modulations.at(focus_spread_name), poly_modulations.at(focus_spread_name) };
+      noise_ = false;
+      color_slider_ = nullptr;
+      focus_slider_ = nullptr;
+      focus_spread_slider_ = nullptr;
+
       voices_slider_ = nullptr;
 
       wave_frame_slider_ = nullptr;
@@ -174,6 +232,12 @@ class SpreadVisualizer : public BarRenderer {
     void setTableSpreadSlider(const SynthSlider* slider) { table_spread_slider_ = slider; }
     void setSpectralSpreadSlider(const SynthSlider* slider) { spectral_spread_slider_ = slider; }
     void setDistortionSpreadSlider(const SynthSlider* slider) { distortion_spread_slider_ = slider; }
+    void setNoiseSliders(const SynthSlider* color, const SynthSlider* focus, const SynthSlider* focus_spread) {
+      color_slider_ = color;
+      focus_slider_ = focus;
+      focus_spread_slider_ = focus_spread;
+    }
+    void setNoise(bool noise) { noise_ = noise; }
 
     inline vital::poly_float getOutputsTotal(std::pair<vital::Output*, vital::Output*> outputs,
                                              vital::poly_float default_value, bool animate) {
@@ -199,16 +263,20 @@ class SpreadVisualizer : public BarRenderer {
       if (voices <= 2)
         return;
 
+      bool noise = noise_ && color_slider_ && focus_slider_ && focus_spread_slider_;
       vital::poly_float frame = getOutputsTotal(wave_frame_outputs_, wave_frame_slider_->getValue(), animate);
-      vital::poly_float morph = getOutputsTotal(spectral_morph_outputs_, spectral_morph_slider_->getValue(), animate);
-      vital::poly_float distortion = getOutputsTotal(distortion_outputs_, distortion_slider_->getValue(), animate);
+      vital::poly_float morph = noise ? getOutputsTotal(color_outputs_, color_slider_->getValue(), animate) :
+                                        getOutputsTotal(spectral_morph_outputs_, spectral_morph_slider_->getValue(), animate);
+      vital::poly_float distortion = noise ? getOutputsTotal(focus_outputs_, focus_slider_->getValue(), animate) :
+                                             getOutputsTotal(distortion_outputs_, distortion_slider_->getValue(), animate);
 
       vital::poly_float frame_spread = getOutputsTotal(table_spread_outputs_,
                                                        table_spread_slider_->getValue(), animate);
       vital::poly_float morph_spread = getOutputsTotal(spectral_spread_outputs_,
                                                        spectral_spread_slider_->getValue(), animate);
-      vital::poly_float distortion_spread = getOutputsTotal(distortion_spread_outputs_,
-                                                            distortion_spread_slider_->getValue(), animate);
+      vital::poly_float distortion_spread = noise ?
+          getOutputsTotal(focus_spread_outputs_, focus_spread_slider_->getValue(), animate) :
+          getOutputsTotal(distortion_spread_outputs_, distortion_spread_slider_->getValue(), animate);
 
       setColor(findColour(Skin::kWidgetSecondary1, true));
       setBarWidth(2.0f / getWidth());
@@ -238,8 +306,9 @@ class SpreadVisualizer : public BarRenderer {
         vital::poly_float voice_morph = vital::utils::clamp(morph + morph_spread * t, 0.0f, 1.0f);
         vital::poly_float voice_distortion = vital::utils::clamp(distortion + distortion_spread * t, 0.0f, 1.0f);
 
-        setX(i, voice_frame[0] * mult + offset);
-        setX(i + 1, voice_frame[1] * mult + offset);
+        // Noise has no wave frame, so its row stays empty.
+        setX(i, noise ? -2.0f : voice_frame[0] * mult + offset);
+        setX(i + 1, noise ? -2.0f : voice_frame[1] * mult + offset);
 
         setX(i + vital::SynthOscillator::kMaxUnison, voice_morph[0] * mult + offset);
         setX(i + vital::SynthOscillator::kMaxUnison + 1, voice_morph[1] * mult + offset);
@@ -277,6 +346,14 @@ class SpreadVisualizer : public BarRenderer {
     std::pair<vital::Output*, vital::Output*> table_spread_outputs_;
     std::pair<vital::Output*, vital::Output*> spectral_spread_outputs_;
     std::pair<vital::Output*, vital::Output*> distortion_spread_outputs_;
+
+    bool noise_;
+    const SynthSlider* color_slider_;
+    const SynthSlider* focus_slider_;
+    const SynthSlider* focus_spread_slider_;
+    std::pair<vital::Output*, vital::Output*> color_outputs_;
+    std::pair<vital::Output*, vital::Output*> focus_outputs_;
+    std::pair<vital::Output*, vital::Output*> focus_spread_outputs_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpreadVisualizer)
 };
@@ -326,6 +403,13 @@ class OscillatorUnison : public SynthSection {
       spectral_morph_spread_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
       spectral_morph_spread_->setBipolar(true);
 
+      // Noise's focus spread starts at 0, like the Focus knob, and takes the distortion spread's place.
+      focus_spread_ = std::make_unique<SynthSlider>("osc_" + number + "_noise_focus_spread");
+      addSlider(focus_spread_.get());
+      focus_spread_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+      focus_spread_->setVisible(false);
+      noise_ = false;
+
       spread_visualizer_ = std::make_unique<SpreadVisualizer>(index, mono_modulations, poly_modulations);
       addOpenGlComponent(spread_visualizer_.get());
       spread_visualizer_->setTableSpreadSlider(frame_spread_.get());
@@ -349,9 +433,10 @@ class OscillatorUnison : public SynthSection {
       drawLabelForComponent(g, TRANS("DETUNE RANGE"), detune_range_.get(), true);
       drawLabelForComponent(g, TRANS("UNISON BLEND"), blend_.get());
       drawLabelForComponent(g, TRANS("STEREO UNISON"), stereo_spread_.get());
-      drawLabelForComponent(g, TRANS("TABLE SPREAD"), frame_spread_.get());
-      drawLabelForComponent(g, TRANS("DIST SPREAD"), distortion_spread_.get());
-      drawLabelForComponent(g, TRANS("SPECT SPREAD"), spectral_morph_spread_.get());
+      if (!noise_)
+        drawLabelForComponent(g, TRANS("TABLE SPREAD"), frame_spread_.get());
+      drawLabelForComponent(g, noise_ ? TRANS("FOCUS SPREAD") : TRANS("DIST SPREAD"), distortion_spread_.get());
+      drawLabelForComponent(g, noise_ ? TRANS("COLOR SPREAD") : TRANS("SPECT SPREAD"), spectral_morph_spread_.get());
     }
 
     void paintBackgroundShadow(Graphics& g) override {
@@ -377,13 +462,34 @@ class OscillatorUnison : public SynthSection {
                        { blend_.get(), nullptr, nullptr, nullptr });
       stack_style_->setBounds(stack_style_->getBounds().withTop(widget_margin));
 
+      // The spread display keeps the same size for noise; noise has no wave frames, so its two spreads (color
+      // and focus) share the space under the display that the three wavetable spreads use.
       int knob_y2 = getHeight() - knob_section_height;
-      placeKnobsInArea(Rectangle<int>(controls_x, knob_y2, getWidth() - controls_x, knob_section_height),
-                       { stereo_spread_.get(), frame_spread_.get(),
-                         spectral_morph_spread_.get(), distortion_spread_.get() });
+      Rectangle<int> knob_row(controls_x, knob_y2, getWidth() - controls_x, knob_section_height);
+      placeKnobsInArea(knob_row, { stereo_spread_.get(), frame_spread_.get(),
+                                   spectral_morph_spread_.get(), distortion_spread_.get() });
+      int spreads_x = frame_spread_->getX();
+      int spreads_right = distortion_spread_->getRight();
+      spread_visualizer_->setBounds(spreads_x, widget_margin, spreads_right - spreads_x, text_height);
+      focus_spread_->setBounds(distortion_spread_->getBounds());
 
-      spread_visualizer_->setBounds(frame_spread_->getX(), widget_margin,
-                                    distortion_spread_->getRight() - frame_spread_->getX(), text_height);
+      if (noise_) {
+        Rectangle<int> spreads(spreads_x, knob_y2, spreads_right - spreads_x, knob_section_height);
+        placeKnobsInArea(spreads, { spectral_morph_spread_.get(), focus_spread_.get() });
+        distortion_spread_->setBounds(focus_spread_->getBounds());
+      }
+    }
+
+    void setNoise(bool noise) {
+      if (noise == noise_)
+        return;
+      noise_ = noise;
+      distortion_spread_->setVisible(!noise);
+      frame_spread_->setVisible(!noise);
+      focus_spread_->setVisible(noise);
+      spread_visualizer_->setNoise(noise);
+      resized();
+      repaintBackground();
     }
 
     void passOscillatorSection(const OscillatorSection* oscillator) {
@@ -396,6 +502,8 @@ class OscillatorUnison : public SynthSection {
       spread_visualizer_->setFrameSlider(oscillator->getWaveFrameSlider());
       spread_visualizer_->setSpectralMorphSlider(oscillator->getSpectralMorphSlider());
       spread_visualizer_->setDistortionSlider(oscillator->getDistortionSlider());
+      spread_visualizer_->setNoiseSliders(oscillator->getNoiseColorSlider(), oscillator->getNoiseFocusSlider(),
+                                          focus_spread_.get());
 
       checkActive();
     }
@@ -437,6 +545,8 @@ class OscillatorUnison : public SynthSection {
     std::unique_ptr<SynthSlider> frame_spread_;
     std::unique_ptr<SynthSlider> distortion_spread_;
     std::unique_ptr<SynthSlider> spectral_morph_spread_;
+    std::unique_ptr<SynthSlider> focus_spread_;
+    bool noise_;
 
     ToggleButton* oscillator_active_;
     SynthSlider* voices_slider_;
@@ -465,6 +575,11 @@ void OscillatorAdvancedSection::resized() {
 
   int unison_x = oscillator_options_->getRight() + padding;
   oscillator_unison_->setBounds(unison_x, 0, getWidth() - unison_x, getHeight());
+}
+
+void OscillatorAdvancedSection::setNoise(bool noise) {
+  oscillator_options_->setNoise(noise);
+  oscillator_unison_->setNoise(noise);
 }
 
 void OscillatorAdvancedSection::passOscillatorSection(const OscillatorSection* oscillator) {

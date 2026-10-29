@@ -110,7 +110,8 @@ namespace vital {
 
     createStatusOutput("random", random_->output());
     createStatusOutput("stereo", stereo_->output());
-    createStatusOutput("sample_phase", producers_->samplePhaseOutput(kSampleSectionEngine));
+    for (int i = 0; i < kNumOscillators; ++i)
+      createStatusOutput("osc_" + std::to_string(i + 1) + "_sample_phase", producers_->samplePhaseOutput(i));
     createStatusOutput("num_voices", &num_voices_);
 
     std::string modulation_source_prefix = "modulation_source_";
@@ -139,6 +140,14 @@ namespace vital {
     producers_->plug(bent_midi_, ProducersModule::kMidi);
     producers_->plug(note_count(), ProducersModule::kNoteCount);
     producers_->plug(active_mask(), ProducersModule::kActiveVoices);
+    producers_->plug(note(), ProducersModule::kNote);
+    producers_->plug(last_note(), ProducersModule::kLastNote);
+    producers_->plug(voice_event(), ProducersModule::kVoiceEvent);
+    producers_->plug(note_pressed(), ProducersModule::kNotesPressed);
+    producers_->plug(newest(), ProducersModule::kNewest);
+    producers_->plug(legato_voice(), ProducersModule::kLegatoVoice);
+    producers_->plug(legato_note(), ProducersModule::kLegatoNote);
+    producers_->plug(current_midi_note_->output(), ProducersModule::kGlobalGlide);
     addSubmodule(producers_);
     addProcessor(producers_);
   }
@@ -146,10 +155,11 @@ namespace vital {
   void SynthVoiceHandler::createOscillatorGroups() {
     group_mixer_->plug(reset(), OscillatorGroupMixer::kReset);
     group_mixer_->plug(retrigger(), OscillatorGroupMixer::kTrigger);
+    group_mixer_->plug(active_mask(), OscillatorGroupMixer::kActiveVoices);
     group_mixer_->plug(velocity_amplitude_, OscillatorGroupMixer::kAmplitude);
     for (int i = 0; i < kNumLfos; ++i)
       group_mixer_->plug(lfos_[i]->output(LfoModule::kOscPhase), OscillatorGroupMixer::kLfoPhases + i);
-    group_mixer_->setSources(producers_, lfos_);
+    group_mixer_->setSources(producers_, envelopes_, lfos_);
 
     Output* amp_sources[kNumGroupAmpSources];
     int source = 0;
@@ -170,10 +180,13 @@ namespace vital {
       std::string prefix = "group_" + std::to_string(g + 1);
       group_mixer_->plug(producers_->output(ProducersModule::kGroupOutputStart + g),
                          OscillatorGroupMixer::kGroupAudio + g);
+      group_mixer_->plug(producers_->output(ProducersModule::kGroupDirectStart + g),
+                         OscillatorGroupMixer::kGroupDirectAudio + g);
       group_mixer_->plug(createPolyModControl(prefix + "_level"), OscillatorGroupMixer::kLevels + g);
       group_amp_sources_[g] = createBaseControl(prefix + "_amp_source");
       group_mixer_->plug(group_amp_sources_[g], OscillatorGroupMixer::kAmpSourceIndices + g);
       group_mixer_->plug(createBaseControl(prefix + "_output"), OscillatorGroupMixer::kOutputIndices + g);
+      group_mixer_->plug(createBaseControl(prefix + "_smoothing"), OscillatorGroupMixer::kSmoothings + g);
     }
     addProcessor(group_mixer_);
 

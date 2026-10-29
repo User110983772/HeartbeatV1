@@ -95,6 +95,12 @@ namespace vital {
         kSource,
         kNoiseColor,
         kNoiseFocus,
+        kNoiseFocusSpread,
+        // Off unless GROUP UNISON is on: 0 off, 1 combined, 2 nested.
+        kGroupUnisonMode,
+        kGroupUnisonVoices,
+        kGroupUnisonDetune,
+        kGroupStackStyle,
         kNumInputs
       };
 
@@ -262,6 +268,7 @@ namespace vital {
 
       void processBlend(int num_samples, poly_mask reset_mask);
       void processNoise(int num_samples);
+      void seedNoiseTakes(poly_mask reset_mask);
 
       void loadVoiceBlock(VoiceBlock& voice_block, int index, poly_mask active_mask);
 
@@ -272,6 +279,9 @@ namespace vital {
                                  poly_int trigger_sample, poly_mask active_mask, float* snap_buffer);
       void setPhaseIncBuffer(int num_samples, poly_mask reset_mask, poly_int trigger_sample, poly_mask active_mask);
       void setPhaseIncMults();
+      // Sets unison_ (and the engine and group counts it's made of) from the voice counts and group mode.
+      void setUnisonVoices();
+      int groupUnisonMode();
       void setupShepardWrap();
       void clearShepardWrap();
       void doShepardWrap(poly_mask new_buffer_mask, int quantize);
@@ -332,6 +342,9 @@ namespace vital {
       poly_float last_quantized_transpose_;
       poly_float last_quantize_ratio_;
       int unison_;
+      // The engine's and group's voice counts that make up unison_ (the group's is 1 when not used).
+      int engine_unison_;
+      int group_unison_;
       int active_oscillators_;
       Wavetable* wavetable_;
       int wavetable_version_;

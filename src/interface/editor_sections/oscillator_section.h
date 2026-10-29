@@ -42,6 +42,7 @@ class OscillatorSection : public SynthSection, public PresetSelector::Listener,
         virtual ~Listener() = default;
         virtual void distortionTypeChanged(OscillatorSection* section, int type) = 0;
         virtual void oscillatorDestinationChanged(OscillatorSection* section, int destination) = 0;
+        virtual void oscillatorSourceChanged(OscillatorSection* section, int source) { }
     };
 
     OscillatorSection(Authentication* auth,
@@ -78,7 +79,6 @@ class OscillatorSection : public SynthSection, public PresetSelector::Listener,
     void setSpectralMorphSelected(int selection);
     void setDestinationSelected(int selection);
     void setSourceSelected(int selection);
-    void toggleFilterInput(int filter_index, bool on);
 
     void loadBrowserState();
     void setIndexSelected();
@@ -107,6 +107,8 @@ class OscillatorSection : public SynthSection, public PresetSelector::Listener,
     const SynthSlider* getWaveFrameSlider() const { return wave_frame_.get(); }
     const SynthSlider* getSpectralMorphSlider() const { return spectral_morph_amount_.get(); }
     const SynthSlider* getDistortionSlider() const { return distortion_amount_.get(); }
+    const SynthSlider* getNoiseColorSlider() const { return noise_color_.get(); }
+    const SynthSlider* getNoiseFocusSlider() const { return noise_focus_.get(); }
     Rectangle<float> getWavetableRelativeBounds();
 
   private:

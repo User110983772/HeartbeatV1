@@ -39,7 +39,8 @@ namespace {
 bool NoiseViewer::State::operator==(const State& other) const {
   return lanesEqual(color, other.color) && lanesEqual(focus, other.focus) && lanesEqual(midi, other.midi) &&
          lanesEqual(voices, other.voices) && lanesEqual(cents, other.cents) && lanesEqual(power, other.power) &&
-         lanesEqual(blend, other.blend) && stack_style == other.stack_style;
+         lanesEqual(blend, other.blend) && lanesEqual(color_spread, other.color_spread) &&
+         lanesEqual(focus_spread, other.focus_spread) && stack_style == other.stack_style;
 }
 
 NoiseViewer::NoiseViewer(int index, const vital::output_map& mono_modulations,
@@ -47,6 +48,7 @@ NoiseViewer::NoiseViewer(int index, const vital::output_map& mono_modulations,
     OpenGlComponent("noise"), left_line_renderer_(kNumPoints), right_line_renderer_(kNumPoints),
     prefix_("osc_" + std::to_string(index + 1)),
     detune_range_control_(nullptr), blend_control_(nullptr), stack_style_control_(nullptr),
+    color_spread_control_(nullptr), focus_spread_control_(nullptr),
     color_slider_(nullptr), focus_slider_(nullptr), transpose_slider_(nullptr), tune_slider_(nullptr),
     voices_slider_(nullptr), detune_slider_(nullptr), detune_power_slider_(nullptr),
     last_state_(), dirty_(true), animate_(false), active_(true) {
@@ -59,6 +61,8 @@ NoiseViewer::NoiseViewer(int index, const vital::output_map& mono_modulations,
   detune_power_outputs_ = getNoiseOutputs(mono_modulations, poly_modulations, prefix_ + "_detune_power");
   detune_range_outputs_ = getNoiseOutputs(mono_modulations, poly_modulations, prefix_ + "_detune_range");
   blend_outputs_ = getNoiseOutputs(mono_modulations, poly_modulations, prefix_ + "_unison_blend");
+  color_spread_outputs_ = getNoiseOutputs(mono_modulations, poly_modulations, prefix_ + "_spectral_morph_spread");
+  focus_spread_outputs_ = getNoiseOutputs(mono_modulations, poly_modulations, prefix_ + "_noise_focus_spread");
 
   float octaves = std::log2(kMaxFrequency / kMinFrequency);
   for (int i = 0; i <= kResolution; ++i)
@@ -118,7 +122,7 @@ vital::poly_float NoiseViewer::getOutputsTotal(std::pair<vital::Output*, vital::
   return outputs.first->trigger_value + outputs.second->trigger_value;
 }
 
-// Detune range, blend and stack style are edited in another section, so read them from the synth.
+// Detune range, blend, stack style and the spreads are edited in another section, so read them from the synth.
 void NoiseViewer::loadControls() {
   if (stack_style_control_)
     return;
@@ -131,6 +135,8 @@ void NoiseViewer::loadControls() {
   detune_range_control_ = controls[prefix_ + "_detune_range"];
   blend_control_ = controls[prefix_ + "_unison_blend"];
   stack_style_control_ = controls[prefix_ + "_stack_style"];
+  color_spread_control_ = controls[prefix_ + "_spectral_morph_spread"];
+  focus_spread_control_ = controls[prefix_ + "_noise_focus_spread"];
 }
 
 NoiseViewer::State NoiseViewer::readState() {
@@ -147,6 +153,8 @@ NoiseViewer::State NoiseViewer::readState() {
   state.cents = 0.0f;
   state.power = 0.0f;
   state.blend = 0.0f;
+  state.color_spread = 0.0f;
+  state.focus_spread = 0.0f;
   state.stack_style = 0.0f;
   loadControls();
   if (voices_slider_ && detune_slider_ && detune_power_slider_ && stack_style_control_) {
@@ -157,6 +165,8 @@ NoiseViewer::State NoiseViewer::readState() {
     state.power = getOutputsTotal(detune_power_outputs_, detune_power_slider_->getValue());
     state.blend = getOutputsTotal(blend_outputs_, blend_control_->value());
     state.stack_style = stack_style_control_->value();
+    state.color_spread = getOutputsTotal(color_spread_outputs_, color_spread_control_->value());
+    state.focus_spread = getOutputsTotal(focus_spread_outputs_, focus_spread_control_->value());
   }
   return state;
 }
@@ -182,8 +192,12 @@ void NoiseViewer::loadResponses(const State& state) {
     float frequency = vital::utils::midiNoteToFrequency(state.midi[lane]);
     for (int pair = 0; pair < num_pairs; ++pair) {
       float gain = pair == 0 ? center_amplitude[lane] : detuned_amplitude[lane];
+      // The same spread the engine applies: the centre pair at the knobs, the outer pairs moved away.
+      float t = 2.0f * pair / (std::max(2, num_pairs) - 1.0f);
+      float color = vital::utils::clamp(state.color[lane] + t * state.color_spread[lane], 0.0f, 1.0f);
+      float focus = vital::utils::clamp(state.focus[lane] + t * state.focus_spread[lane], 0.0f, 1.0f);
       if (gain > 0.0f) {
-        response_.addPowerResponse(state.color[lane], state.focus[lane], frequency * detunings[pair][lane],
+        response_.addPowerResponse(color, focus, frequency * detunings[pair][lane],
                                    gain, evaluate_frequencies_, power, kResolution + 1);
       }
     }

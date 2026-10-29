@@ -19,12 +19,27 @@
 #include "skin.h"
 
 void WavetablePlayheadInfo::paint(Graphics& g) {
+  // "FRAME" in quieter text, then the playhead's frame.
   g.fillAll(findColour(Skin::kBody, true));
-  String position_text(playhead_position_);
-  g.setColour(findColour(Skin::kBodyText, true));
   Rectangle<int> bounds = getLocalBounds();
   bounds.setWidth(bounds.getWidth() - bounds.getHeight() * 0.5f);
-  g.drawText(position_text, bounds, Justification::centredRight );
+
+  Font font = g.getCurrentFont();
+  String position_text(playhead_position_);
+  int number_width = font.getStringWidth("000") + 2;
+  g.setColour(findColour(Skin::kBodyText, true));
+  g.drawText(position_text, bounds.removeFromRight(number_width), Justification::centredRight);
+
+  g.setColour(findColour(Skin::kBodyText, true).withMultipliedAlpha(0.6f));
+  bounds.removeFromRight(font.getStringWidth(" "));
+  g.drawText(TRANS("FRAME"), bounds, Justification::centredRight);
+}
+
+void WavetablePlayheadInfo::mouseDown(const MouseEvent& e) {
+  if (!e.mods.isPopupMenu())
+    return;
+  for (Listener* listener : listeners_)
+    listener->frameEntryRequested();
 }
 
 void WavetablePlayheadInfo::resized() {

@@ -77,9 +77,62 @@ class SynthBase : public MidiManager::Listener {
 
     vital::Wavetable* getWavetable(int index);
     WavetableCreator* getWavetableCreator(int index);
-    vital::Sample* getSample(int index = vital::kSampleSectionEngine);
+    vital::Sample* getSample(int index);
     vital::EngineOrder getEngineOrder();
     bool setEngineOrder(const vital::EngineOrder& order);
+
+    // Which sound engines are in the voice tab's list and which groups it shows. Not host parameters.
+    bool isEngineAdded(int engine) const { return engines_added_[engine]; }
+    bool isGroupShown(int group) const { return groups_shown_[group]; }
+    int getNumEnginesAdded() const;
+    void setEngineLayout(const std::array<bool, vital::kNumOscillators>& engines_added,
+                         const std::array<bool, vital::kNumOscillatorGroups>& groups_shown);
+    // Adds a fresh engine (default settings, no modulations) at the bottom of `group`. Returns -1 if all are in use.
+    int addSoundEngine(int group, int source);
+    void removeSoundEngine(int engine);
+    // Moves an engine into `group` before the engine at `position` in that group (or to the bottom).
+    void moveSoundEngine(int engine, int group, int position);
+    // Shows the first hidden group. Returns -1 if all are shown.
+    int addGroup();
+    // Removes the group's engines, resets its settings and hides it. The last shown group stays.
+    void removeGroup(int group);
+    int getNumGroupsShown() const;
+    // Groups are numbered by where they sit, top to bottom: the top group is Group 1 whichever slot it uses.
+    // 0 for a group that isn't shown.
+    int getGroupDisplayNumber(int group) const;
+
+    // Undo and redo for removing engines and groups. Each step restores exactly what was removed (settings,
+    // wavetable, sample, modulations, position); other edits are left alone. Loading a patch clears both.
+    // Undo and redo cover removed engines and groups, and loaded patches (a preset or init).
+    bool undoRemoval();
+    bool redoRemoval();
+    void clearUndoHistory();
+
+    // Undo steps recorded from the interface. Control changes to the same control in quick succession (a drag)
+    // make one step, as do changes to several controls at once.
+    void recordControlChange(const std::string& name, vital::mono_float old_value, vital::mono_float new_value);
+    void recordConnection(const std::string& source, const std::string& destination);
+    // Call before disconnecting, so the connection's settings can be restored.
+    void recordDisconnection(const std::string& source, const std::string& destination);
+    void recordAddition(bool is_group, int id);
+    void recordMove(bool is_group, int id, int old_group, int old_position);
+    int getEnginePosition(int engine);
+    int getGroupPosition(int group);
+    std::string getUndoRemovalName();
+    std::string getRedoRemovalName();
+
+    // Order the voice tab shows the groups in. Display only: groups play in parallel.
+    using GroupOrder = std::array<int, vital::kNumOscillatorGroups>;
+    const GroupOrder& getGroupOrder() const { return group_order_; }
+    void setGroupOrder(const GroupOrder& order);
+    // Moves a group to before the position-th other shown group (or after the last one).
+    void moveGroup(int group, int position);
+    // Copies an engine (settings, wavetable, sample, modulations) into a free slot at `position` in `group`.
+    // FM/RM from the engine above is reset unless keep_engine_above_modulation. Returns -1 if none are free.
+    int duplicateSoundEngine(int engine, int group, int position, bool keep_engine_above_modulation);
+    // Copies a group with its settings, modulations and engines (keeping their FM/RM chain) to `position`.
+    // Returns -1 without a free group or enough free engines.
+    int duplicateGroup(int group, int position);
     LineGenerator* getLfoSource(int index);
 
     int getSampleRate();
@@ -187,6 +240,85 @@ class SynthBase : public MidiManager::Listener {
     std::map<std::string, String> save_info_;
     vital::control_map controls_;
     vital::CircularQueue<vital::ModulationConnection*> mod_connections_;
+    std::array<bool, vital::kNumOscillators> engines_added_;
+    std::array<bool, vital::kNumOscillatorGroups> groups_shown_;
+    GroupOrder group_order_;
+
+    struct ModulationSnapshot {
+      std::string source;
+      std::string destination_suffix;
+      std::map<std::string, vital::mono_float> settings;
+      json line_mapping;
+    };
+
+    struct EngineSnapshot {
+      int engine;
+      int group;
+      int position;
+      std::map<std::string, vital::mono_float> controls;
+      json wavetable;
+      json sample;
+      std::vector<ModulationSnapshot> modulations;
+    };
+
+    // One undo step: a removed engine or group, the whole patch replaced by a load (is_patch), changed controls
+    // (is_controls), a modulation connected or disconnected, an engine or group added (is_add) or moved (is_move).
+    // On the redo stack, restores_on_redo marks an undone addition: redoing it restores the snapshot.
+    struct RemovalSnapshot {
+      bool is_controls = false;
+      std::map<std::string, vital::mono_float> old_values;
+      std::map<std::string, vital::mono_float> new_values;
+      double time = 0.0;
+      bool is_connect = false;
+      bool is_disconnect = false;
+      ModulationSnapshot connection;
+      bool is_add = false;
+      bool restores_on_redo = false;
+      bool is_move = false;
+      int old_group = 0;
+      int old_position = 0;
+      int new_group = 0;
+      int new_position = 0;
+      bool is_patch = false;
+      json patch;
+      std::string patch_name;
+      std::string patch_file;
+      std::string loaded_name;
+      bool is_group;
+      int id;
+      int display_number;
+      int group_position;
+      std::map<std::string, vital::mono_float> group_controls;
+      std::vector<ModulationSnapshot> group_modulations;
+      std::vector<EngineSnapshot> engines;
+    };
+
+    void removeSoundEngineInternal(int engine);
+    void removeGroupInternal(int group);
+    std::map<std::string, vital::mono_float> captureControls(const std::string& prefix);
+    void restoreControls(const std::string& prefix, const std::map<std::string, vital::mono_float>& values);
+    std::vector<ModulationSnapshot> captureModulations(const std::string& prefix);
+    void restoreModulations(const std::string& prefix, const std::vector<ModulationSnapshot>& modulations);
+    EngineSnapshot captureEngine(int engine);
+    int restoreEngine(const EngineSnapshot& snapshot, int group);
+    RemovalSnapshot captureEngineRemoval(int engine);
+    RemovalSnapshot captureGroupRemoval(int group);
+    int restoreRemoval(const RemovalSnapshot& removal);
+    static std::string removalName(const RemovalSnapshot& removal);
+    RemovalSnapshot capturePatch();
+    ModulationSnapshot captureConnection(const std::string& source, const std::string& destination);
+    void pushUndoStep(const RemovalSnapshot& step);
+    RemovalSnapshot applyStep(const RemovalSnapshot& step, bool undo);
+    void applyControlValues(const std::map<std::string, vital::mono_float>& values);
+    bool recording_suspended_ = false;
+    void restorePatch(const RemovalSnapshot& patch);
+    void pushPatchUndo(RemovalSnapshot previous, const std::string& loaded_name);
+
+    std::vector<RemovalSnapshot> undo_removals_;
+    std::vector<RemovalSnapshot> redo_removals_;
+
+    void copyControls(const std::string& from_prefix, const std::string& to_prefix);
+    void copyModulations(const std::string& from_prefix, const std::string& to_prefix);
     moodycamel::ConcurrentQueue<vital::control_change> value_change_queue_;
     moodycamel::ConcurrentQueue<vital::modulation_change> modulation_change_queue_;
     Tuning tuning_;
