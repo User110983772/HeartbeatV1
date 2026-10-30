@@ -1,8 +1,8 @@
 # Heartbeat installers
 
 Each installer contains the plugin(s), the standalone app and the factory content. The content is every pack in
-`../heartbeat-factory` (wavetables, LFOs and credits) plus the presets in `../Presets` as the `Factory` pack,
-both found next to the project folder. Heartbeat lists factory packs from a per-machine folder and the
+`../heartbeat-factory` (wavetables, LFOs and credits), the presets in `../Presets` as the `Factory` pack and
+the samples in `../Melodies` as the `Melodies` pack, all found next to the project folder. Heartbeat lists factory packs from a per-machine folder and the
 user's own folder:
 
 | | Plugins | App | Factory content |

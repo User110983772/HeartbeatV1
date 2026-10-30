@@ -15,6 +15,9 @@
 #ifndef PresetsDir
   #define PresetsDir SourcePath + "..\..\..\Presets"
 #endif
+#ifndef SamplesDir
+  #define SamplesDir SourcePath + "..\..\..\Melodies"
+#endif
 #ifndef VcRedist
   #define VcRedist SourcePath + "vc_redist.x64.exe"
 #endif
@@ -60,6 +63,7 @@ Source: "{#AppExe}"; DestDir: "{app}"; Components: standalone; Flags: ignorevers
 ; Factory packs go where Heartbeat looks for every user's factory content (ProgramData\Heartbeat).
 Source: "{#ContentDir}\*"; Excludes: "tools,install.bat"; DestDir: "{commonappdata}\Heartbeat"; Components: content; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#PresetsDir}\*.vital"; DestDir: "{commonappdata}\Heartbeat\Factory\Presets"; Components: content; Flags: ignoreversion
+Source: "{#SamplesDir}\*.wav"; DestDir: "{commonappdata}\Heartbeat\Melodies\Samples"; Components: content; Flags: ignoreversion
 Source: "..\..\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#VcRedist}"; DestDir: "{tmp}"; Flags: deleteafterinstall; Check: VCRedistNeeded
 

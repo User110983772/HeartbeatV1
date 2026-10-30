@@ -2,7 +2,7 @@
 # Run it from the Actions tab (workflow_dispatch) or by pushing a tag like v1.0.0.
 #
 # The factory content (448 MB of wavetables) isn't in the repository. Upload heartbeat-content.zip (made by
-# installer/make_content_zip.sh; it holds heartbeat-factory/ and Presets/) somewhere downloadable, e.g. as an
+# installer/make_content_zip.sh; it holds heartbeat-factory/, Presets/ and Melodies/) somewhere downloadable, e.g. as an
 # asset of a GitHub release, and set its URL as the repository variable FACTORY_CONTENT_URL
 # (Settings > Secrets and variables > Actions > Variables).
 name: Build installers
