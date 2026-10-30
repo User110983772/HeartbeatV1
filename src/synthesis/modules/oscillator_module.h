@@ -40,6 +40,8 @@ namespace vital {
         kGroupUnisonBlend,
         kGroupStereoSpread,
         kGroupStackStyle,
+        // Host tempo, for sample engines synced to it.
+        kBeatsPerSecond,
         kNumInputs
       };
 

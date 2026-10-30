@@ -913,7 +913,7 @@
                        targetName="Heartbeat"/>
         <CONFIGURATION isDebug="0" name="Release" headerPath="../../../src/common&#10;../../../src/common/wavetable&#10;../../../src/interface/editor_components&#10;../../../src/interface/editor_sections&#10;../../../src/interface/look_and_feel&#10;../../../src/interface/wavetable&#10;../../../src/interface/wavetable/editors&#10;../../../src/interface/wavetable/overlays&#10;../../../src/plugin&#10;../../../src/synthesis/synth_engine&#10;../../../src/synthesis/effects&#10;../../../src/synthesis/filters&#10;../../../src/synthesis/framework&#10;../../../src/synthesis/lookups&#10;../../../src/synthesis/modulators&#10;../../../src/synthesis/modules&#10;../../../src/synthesis/producers&#10;../../../src/synthesis/utilities&#10;../../../third_party&#10;../../../third_party/firebase_cpp_sdk/include"
                        enablePluginBinaryCopyStep="1" fastMath="1" optimisation="4"
-                       winWarningLevel="2" winArchitecture="x64" alwaysGenerateDebugSymbols="0"
+                       winWarningLevel="2" winArchitecture="x64" alwaysGenerateDebugSymbols="1"
                        libraryPath="../../../third_party/firebase_cpp_sdk/libs/windows/x64/"
                        targetName="Heartbeat"/>
       </CONFIGURATIONS>

@@ -137,6 +137,8 @@ namespace vital {
       output(kValue)->buffer[0] = result;
     output(kOscPhase)->buffer[0] = utils::encodePhaseAndVoice(phased_offset, input(kNoteCount)->at(0));
     output(kOscFrequency)->buffer[0] = frequency;
+    // Envelope mode reads the shape at offset + phase, so a negative phase (or stereo) never reaches its end.
+    output(kOscProgress)->buffer[0] = sync_type == kEnvelope ? current_offset : phased_offset;
   }
 
   poly_float SynthLfo::processAudioRateEnvelope(int num_samples, poly_float current_phase,
@@ -427,6 +429,7 @@ namespace vital {
 
     output(kOscPhase)->buffer[0] = utils::encodePhaseAndVoice(output_phase, input(kNoteCount)->at(0));
     output(kOscFrequency)->buffer[0] = frequency;
+    output(kOscProgress)->buffer[0] = sync_type == kEnvelope ? audio_rate_state_.offset : output_phase;
   }
 
   void SynthLfo::process(int num_samples) {

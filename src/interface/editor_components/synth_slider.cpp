@@ -642,11 +642,26 @@ void SynthSlider::addSliderListener(SynthSlider::SliderListener* listener) {
 }
 
 void SynthSlider::showPopup(bool primary) {
-  if (shouldShowPopup())
+  // A slider hidden mid-gesture (a modulation hover knob swapped for the selected one) still gets the drag;
+  // its bubble would point at nothing and never be hidden.
+  if (shouldShowPopup() && isShowing()) {
     parent_->showPopupDisplay(this, getTextFromValue(getValue()).toStdString(), popup_placement_, primary);
+    showing_popup_[primary ? 0 : 1] = true;
+  }
+}
+
+void SynthSlider::visibilityChanged() {
+  OpenGlSlider::visibilityChanged();
+  if (isVisible())
+    return;
+  for (bool primary : { true, false }) {
+    if (showing_popup_[primary ? 0 : 1])
+      hidePopup(primary);
+  }
 }
 
 void SynthSlider::hidePopup(bool primary) {
+  showing_popup_[primary ? 0 : 1] = false;
   parent_->hidePopupDisplay(primary);
 }
 

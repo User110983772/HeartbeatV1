@@ -434,7 +434,7 @@ void SynthSection::buttonClicked(juce::Button *clicked_button) {
 
 void SynthSection::guiChanged(SynthButton* button) {
   if (button == activator_)
-    setActive(activator_->getToggleStateValue().getValue());
+    setActive(activator_->getToggleStateValue().getValue() && parent_active_);
 }
 
 void SynthSection::setSliderHasHzAlternateDisplay(SynthSlider* slider) {
@@ -538,7 +538,7 @@ void SynthSection::setActivator(SynthButton* activator) {
   activator->setPowerButton();
   activator_->getGlComponent()->setAlwaysOnTop(true);
   activator->addButtonListener(this);
-  setActive(activator_->getToggleStateValue().getValue());
+  setActive(activator_->getToggleStateValue().getValue() && parent_active_);
 }
 
 void SynthSection::createOffOverlay() {

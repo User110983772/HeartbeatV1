@@ -36,6 +36,9 @@ namespace vital {
         kValue,
         kOscPhase,
         kOscFrequency,
+        // How far through the shape the voice is, without the phase and stereo offsets: one-shot modes have
+        // finished at 1 on both channels, whatever the offsets.
+        kOscProgress,
         kNumOutputs
       };
 

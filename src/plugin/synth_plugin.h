@@ -18,6 +18,8 @@
 
 #include "JuceHeader.h"
 
+#include <set>
+
 #include "synth_base.h"
 #include "value_bridge.h"
 
@@ -76,6 +78,7 @@ class SynthPlugin : public SynthBase, public AudioProcessor, public ValueBridge:
     AudioPlayHead::CurrentPositionInfo position_info_;
 
     std::map<std::string, ValueBridge*> bridge_lookup_;
+    std::set<std::string> open_change_gestures_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SynthPlugin)
 };

@@ -167,6 +167,17 @@ class FullInterface : public SynthSection, public AuthenticationSection::Listene
     void toggleOscillatorZoom(int index);
 
   private:
+    // Sees every mouse press and release in the interface, so each press-to-release gesture is one undo step.
+    class UndoGestureListener : public MouseListener {
+      public:
+        UndoGestureListener(FullInterface* owner) : owner_(owner) { }
+        void mouseDown(const MouseEvent& e) override;
+        void mouseUp(const MouseEvent& e) override;
+      private:
+        FullInterface* owner_;
+    };
+    UndoGestureListener undo_gesture_listener_ { this };
+
     bool wavetableEditorsInitialized() {
       for (int i = 0; i < vital::kNumOscillators; ++i) {
         if (wavetable_edits_[i] == nullptr)

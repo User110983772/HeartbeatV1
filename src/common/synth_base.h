@@ -23,6 +23,8 @@
 #include "synth_types.h"
 #include "midi_manager.h"
 #include "tuning.h"
+
+#include <set>
 #include "wavetable_creator.h"
 
 #include <set>
@@ -100,6 +102,9 @@ class SynthBase : public MidiManager::Listener {
     // Groups are numbered by where they sit, top to bottom: the top group is Group 1 whichever slot it uses.
     // 0 for a group that isn't shown.
     int getGroupDisplayNumber(int group) const;
+    // An engine's name as shown: "OSCn" or "SMPn", numbered per type within its group from the top of the
+    // chain down.
+    std::string getEngineDisplayName(int engine);
 
     // Undo and redo for removing engines and groups. Each step restores exactly what was removed (settings,
     // wavetable, sample, modulations, position); other edits are left alone. Loading a patch clears both.
@@ -111,6 +116,12 @@ class SynthBase : public MidiManager::Listener {
     // Undo steps recorded from the interface. Control changes to the same control in quick succession (a drag)
     // make one step, as do changes to several controls at once.
     void recordControlChange(const std::string& name, vital::mono_float old_value, vital::mono_float new_value);
+    // Between these (a mouse press and its release anywhere in the interface), every change is one step: the
+    // values before the press and after the release, however long the drag and however many controls it moves.
+    void beginUndoGesture();
+    void endUndoGesture();
+    // A modulation's amount and switches, recorded for undo.
+    void setModulationSettings(int index, vital::mono_float amount, bool bipolar, bool stereo, bool bypass);
     void recordConnection(const std::string& source, const std::string& destination);
     // Call before disconnecting, so the connection's settings can be restored.
     void recordDisconnection(const std::string& source, const std::string& destination);
@@ -181,6 +192,20 @@ class SynthBase : public MidiManager::Listener {
     virtual void pauseProcessing(bool pause) = 0;
     Tuning* getTuning() { return &tuning_; }
 
+    // Builds the stretch pools sample engines need (STRETCH or SYNC on); message thread only.
+    void prepareSampleStretch();
+    void requestStretchPreparation();
+
+    // Posted from the audio thread when a sample engine wants stretching before its pool exists.
+    struct PrepareStretchCallback : public CallbackMessage {
+      PrepareStretchCallback(std::shared_ptr<SynthBase*> listener) : listener(listener) { }
+      void messageCallback() override {
+        if (auto synth = listener.lock())
+          (*synth)->prepareSampleStretch();
+      }
+      std::weak_ptr<SynthBase*> listener;
+    };
+
     struct ValueChangedCallback : public CallbackMessage {
       ValueChangedCallback(std::shared_ptr<SynthBase*> listener, std::string name, vital::mono_float val) :
           listener(listener), control_name(std::move(name)), value(val) { }
@@ -225,6 +250,7 @@ class SynthBase : public MidiManager::Listener {
 
     std::unique_ptr<WavetableCreator> wavetable_creators_[vital::kNumOscillators];
     std::shared_ptr<SynthBase*> self_reference_;
+    std::atomic<bool> stretch_prepare_posted_ { false };
 
     File active_file_;
     vital::poly_float oscilloscope_memory_[2 * vital::kOscilloscopeMemoryResolution];
@@ -311,6 +337,13 @@ class SynthBase : public MidiManager::Listener {
     RemovalSnapshot applyStep(const RemovalSnapshot& step, bool undo);
     void applyControlValues(const std::map<std::string, vital::mono_float>& values);
     bool recording_suspended_ = false;
+    bool gesture_active_ = false;
+    // Started by a change made while a mouse button was down, before the press listener could start it.
+    bool implicit_gesture_ = false;
+    RemovalSnapshot gesture_step_;
+    // Controls this gesture opened a host change gesture for, so the host's own undo also takes the drag as one
+    // step (knobs open their own; editors like the EQ set their sliders directly).
+    std::set<std::string> gesture_host_controls_;
     void restorePatch(const RemovalSnapshot& patch);
     void pushPatchUndo(RemovalSnapshot previous, const std::string& loaded_name);
 

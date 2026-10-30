@@ -27,8 +27,21 @@
 #include "synth_strings.h"
 #include "text_look_and_feel.h"
 
-SampleSection::SampleSection(String name, int engine) : SynthSection(std::move(name)), engine_(engine),
-                                                        sample_(nullptr) {
+namespace {
+  // Two left-pointing triangles: play backwards.
+  Path reverseShape() {
+    Path path;
+    path.addTriangle(0.5f, 0.3f, 0.5f, 0.7f, 0.22f, 0.5f);
+    path.addTriangle(0.78f, 0.3f, 0.78f, 0.7f, 0.5f, 0.5f);
+    path.addLineSegment(Line<float>(0.0f, 0.0f, 0.0f, 0.0f), 0.2f);
+    path.addLineSegment(Line<float>(1.0f, 1.0f, 1.0f, 1.0f), 0.2f);
+    return path;
+  }
+}
+
+SampleSection::SampleSection(String name, int engine, const vital::output_map& mono_modulations,
+                             const vital::output_map& poly_modulations) :
+    SynthSection(std::move(name)), engine_(engine), sample_(nullptr) {
   engine_prefix_ = "osc_" + std::to_string(engine + 1) + "_";
   const std::string& kEngine = engine_prefix_;
   transpose_quantize_button_ = std::make_unique<TransposeQuantizeButton>();
@@ -64,6 +77,7 @@ SampleSection::SampleSection(String name, int engine) : SynthSection(std::move(n
   pan_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
 
   sample_viewer_ = std::make_unique<SampleViewer>(engine);
+  sample_viewer_->setModulationOutputs(mono_modulations, poly_modulations, "osc_" + std::to_string(engine + 1) + "_");
   addOpenGlComponent(sample_viewer_.get());
   addAndMakeVisible(sample_viewer_.get());
   sample_viewer_->addListener(this);
@@ -127,6 +141,62 @@ SampleSection::SampleSection(String name, int engine) : SynthSection(std::move(n
   bounce_->addListener(this);
   bounce_->setShape(Paths::bounce());
 
+  reverse_ = std::make_unique<OpenGlShapeButton>(kEngine + "sample_reverse");
+  reverse_->useOnColors(true);
+  reverse_->setClickingTogglesState(true);
+  addButton(reverse_.get());
+  reverse_->addListener(this);
+  reverse_->setShape(reverseShape());
+
+  auto knob = [&](std::unique_ptr<SynthSlider>& slider, const std::string& name) {
+    slider = std::make_unique<SynthSlider>(kEngine + name);
+    addSlider(slider.get());
+    slider->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+  };
+  knob(start_, "sample_start");
+  knob(end_, "sample_end");
+
+  // The display's corners: STRETCH, SYNC and the sample's tempo at the bottom left (like the wavetable card's
+  // WT / 2D buttons); snapping to zero crossings and zoom at the bottom right.
+  auto cornerButton = [&](std::unique_ptr<SynthButton>& button, const std::string& name, const String& text) {
+    button = std::make_unique<SynthButton>(name);
+    if (name.rfind(kEngine, 0) == 0)
+      addButton(button.get());
+    else {
+      addAndMakeVisible(button.get());
+      addOpenGlComponent(button->getGlComponent());
+      button->addListener(this);
+    }
+    button->setNoBackground();
+    button->setLookAndFeel(TextLookAndFeel::instance());
+    button->setText(text);
+  };
+  cornerButton(stretch_, kEngine + "sample_stretch", "STRETCH");
+  cornerButton(tempo_sync_, kEngine + "sample_tempo_sync", "SYNC");
+  cornerButton(snap_zero_, "Snap To Zero Crossings", "ZC");
+  cornerButton(zoom_out_, "Zoom Out", "-");
+  cornerButton(zoom_in_, "Zoom In", "+");
+  zoom_out_->setClickingTogglesState(false);
+  zoom_in_->setClickingTogglesState(false);
+  zoom_out_->setShowOnColors(false);
+  zoom_in_->setShowOnColors(false);
+
+  bpm_ = std::make_unique<SynthSlider>(kEngine + "sample_bpm");
+  addSlider(bpm_.get());
+  bpm_->setLookAndFeel(TextLookAndFeel::instance());
+  bpm_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+  bpm_->setMaxDecimalPlaces(1);
+  bpm_->setTextEntrySizePercent(1.0f, 0.7f);
+  bpm_->overrideValue(Skin::kTextComponentOffset, 0.0f);
+
+
+  knob(loop_start_, "sample_loop_start");
+  knob(loop_end_, "sample_loop_end");
+  knob(crossfade_, "sample_crossfade");
+  knob(unison_voices_, "unison_voices");
+  knob(unison_detune_, "unison_detune");
+  knob(stereo_, "stereo_spread");
+
   on_ = std::make_unique<SynthButton>(kEngine + "on");
   addButton(on_.get());
   setActivator(on_.get());
@@ -156,31 +226,29 @@ void SampleSection::paintBackground(Graphics& g) {
   paintKnobShadows(g);
 
   setLabelFont(g);
-  drawLabelForComponent(g, TRANS("PAN"), pan_.get());
+  drawLabelForComponent(g, TRANS("START"), start_.get());
+  drawLabelForComponent(g, TRANS("END"), end_.get());
+  drawLabelForComponent(g, TRANS("LOOP START"), loop_start_.get());
+  drawLabelForComponent(g, TRANS("LOOP END"), loop_end_.get());
+  drawLabelForComponent(g, TRANS("XFADE"), crossfade_.get());
+  drawLabelForComponent(g, TRANS("VOICES"), unison_voices_.get());
+  drawLabelForComponent(g, TRANS("DETUNE"), unison_detune_.get());
+  drawLabelForComponent(g, TRANS("STEREO"), stereo_.get());
   drawLabelForComponent(g, TRANS("LEVEL"), level_.get());
+  drawLabelForComponent(g, TRANS("PAN"), pan_.get());
 
   int widget_margin = findValue(Skin::kWidgetMargin);
-  int section_width = getWidth() * 0.19f;
-  int component_width = section_width - 2 * widget_margin;
-
   int pitch_x = findValue(Skin::kTitleWidth);
-  int section2_x = getWidth() - 2 * section_width + widget_margin;
+  int component_width = getWidth() * kPitchWidthRatio - 2 * widget_margin;
   int label_height = findValue(Skin::kLabelBackgroundHeight);
   int top_row_y = widget_margin;
-  int text_component_height = destination_selector_->getY() - top_row_y - widget_margin;
-  paintJointControl(g, pitch_x + widget_margin, top_row_y, component_width, text_component_height, "");
-
-  g.drawText("PITCH", pitch_x + widget_margin, widget_margin, component_width, label_height,
-             Justification::centred, false);
+  paintJointControl(g, pitch_x + widget_margin, top_row_y, component_width, pitchBoxHeight(), "PITCH");
 
   float label_rounding = findValue(Skin::kLabelBackgroundRounding);
   g.setColour(findColour(Skin::kTextComponentBackground, true));
-
   g.fillRoundedRectangle(destination_selector_->getBounds().toFloat(), label_rounding);
 
-  int buttons_x = section2_x + section_width;
-  g.fillRoundedRectangle(buttons_x, widget_margin, component_width, getHeight() - 2 * widget_margin, label_rounding);
-
+  // The sample name, its toggles and the waveform share one panel.
   g.setColour(findColour(Skin::kWidgetBackground, true));
   g.fillRoundedRectangle(sample_viewer_->getX(), widget_margin,
                          sample_viewer_->getWidth(), getHeight() - 2 * widget_margin,
@@ -193,6 +261,8 @@ void SampleSection::paintBackground(Graphics& g) {
 void SampleSection::setActive(bool active) {
   sample_viewer_->setActive(active);
   SynthSection::setActive(active);
+  bpm_->setActive(active && tempo_sync_->getToggleState());
+  updateLoopControls();
 }
 
 void SampleSection::resized() {
@@ -204,18 +274,18 @@ void SampleSection::resized() {
 
   destination_text_->setColor(findColour(Skin::kBodyText, true));
 
+  // Pitch on the left, the sample in the middle, and two rows of four knobs on the right (start, loop start,
+  // loop end, crossfade above unison voices, detune, level and pan), as tall as a wavetable card.
   int title_width = getTitleWidth();
   int widget_margin = findValue(Skin::kWidgetMargin);
   int pitch_x = title_width;
-  int pitch_width = getWidth() * 0.19f;
+  int pitch_width = getWidth() * kPitchWidthRatio;
   int sample_x = pitch_x + pitch_width;
-  int section2_x = getWidth() - 2 * pitch_width + widget_margin;
-  int slider_x = section2_x + widget_margin - getSliderWidth() + getSliderOverlapWithSpace();
-
-  int sample_width = slider_x - sample_x + getSliderOverlapWithSpace();
+  int knobs_width = getWidth() * kKnobsWidthRatio;
+  int knobs_x = getWidth() - knobs_width;
+  int sample_width = knobs_x - sample_x - widget_margin;
   int label_height = findValue(Skin::kLabelBackgroundHeight);
   int top_row_y = widget_margin;
-  int level_pan_width = pitch_width;
 
   int destination_x = pitch_x + widget_margin;
   int destination_y = getHeight() - label_height - widget_margin;
@@ -227,30 +297,147 @@ void SampleSection::resized() {
   next_destination_->setBounds(destination_selector_->getRight() - label_height, destination_y,
                                label_height, label_height);
 
-  int text_component_height = destination_selector_->getY() - top_row_y - widget_margin;
-  placeJointControls(pitch_x + widget_margin, top_row_y, pitch_width - 2 * widget_margin, text_component_height,
+  placeJointControls(pitch_x + widget_margin, top_row_y, pitch_width - 2 * widget_margin, pitchBoxHeight(),
                      transpose_.get(), tune_.get(), transpose_quantize_button_.get());
 
-  placeKnobsInArea(Rectangle<int>(section2_x, 0, level_pan_width, getHeight()), { level_.get(), pan_.get() });
+  // LEVEL and PAN sit under PITCH, as on the wavetable card.
+  int level_y = top_row_y + pitchBoxHeight();
+  placeKnobsInArea(Rectangle<int>(pitch_x, level_y, pitch_width, destination_y - level_y), { level_.get(), pan_.get() });
 
-  sample_viewer_->setBounds(sample_x, title_width - widget_margin, sample_width, getHeight() - title_width);
-  preset_selector_->setBounds(sample_x, widget_margin, sample_width, title_width - 2 * widget_margin);
+  // The right: two rows of four, wide enough for every label: START, END, LOOP START, LOOP END above XFADE,
+  // VOICES, DETUNE and STEREO.
+  int row_height = getHeight() / 2;
+  placeKnobsInArea(Rectangle<int>(knobs_x, 0, knobs_width, row_height),
+                   { start_.get(), end_.get(), loop_start_.get(), loop_end_.get() });
+  placeKnobsInArea(Rectangle<int>(knobs_x, row_height, knobs_width, getHeight() - row_height),
+                   { crossfade_.get(), unison_voices_.get(), unison_detune_.get(), stereo_.get() });
+
+  // The header holds the sample's name, then its toggles: keytrack, random start, loop, bounce, reverse.
+  int header_height = title_width - 2 * widget_margin;
+  std::vector<Component*> toggles = { keytrack_.get(), random_phase_.get(), loop_.get(), bounce_.get(),
+                                      reverse_.get() };
+  int toggle_size = header_height;
+  int toggles_width = static_cast<int>(toggles.size()) * toggle_size;
+  int toggles_x = sample_x + sample_width - toggles_width - widget_margin;
+  for (int i = 0; i < static_cast<int>(toggles.size()); ++i)
+    toggles[i]->setBounds(toggles_x + i * toggle_size, widget_margin, toggle_size, toggle_size);
+
+  preset_selector_->setBounds(sample_x, widget_margin, toggles_x - sample_x, header_height);
+  // The waveform sits between the name bar and a control bar of the same kind along the bottom: STRETCH, SYNC
+  // and the BPM on the left, ZC, - and + on the right. The bar is part of the panel, not the display, so no
+  // marker crosses it.
+  int text_height = findValue(Skin::kLabelBackgroundHeight);
+  int bar_y = getHeight() - widget_margin - text_height;
+  int viewer_y = title_width - widget_margin;
+  sample_viewer_->setBounds(sample_x, viewer_y, sample_width, bar_y - viewer_y);
+
+  // The buttons draw their text in the monospace font at the button size, the BPM box in the light font; each
+  // control is measured in its own font, with an even gap between them. If the bar is too narrow for them all at
+  // the button size, the text shrinks to fit rather than overlap.
+  value_lookup_.erase(Skin::kButtonFontSize);
+  float button_font_size = findValue(Skin::kButtonFontSize);
+  Font button_font = Fonts::instance()->monospace().withPointHeight(button_font_size);
+  Font value_font = Fonts::instance()->proportional_light().withPointHeight(button_font_size);
+  int gap = 2 * widget_margin;
+  float content = button_font.getStringWidthFloat("STRETCH") + button_font.getStringWidthFloat("SYNC") +
+                  value_font.getStringWidthFloat("000.0 BPM") + button_font.getStringWidthFloat("ZC") +
+                  2.0f * text_height;
+  float available = sample_width - 6.0f * gap;
+  float scale = std::min(1.0f, available / content);
+  float stored_ratio = Skin::shouldScaleValue(Skin::kButtonFontSize) ? getSizeRatio() : 1.0f;
+  if (scale < 1.0f)
+    setSkinValue(Skin::kButtonFontSize, button_font_size * scale / stored_ratio);
+  bpm_->setTextHeightPercentage(0.0f);
+  bpm_->overrideValue(Skin::kTextComponentFontSize, button_font_size * scale);
+  bpm_->overrideValue(Skin::kTextComponentOffset, 0.0f);
+  auto width = [&](const Font& font, const String& text) {
+    return static_cast<int>(std::ceil(font.getStringWidthFloat(text) * scale)) + gap;
+  };
+
+  int x = sample_x + gap / 2;
+  stretch_->setBounds(x, bar_y, width(button_font, "STRETCH"), text_height);
+  tempo_sync_->setBounds(stretch_->getRight(), bar_y, width(button_font, "SYNC"), text_height);
+  bpm_->setBounds(tempo_sync_->getRight(), bar_y, width(value_font, "000.0 BPM"), text_height);
+  int right = sample_x + sample_width - gap / 2;
+  zoom_in_->setBounds(right - text_height, bar_y, text_height, text_height);
+  zoom_out_->setBounds(zoom_in_->getX() - text_height, bar_y, text_height, text_height);
+  snap_zero_->setBounds(zoom_out_->getX() - width(button_font, "ZC"), bar_y, width(button_font, "ZC"), text_height);
 
   destination_text_->setBounds(destination_selector_->getBounds());
   destination_text_->setTextSize(findValue(Skin::kLabelHeight));
+}
 
-  int buttons_x = section2_x + level_pan_width;
-  int buttons_width = getWidth() - buttons_x - widget_margin;
-  int buttons_height = getHeight() - 2 * widget_margin;
-  int button_width = std::min(buttons_height / 2, buttons_width / 2);
-  int button_padding_x = (buttons_width - 2 * button_width) / 3;
+int SampleSection::pitchBoxHeight() {
+  // As on the wavetable card: the PITCH box is as tall as the space above that card's LEVEL and PAN knobs.
+  int widget_margin = findValue(Skin::kWidgetMargin);
+  int label_height = findValue(Skin::kLabelBackgroundHeight);
+  return getHeight() - label_height - 2 * widget_margin - getKnobSectionHeight();
+}
 
-  int button_x1 = buttons_x + button_padding_x;
-  int button_x2 = buttons_x + buttons_width - button_width - button_padding_x;
-  keytrack_->setBounds(button_x1, widget_margin, button_width, button_width);
-  loop_->setBounds(button_x1, widget_margin + buttons_height / 2, button_width, button_width);
-  random_phase_->setBounds(button_x2, widget_margin, button_width, button_width);
-  bounce_->setBounds(button_x2, widget_margin + buttons_height / 2, button_width, button_width);
+void SampleSection::updateMarkers() {
+  sample_viewer_->setMarkers(start_->getValue(), end_->getValue(), loop_start_->getValue(), loop_end_->getValue(),
+                             crossfade_->getValue(), loop_->getToggleState(), reverse_->getToggleState());
+}
+
+void SampleSection::sliderValueChanged(Slider* changed_slider) {
+  SynthSection::sliderValueChanged(changed_slider);
+  keepMarkersInOrder(changed_slider);
+  if (changed_slider == start_.get() || changed_slider == end_.get() || changed_slider == loop_start_.get() ||
+      changed_slider == loop_end_.get() || changed_slider == crossfade_.get())
+    updateMarkers();
+}
+
+void SampleSection::keepMarkersInOrder(Slider* changed_slider) {
+  // With LOOP on, START and END can't cross into the loop: START stops at the loop's start, END at its end, and
+  // the loop's markers stop at START and END. (Each correction comes back through here, already in order.)
+  if (!loop_->getToggleState())
+    return;
+  double start = start_->getValue();
+  double end = end_->getValue();
+  double loop_low = std::min(loop_start_->getValue(), loop_end_->getValue());
+  double loop_high = std::max(loop_start_->getValue(), loop_end_->getValue());
+  if (changed_slider == start_.get() && start > loop_low)
+    start_->setValue(loop_low, sendNotificationSync);
+  else if (changed_slider == end_.get() && end < loop_high)
+    end_->setValue(loop_high, sendNotificationSync);
+  else if (changed_slider == loop_start_.get() || changed_slider == loop_end_.get()) {
+    double value = changed_slider->getValue();
+    if (value < start || value > end)
+      changed_slider->setValue(std::max(start, std::min(end, value)), sendNotificationSync);
+  }
+  else if (changed_slider == nullptr) {
+    // LOOP switched on: bring START and END outside the loop.
+    if (start > loop_low)
+      start_->setValue(loop_low, sendNotificationSync);
+    if (end < loop_high)
+      end_->setValue(loop_high, sendNotificationSync);
+  }
+}
+
+vital::SampleSource::Placement SampleSection::placeVoice(double t, double start_spread, double loop_spread,
+                                                          double loop_end_spread) const {
+  // Runs on the GL thread: read the loaded data, never activeLength(), which is null outside the audio block.
+  double length = sample_ ? std::max(1, sample_->upsampleLength()) : 1.0;
+  return vital::SampleSource::placeVoice(start_->getValue(), end_->getValue(), loop_start_->getValue(),
+                                         loop_end_->getValue(), crossfade_->getValue(), start_spread, loop_spread,
+                                         loop_end_spread, loop_->getToggleState(), reverse_->getToggleState(), t,
+                                         std::min(0.5, vital::SampleSource::kMinLoopFrames / length));
+}
+
+void SampleSection::sampleMarkerMoved(int marker, float value) {
+  // Dragging a marker moves its knob, which sets the parameter (and records the undo step).
+  // The display shows a loop set end-before-start the right way round; dragging one of its markers puts the knobs
+  // the right way round too, so each marker moves its own knob.
+  bool loop_marker = marker == SampleViewer::kLoopStartMarker || marker == SampleViewer::kLoopEndMarker;
+  if (loop_marker && loop_end_->getValue() < loop_start_->getValue()) {
+    double low = loop_end_->getValue();
+    double high = loop_start_->getValue();
+    loop_start_->setValue(low, sendNotificationSync);
+    loop_end_->setValue(high, sendNotificationSync);
+  }
+  SynthSlider* sliders[SampleViewer::kNumMarkers] = { start_.get(), loop_start_.get(), loop_end_.get(), end_.get() };
+  if (marker >= 0 && marker < SampleViewer::kNumMarkers)
+    sliders[marker]->setValue(value, sendNotificationSync);
 }
 
 void SampleSection::reset() {
@@ -277,9 +464,11 @@ void SampleSection::loadFile(const File& file) {
     else
       sample_->loadSample(sample_buffer_.getReadPointer(0), num_samples, format_reader->sampleRate);
     sample_->setName(file.getFileNameWithoutExtension().toStdString());
+    guessTempo();
   }
 
   preset_selector_->setText(sample_viewer_->getName());
+  sample_viewer_->resetZoom();
   sample_viewer_->repaintAudio();
 }
 
@@ -290,6 +479,44 @@ void SampleSection::setAllValues(vital::control_map& controls) {
 
   current_destination_ = controls[destination_control_name_]->value();
   setupDestination();
+  updateMarkers();
+  updateStretchControls(nullptr);
+  updateLoopControls();
+}
+
+void SampleSection::updateStretchControls(Button* clicked) {
+  // SYNC needs STRETCH: switching SYNC on turns STRETCH on, and switching STRETCH off turns SYNC off. Notifying,
+  // so the parameter follows and the drawer (listening to these buttons) dims its spreads. The BPM only matters
+  // while synced.
+  if (clicked == tempo_sync_.get() && tempo_sync_->getToggleState() && !stretch_->getToggleState())
+    stretch_->setToggleState(true, sendNotificationSync);
+  else if (clicked == stretch_.get() && !stretch_->getToggleState() && tempo_sync_->getToggleState())
+    tempo_sync_->setToggleState(false, sendNotificationSync);
+  bpm_->setActive(isActive() && tempo_sync_->getToggleState());
+}
+
+void SampleSection::updateLoopControls() {
+  // With LOOP off the loop's controls do nothing, so they're dimmed.
+  bool loop = isActive() && loop_->getToggleState();
+  loop_start_->setActive(loop);
+  loop_end_->setActive(loop);
+  crossfade_->setActive(loop);
+}
+
+void SampleSection::guessTempo() {
+  // The sample's tempo from its length: the number of beats (1 to 32, doubling) that gives a tempo nearest 120 in
+  // 70-180 BPM. Typing or dragging the BPM box overrides it.
+  if (sample_ == nullptr || sample_->sampleRate() <= 0 || sample_->originalLength() <= 0)
+    return;
+  double seconds = sample_->originalLength() / static_cast<double>(sample_->sampleRate());
+  double best = 0.0;
+  for (int beats = 1; beats <= 32; beats *= 2) {
+    double bpm = 60.0 * beats / seconds;
+    if (bpm >= 70.0 && bpm <= 180.0 && (best == 0.0 || std::abs(bpm - 120.0) < std::abs(best - 120.0)))
+      best = bpm;
+  }
+  if (best > 0.0)
+    bpm_->setValue(best, sendNotificationSync);
 }
 
 void SampleSection::buttonClicked(Button* clicked_button) {
@@ -310,8 +537,26 @@ void SampleSection::buttonClicked(Button* clicked_button) {
     int new_destination = (current_destination_ + 1) % vital::constants::kNumEngineOutputs;
     setDestinationSelected(new_destination);
   }
-  else
+  else if (clicked_button == zoom_in_.get() || clicked_button == zoom_out_.get()) {
+    sample_viewer_->zoomAroundCenter(clicked_button == zoom_in_.get() ? 2.0f : 0.5f);
+  }
+  else if (clicked_button == snap_zero_.get())
+    sample_viewer_->setSnapToZeroCrossings(snap_zero_->getToggleState());
+  else {
     SynthSection::buttonClicked(clicked_button);
+    if (clicked_button == loop_.get() || clicked_button == reverse_.get())
+      updateMarkers();
+    if (clicked_button == loop_.get()) {
+      // A loop without a crossfade clicks where it jumps, so engaging LOOP brings XFADE to 5% if it's at zero
+      // (in the same undo step as the click).
+      if (loop_->getToggleState() && crossfade_->getValue() <= 0.0)
+        crossfade_->setValue(kDefaultLoopCrossfade, sendNotificationSync);
+      keepMarkersInOrder(nullptr);
+      updateLoopControls();
+    }
+    if (clicked_button == stretch_.get() || clicked_button == tempo_sync_.get())
+      updateStretchControls(clicked_button);
+  }
 }
 
 void SampleSection::setDestinationSelected(int selection) {

@@ -50,12 +50,13 @@ SynthGuiInterface* SynthPlugin::getGuiInterface() {
 }
 
 void SynthPlugin::beginChangeGesture(const std::string& name) {
-  if (bridge_lookup_.count(name))
+  // A knob opens its own gesture and the undo gesture around the same drag opens one too: the host gets one.
+  if (bridge_lookup_.count(name) && open_change_gestures_.insert(name).second)
     bridge_lookup_[name]->beginChangeGesture();
 }
 
 void SynthPlugin::endChangeGesture(const std::string& name) {
-  if (bridge_lookup_.count(name))
+  if (bridge_lookup_.count(name) && open_change_gestures_.erase(name))
     bridge_lookup_[name]->endChangeGesture();
 }
 

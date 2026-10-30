@@ -92,8 +92,10 @@ namespace vital {
     };
 
     // How an engine's own unison and its group's unison work together when GROUP UNISON is on.
-    // Combined: one set of voices, the larger voice count, the two detunes added, the wider blend and stereo.
-    // Nested: every group voice holds a copy of the engine's own unison (voices multiply, up to 16).
+    // Combined: one set of voices, the larger voice count, the two detunes added, the engine's blend and stereo
+    // scaled by the group's.
+    // Nested: every group voice holds a copy of the engine's own unison (voices multiply, up to 16); the group's
+    // blend and stereo act on the group voices, the engine's on the voices around each.
     enum GroupUnisonMode {
       kGroupUnisonCombined,
       kGroupUnisonNested,

@@ -322,6 +322,8 @@ namespace vital {
         kAudio,
         kEncodingValue,
         kMode,
+        // When on, audio passes through untouched (both modes ease to an identity).
+        kBypass,
         kNumInputs
       };
 
@@ -344,6 +346,7 @@ namespace vital {
       void process(int num_samples) override;
       void processRotate(int num_samples);
       void processCenter(int num_samples);
+      bool bypassed() { return input(kBypass)->at(0)[0] != 0.0f; }
 
       bool hasState() const override { return true; }
 

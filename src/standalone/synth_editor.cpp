@@ -133,6 +133,10 @@ void SynthEditor::timerCallback() {
   current_midi_ins_ = midi_ins;
 }
 
+bool SynthEditor::keyPressed(const KeyPress& key) {
+  return gui_ && gui_->keyPressed(key);
+}
+
 void SynthEditor::animate(bool animate) {
   if (gui_)
     gui_->animate(animate);

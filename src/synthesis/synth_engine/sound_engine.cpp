@@ -51,6 +51,7 @@ namespace vital {
 
     Output* stereo_routing = createMonoModControl("stereo_routing");
     Value* stereo_mode = createBaseControl("stereo_mode");
+    Value* stereo_bypass = createBaseControl("stereo_bypass");
     Output* beats_per_second = createMonoModControl("beats_per_minute");
     cr::LowerBound* beats_per_second_clamped = new cr::LowerBound(0.0f);
     beats_per_second_clamped->plug(beats_per_second);
@@ -110,6 +111,7 @@ namespace vital {
     decoder->plug(decimator_, StereoEncoder::kAudio);
     decoder->plug(stereo_routing, StereoEncoder::kEncodingValue);
     decoder->plug(stereo_mode, StereoEncoder::kMode);
+    decoder->plug(stereo_bypass, StereoEncoder::kBypass);
     addProcessor(decoder);
 
     Output* volume = createMonoModControl("volume");

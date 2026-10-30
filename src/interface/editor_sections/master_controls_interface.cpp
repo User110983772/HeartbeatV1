@@ -191,6 +191,7 @@ class VoiceSettings : public SynthSection {
       voice_transpose_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
       voice_transpose_->setLookAndFeel(TextLookAndFeel::instance());
       voice_transpose_->setSensitivity(kTransposeMouseSensitivity);
+      voice_transpose_->setShiftIndexAmount(vital::kNotesPerOctave);
     }
 
     void paintBackground(Graphics& g) override {

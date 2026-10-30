@@ -83,7 +83,7 @@ void VoiceSection::paintBackground(Graphics& g) {
 }
 
 void VoiceSection::resized() {
-  stereo_mode_text_->setColor(findColour(Skin::kBodyText, true)); 
+  showStereoMode();
   int widget_margin = findValue(Skin::kWidgetMargin);
   int text_width = findValue(Skin::kModulationButtonWidth) - widget_margin;
   int text_height = getHeight() - 2 * widget_margin;
@@ -104,8 +104,16 @@ void VoiceSection::resized() {
 
 void VoiceSection::setAllValues(vital::control_map& controls) {
   SynthSection::setAllValues(controls);
-  int stereo_mode = controls["stereo_mode"]->value();
-  stereo_mode_text_->setText(strings::kStereoModeNames[stereo_mode]);
+  stereo_mode_ = controls["stereo_mode"]->value();
+  stereo_bypass_ = controls["stereo_bypass"]->value() != 0.0f;
+  showStereoMode();
+}
+
+void VoiceSection::showStereoMode() {
+  // Bypassed, the label reads BYPASS in red and the knob greys out, keeping its value for when it's back on.
+  stereo_mode_text_->setText(stereo_bypass_ ? "BYPASS" : strings::kStereoModeNames[stereo_mode_]);
+  stereo_mode_text_->setColor(stereo_bypass_ ? findColour(Skin::kWidgetPrimary1, true) : findColour(Skin::kBodyText, true));
+  stereo_routing_->setActive(!stereo_bypass_);
 }
 
 void VoiceSection::buttonClicked(Button* clicked_button) {
@@ -115,6 +123,7 @@ void VoiceSection::buttonClicked(Button* clicked_button) {
 
     for (int i = 0; i < num_modes; ++i)
       options.addItem(i, strings::kStereoModeNames[i]);
+    options.addItem(kBypassSelection, "BYPASS");
     
     showPopupSelector(this, Point<int>(clicked_button->getX(), clicked_button->getBottom()), options,
                       [=](int selection) { setStereoModeSelected(selection); });
@@ -124,9 +133,16 @@ void VoiceSection::buttonClicked(Button* clicked_button) {
 }
 
 void VoiceSection::setStereoModeSelected(int selection) {
-  stereo_mode_text_->setText(strings::kStereoModeNames[selection]);
+  // BYPASS keeps the chosen mode underneath; picking a mode switches the stage back on.
+  stereo_bypass_ = selection == kBypassSelection;
+  if (!stereo_bypass_)
+    stereo_mode_ = selection;
+  showStereoMode();
 
   SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-  if (parent)
+  if (parent == nullptr)
+    return;
+  if (!stereo_bypass_)
     parent->getSynth()->valueChangedInternal("stereo_mode", selection);
+  parent->getSynth()->valueChangedInternal("stereo_bypass", stereo_bypass_ ? 1.0f : 0.0f);
 }

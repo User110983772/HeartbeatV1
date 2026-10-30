@@ -349,7 +349,7 @@ namespace strings {
 
   const std::string kGroupOutputNames[vital::constants::kNumGroupOutputs] = {
     "Direct Out",
-    "FX Bus 1"
+    "FX"
   };
 
   const std::string kOscillatorSourceNames[] = {

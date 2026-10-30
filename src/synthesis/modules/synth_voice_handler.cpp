@@ -148,6 +148,7 @@ namespace vital {
     producers_->plug(legato_voice(), ProducersModule::kLegatoVoice);
     producers_->plug(legato_note(), ProducersModule::kLegatoNote);
     producers_->plug(current_midi_note_->output(), ProducersModule::kGlobalGlide);
+    producers_->plug(beats_per_second_, ProducersModule::kBeatsPerSecond);
     addSubmodule(producers_);
     addProcessor(producers_);
   }
@@ -158,7 +159,7 @@ namespace vital {
     group_mixer_->plug(active_mask(), OscillatorGroupMixer::kActiveVoices);
     group_mixer_->plug(velocity_amplitude_, OscillatorGroupMixer::kAmplitude);
     for (int i = 0; i < kNumLfos; ++i)
-      group_mixer_->plug(lfos_[i]->output(LfoModule::kOscPhase), OscillatorGroupMixer::kLfoPhases + i);
+      group_mixer_->plug(lfos_[i]->output(LfoModule::kOscProgress), OscillatorGroupMixer::kLfoProgress + i);
     group_mixer_->setSources(producers_, envelopes_, lfos_);
 
     Output* amp_sources[kNumGroupAmpSources];

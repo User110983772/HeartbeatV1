@@ -253,6 +253,30 @@ namespace vital {
       return utils::interpolate(from, to, buffer_t);
     }
 
+    // Nested group unison: an entry's value reaches the output through its own gains, gliding from last block's
+    // over the block (see SynthOscillator::computeNestedMix).
+    struct EntryMix {
+      EntryMix(const SynthOscillator::VoiceBlock& voice_block, int start) : mixed(voice_block.mixed) {
+        mono_float sample_inc = 1.0f / voice_block.total_samples;
+        own_delta = (voice_block.own - voice_block.from_own) * sample_inc;
+        cross_delta = (voice_block.cross - voice_block.from_cross) * sample_inc;
+        own = voice_block.from_own + own_delta * start;
+        cross = voice_block.from_cross + cross_delta * start;
+      }
+
+      force_inline poly_float next(poly_float value) {
+        own += own_delta;
+        cross += cross_delta;
+        return own * value + cross * utils::swapStereo(value);
+      }
+
+      bool mixed;
+      poly_float own;
+      poly_float own_delta;
+      poly_float cross;
+      poly_float cross_delta;
+    };
+
     poly_int processDetunedShepard(const SynthOscillator::VoiceBlock& voice_block, poly_float* audio_out) {
       const mono_float* const* from_buffers = voice_block.from_buffers;
       const mono_float* const* to_buffers = voice_block.to_buffers;
@@ -274,11 +298,13 @@ namespace vital {
       const poly_float* phase_inc_buffer = voice_block.phase_inc_buffer + start;
       const poly_int* phase_buffer = voice_block.phase_buffer + start;
       int num_samples = voice_block.end_sample - start;
+      EntryMix mix(voice_block, start);
       for (int i = 0; i < num_samples; ++i) {
         current_phase_inc_mult += delta_phase_inc_mult;
         phase += utils::toInt(phase_inc_buffer[i] * current_phase_inc_mult);
         poly_int adjusted_phase = phase + phase_buffer[i];
-        audio_out[i] += interpolateShepardBuffers(from_buffers, to_buffers, adjusted_phase, t, double_mask, half_mask);
+        poly_float value = interpolateShepardBuffers(from_buffers, to_buffers, adjusted_phase, t, double_mask, half_mask);
+        audio_out[i] += mix.mixed ? mix.next(value) : value;
         t += t_inc;
       }
 
@@ -317,6 +343,7 @@ namespace vital {
       const poly_float* phase_inc_buffer = voice_block.phase_inc_buffer + start;
       const poly_int* phase_buffer = voice_block.phase_buffer + start;
       int num_samples = voice_block.end_sample - start;
+      EntryMix mix(voice_block, start);
       for (int i = 0; i < num_samples; ++i) {
         current_phase_inc_mult += delta_phase_inc_mult;
         phase += utils::toInt(phase_inc_buffer[i] * current_phase_inc_mult);
@@ -326,7 +353,8 @@ namespace vital {
         poly_int distorted_phase = phaseDistort(adjusted_phase, current_distortion,
                                                 current_dist_phase, modulation_buffer, i);
         poly_float result = interpolate(from_buffers, to_buffers, distorted_phase + current_dist_phase, t);
-        audio_out[i] += window(adjusted_phase, distorted_phase, current_distortion, modulation_buffer, i) * result;
+        poly_float value = window(adjusted_phase, distorted_phase, current_distortion, modulation_buffer, i) * result;
+        audio_out[i] += mix.mixed ? mix.next(value) : value;
         t += t_inc;
       }
 
@@ -367,6 +395,7 @@ namespace vital {
       const poly_float* phase_inc_buffer = voice_block.phase_inc_buffer + start;
       const poly_int* phase_buffer = voice_block.phase_buffer + start;
       int num_samples = voice_block.end_sample - start;
+      EntryMix mix(voice_block, start);
       for (int i = 0; i < num_samples; ++i) {
         current_phase_inc_mult += delta_phase_inc_mult;
         phase += utils::toInt(phase_inc_buffer[i] * current_phase_inc_mult);
@@ -376,7 +405,10 @@ namespace vital {
         current_detuned_amplitude += delta_detuned_amplitude;
         poly_float read = interpolateShepardBuffers(from_buffers, to_buffers, adjusted_phase,
                                                     t, double_mask, half_mask);
-        audio_out[i] = current_center_amplitude * read + current_detuned_amplitude * audio_out[i];
+        if (mix.mixed)
+          audio_out[i] += mix.next(read);
+        else
+          audio_out[i] = current_center_amplitude * read + current_detuned_amplitude * audio_out[i];
         t += t_inc;
       }
 
@@ -418,6 +450,7 @@ namespace vital {
       const poly_float* phase_inc_buffer = voice_block.phase_inc_buffer + start;
       const poly_int* phase_buffer = voice_block.phase_buffer + start;
       int num_samples = voice_block.end_sample - start;
+      EntryMix mix(voice_block, start);
       for (int i = 0; i < num_samples; ++i) {
         current_phase_inc_mult += delta_phase_inc_mult;
         phase += utils::toInt(phase_inc_buffer[i] * current_phase_inc_mult);
@@ -430,8 +463,10 @@ namespace vital {
                                                 current_dist_phase, modulation_buffer, i);
         poly_float mult = window(adjusted_phase, distorted_phase, current_distortion, modulation_buffer, i);
         poly_float read = mult * interpolate(from_buffers, to_buffers, distorted_phase + current_dist_phase, t);
-        poly_float center_value = current_center_amplitude * read;
-        audio_out[i] = center_value + current_detuned_amplitude * audio_out[i];
+        if (mix.mixed)
+          audio_out[i] += mix.next(read);
+        else
+          audio_out[i] = current_center_amplitude * read + current_detuned_amplitude * audio_out[i];
         VITAL_ASSERT(utils::isFinite(audio_out[i]));
 
         t += t_inc;
@@ -538,6 +573,12 @@ namespace vital {
       spectral_memory_(std::make_shared<SpectralMemory>()), spectral_slot_(0), spectral_generation_(-1),
       spectral_frames_(nullptr) {
     pan_amplitude_ = 0.0f;
+    for (int i = 0; i < kNumPolyPhase; ++i) {
+      mix_own_[i] = 0.0f;
+      mix_cross_[i] = 0.0f;
+      from_mix_own_[i] = 0.0f;
+      from_mix_cross_[i] = 0.0f;
+    }
     for (int i = 0; i < kNumPolyPhase; ++i)
       noise_gains_[i] = 0.0f;
     center_amplitude_ = 0.0f;
@@ -655,41 +696,32 @@ namespace vital {
     return std::roundf(input(kGroupUnisonMode)->at(0)[0]);
   }
 
-  void SynthOscillator::setUnisonVoices() {
-    int mode = groupUnisonMode();
-    engine_unison_ = utils::clamp(roundf(input(kUnisonVoices)->at(0)[0]), 1.0f, kMaxUnison);
-    group_unison_ = 1;
-    if (mode)
-      group_unison_ = utils::clamp(roundf(input(kGroupUnisonVoices)->at(0)[0]), 1.0f, kMaxUnison);
-
+  int SynthOscillator::computeGroupedUnisonCount(int mode, int engine_voices, int group_voices,
+                                                 int* engine_unison, int* group_unison) {
+    *engine_unison = utils::iclamp(engine_voices, 1, kMaxUnison);
+    *group_unison = mode ? utils::iclamp(group_voices, 1, kMaxUnison) : 1;
     if (mode == constants::kGroupUnisonNested + 1) {
       // Every group voice holds a copy of the engine's unison; the engine's count gives way to stay within 16.
-      engine_unison_ = std::min(engine_unison_, kMaxUnison / group_unison_);
-      unison_ = engine_unison_ * group_unison_;
+      *engine_unison = std::min(*engine_unison, kMaxUnison / *group_unison);
+      return *engine_unison * *group_unison;
     }
-    else
-      unison_ = std::max(engine_unison_, group_unison_);
-
-    setActiveOscillators(unison_ + (unison_ % 2));
+    return std::max(*engine_unison, *group_unison);
   }
 
-  void SynthOscillator::setPhaseIncMults() {
+  void SynthOscillator::computeGroupedDetunings(int mode, int unison, int engine_unison, int group_unison,
+                                                poly_float range, poly_float power,
+                                                poly_float engine_detune, int engine_stack,
+                                                poly_float group_detune, int group_stack, poly_float* detunings) {
     // The detune knob is quadratic, so its control arrives squared: 10 on the knob is 100 here.
     static constexpr mono_float kMaxUnisonDetune = 100.0f;
+    group_stack = utils::iclamp(group_stack, 0, kNumUnisonStackTypes - 1);
+    engine_stack = utils::iclamp(engine_stack, 0, kNumUnisonStackTypes - 1);
 
-    poly_float range = input(kDetuneRange)->at(0);
-    poly_float power = input(kDetunePower)->at(0);
-    poly_float engine_detune = input(kUnisonDetune)->at(0);
-    int engine_stack = std::roundf(input(kStackStyle)->at(0)[0]);
-    poly_float group_detune = input(kGroupUnisonDetune)->at(0);
-    int group_stack = utils::iclamp(std::roundf(input(kGroupStackStyle)->at(0)[0]), 0, kNumUnisonStackTypes - 1);
-
-    int mode = groupUnisonMode();
     if (mode == constants::kGroupUnisonCombined + 1) {
       // One set of voices: the detune amounts (cents) add, and the engine's stack style wins unless it has none.
       poly_float detune = utils::clamp(engine_detune + group_detune, 0.0f, kMaxUnisonDetune);
       int stack = engine_stack ? engine_stack : group_stack;
-      computeUnisonDetunings(unison_, range * detune, power, stack, detunings_);
+      computeUnisonDetunings(unison, range * detune, power, stack, detunings);
     }
     else if (mode == constants::kGroupUnisonNested + 1) {
       // Each entry is a stereo pair of voices (left and right lanes). Every engine pair is placed around every
@@ -697,24 +729,118 @@ namespace vital {
       // (odd count, first entry) is a single voice, so it pairs once.
       poly_float engine_detunings[kNumPolyPhase];
       poly_float group_detunings[kNumPolyPhase];
-      computeUnisonDetunings(engine_unison_, range * engine_detune, power, engine_stack, engine_detunings);
-      computeUnisonDetunings(group_unison_, range * group_detune, power, group_stack, group_detunings);
+      computeUnisonDetunings(engine_unison, range * engine_detune, power, engine_stack, engine_detunings);
+      computeUnisonDetunings(group_unison, range * group_detune, power, group_stack, group_detunings);
 
-      int engine_entries = (engine_unison_ + 1) / 2;
-      int group_entries = (group_unison_ + 1) / 2;
+      int engine_entries = (engine_unison + 1) / 2;
+      int group_entries = (group_unison + 1) / 2;
       int entry = 0;
       for (int g = 0; g < group_entries; ++g) {
-        bool group_center = g == 0 && group_unison_ % 2;
+        bool group_center = g == 0 && group_unison % 2;
         for (int e = 0; e < engine_entries; ++e) {
-          bool engine_center = e == 0 && engine_unison_ % 2;
-          detunings_[entry++] = engine_detunings[e] * group_detunings[g];
+          bool engine_center = e == 0 && engine_unison % 2;
+          detunings[entry++] = engine_detunings[e] * group_detunings[g];
           if (!group_center && !engine_center)
-            detunings_[entry++] = engine_detunings[e] * utils::swapStereo(group_detunings[g]);
+            detunings[entry++] = engine_detunings[e] * utils::swapStereo(group_detunings[g]);
         }
       }
     }
     else
-      computeUnisonDetunings(unison_, range * engine_detune, power, engine_stack, detunings_);
+      computeUnisonDetunings(unison, range * engine_detune, power, engine_stack, detunings);
+  }
+
+  poly_float SynthOscillator::combinedUnisonValue(int mode, poly_float engine_value, poly_float group_value) {
+    if (mode == constants::kGroupUnisonCombined + 1)
+      return engine_value * utils::clamp(group_value, 0.0f, 1.0f);
+    return engine_value;
+  }
+
+  void SynthOscillator::computeNestedMix(int engine_unison, int group_unison, poly_float engine_blend,
+                                         poly_float group_blend, poly_float engine_stereo, poly_float group_stereo,
+                                         poly_float* own, poly_float* cross) {
+    poly_float engine_center, engine_detuned, group_center, group_detuned;
+    computeUnisonAmplitudes(engine_unison, engine_blend, &engine_center, &engine_detuned);
+    computeUnisonAmplitudes(group_unison, group_blend, &group_center, &group_detuned);
+    poly_float engine_width = utils::clamp(engine_stereo, 0.0f, 1.0f);
+    poly_float group_width = utils::clamp(group_stereo, 0.0f, 1.0f);
+
+    // One entry: its left lane's voice sits at engine side engine_left and group side group_left (-1 left, 0 centre,
+    // 1 right); its right lane's voice on the opposite sides. Placed with the equal-power pan law Vital's stereo
+    // spread uses, so with the group's stereo at 0 the engine's behaves exactly as before.
+    auto setEntry = [&](int entry, poly_float amplitude, float engine_left, float group_left) {
+      for (int voice = 0; voice < poly_float::kSize / 2; ++voice) {
+        int left = 2 * voice;
+        int right = left + 1;
+        float positions[2];
+        for (int side = 0; side < 2; ++side) {
+          float sign = side == 0 ? 1.0f : -1.0f;
+          int lane = left + side;
+          float group_position = sign * group_left * group_width[lane];
+          float room = 1.0f - std::abs(group_position);
+          positions[side] = group_position + sign * engine_left * engine_width[lane] * room;
+        }
+        float angle_left = (positions[0] + 1.0f) * kPi * 0.25f;
+        float angle_right = (positions[1] + 1.0f) * kPi * 0.25f;
+        own[entry].set(left, amplitude[left] * std::cos(angle_left));
+        cross[entry].set(right, amplitude[left] * std::sin(angle_left));
+        own[entry].set(right, amplitude[right] * std::sin(angle_right));
+        cross[entry].set(left, amplitude[right] * std::cos(angle_right));
+      }
+    };
+
+    // The same order as computeGroupedDetunings: every engine pair around every group pair, once as is and once
+    // with the group pair mirrored; a centre voice (odd count) pairs once.
+    int engine_entries = (engine_unison + 1) / 2;
+    int group_entries = (group_unison + 1) / 2;
+    // Levels are normalised over all the entries, as computeUnisonAmplitudes does for one layer, so Nested is as
+    // loud as the same number of voices of the engine's own unison.
+    poly_float square_sum = 0.0f;
+    for (int g = 0; g < group_entries; ++g) {
+      bool group_is_center = g == 0 && group_unison % 2;
+      poly_float group_amplitude = g == 0 ? group_center : group_detuned;
+      for (int e = 0; e < engine_entries; ++e) {
+        bool engine_is_center = e == 0 && engine_unison % 2;
+        poly_float amplitude = (e == 0 ? engine_center : engine_detuned) * group_amplitude;
+        square_sum += amplitude * amplitude * ((group_is_center || engine_is_center) ? 1.0f : 2.0f);
+      }
+    }
+    poly_float adjustment = poly_float(1.0f) / utils::sqrt(utils::max(square_sum, 1e-9f));
+
+    int entry = 0;
+    for (int g = 0; g < group_entries; ++g) {
+      bool group_is_center = g == 0 && group_unison % 2;
+      poly_float group_amplitude = g == 0 ? group_center : group_detuned;
+      for (int e = 0; e < engine_entries; ++e) {
+        bool engine_is_center = e == 0 && engine_unison % 2;
+        poly_float amplitude = (e == 0 ? engine_center : engine_detuned) * group_amplitude * adjustment;
+        // A centre engine voice sits on its group voice. When both are centres the entry is one voice in both
+        // lanes, which Vital spreads like a pair (identical signals, so it stays centred), and so does this.
+        float engine_left = engine_is_center && !group_is_center ? 0.0f : -1.0f;
+        float group_left = group_is_center ? 0.0f : -1.0f;
+        setEntry(entry++, amplitude, engine_left, group_left);
+        if (!group_is_center && !engine_is_center)
+          setEntry(entry++, amplitude, engine_left, -group_left);
+      }
+    }
+    for (; entry < kNumPolyPhase; ++entry) {
+      own[entry] = 0.0f;
+      cross[entry] = 0.0f;
+    }
+  }
+
+  void SynthOscillator::setUnisonVoices() {
+    unison_ = computeGroupedUnisonCount(groupUnisonMode(), std::roundf(input(kUnisonVoices)->at(0)[0]),
+                                        std::roundf(input(kGroupUnisonVoices)->at(0)[0]),
+                                        &engine_unison_, &group_unison_);
+    setActiveOscillators(unison_ + (unison_ % 2));
+  }
+
+  void SynthOscillator::setPhaseIncMults() {
+    computeGroupedDetunings(groupUnisonMode(), unison_, engine_unison_, group_unison_,
+                            input(kDetuneRange)->at(0), input(kDetunePower)->at(0),
+                            input(kUnisonDetune)->at(0), std::roundf(input(kStackStyle)->at(0)[0]),
+                            input(kGroupUnisonDetune)->at(0), std::roundf(input(kGroupStackStyle)->at(0)[0]),
+                            detunings_);
 
     int num_updates = active_oscillators_ / 2;
     for (int i = 0; i < num_updates; ++i) {
@@ -803,7 +929,39 @@ namespace vital {
   }
 
   force_inline void SynthOscillator::setAmplitude() {
-    computeUnisonAmplitudes(unison_, input(kBlend)->at(0), &center_amplitude_, &detuned_amplitude_);
+    poly_float blend = combinedUnisonValue(groupUnisonMode(), input(kBlend)->at(0), input(kGroupBlend)->at(0));
+    computeUnisonAmplitudes(unison_, blend, &center_amplitude_, &detuned_amplitude_);
+  }
+
+  poly_float SynthOscillator::stereoSpread() {
+    // Nested places each voice itself (setNestedMix), so the output isn't folded again.
+    int mode = groupUnisonMode();
+    if (mode == constants::kGroupUnisonNested + 1)
+      return 1.0f;
+    return combinedUnisonValue(mode, input(kStereoSpread)->at(0), input(kGroupStereoSpread)->at(0));
+  }
+
+  void SynthOscillator::setNestedMix(poly_mask reset_mask) {
+    bool was_nested = nested_mix_;
+    nested_mix_ = groupUnisonMode() == constants::kGroupUnisonNested + 1;
+    if (!nested_mix_)
+      return;
+
+    for (int i = 0; i < kNumPolyPhase; ++i) {
+      from_mix_own_[i] = mix_own_[i];
+      from_mix_cross_[i] = mix_cross_[i];
+    }
+    computeNestedMix(engine_unison_, group_unison_, input(kBlend)->at(0), input(kGroupBlend)->at(0),
+                     input(kStereoSpread)->at(0), input(kGroupStereoSpread)->at(0), mix_own_, mix_cross_);
+    // New notes, and a switch into Nested, start at this block's mix.
+    for (int i = 0; i < kNumPolyPhase; ++i) {
+      if (!was_nested) {
+        from_mix_own_[i] = mix_own_[i];
+        from_mix_cross_[i] = mix_cross_[i];
+      }
+      from_mix_own_[i] = utils::maskLoad(from_mix_own_[i], mix_own_[i], reset_mask);
+      from_mix_cross_[i] = utils::maskLoad(from_mix_cross_[i], mix_cross_[i], reset_mask);
+    }
   }
 
   void SynthOscillator::setWaveBuffers(poly_float phase_inc, int index) {
@@ -937,7 +1095,7 @@ namespace vital {
   }
 
   void SynthOscillator::stereoBlend(poly_float* audio_out, int num_samples, poly_mask reset_mask) {
-    poly_float stereo_spread = utils::clamp(input(kStereoSpread)->at(0), 0.0f, 1.0f);
+    poly_float stereo_spread = utils::clamp(stereoSpread(), 0.0f, 1.0f);
 
     poly_float current_stereo_mult = blend_stereo_multiply_;
     poly_float current_center_mult = blend_center_multiply_;
@@ -1035,6 +1193,21 @@ namespace vital {
       int buffer_index = index * poly_float::kSize;
       memcpy(voice_block.from_buffers, last_buffers_ + buffer_index, poly_float::kSize * sizeof(mono_float*));
       memcpy(voice_block.to_buffers, wave_buffers_ + buffer_index, poly_float::kSize * sizeof(mono_float*));
+    }
+
+    if (voice_block.mixed) {
+      if (single_voice) {
+        voice_block.own = compactAndLoadVoice(mix_own_ + 2 * index, active_mask);
+        voice_block.from_own = compactAndLoadVoice(from_mix_own_ + 2 * index, active_mask);
+        voice_block.cross = compactAndLoadVoice(mix_cross_ + 2 * index, active_mask);
+        voice_block.from_cross = compactAndLoadVoice(from_mix_cross_ + 2 * index, active_mask);
+      }
+      else {
+        voice_block.own = mix_own_[index];
+        voice_block.from_own = from_mix_own_[index];
+        voice_block.cross = mix_cross_[index];
+        voice_block.from_cross = from_mix_cross_[index];
+      }
     }
   }
 
@@ -1480,6 +1653,8 @@ namespace vital {
     poly_mask reset_mask = getResetMask(kReset);
     poly_int trigger_offset = input(kReset)->source->trigger_offset;
     poly_mask retrigger_mask = getResetMask(kRetrigger) & ~reset_mask;
+    setNestedMix(reset_mask);
+    voice_block_.mixed = nested_mix_;
 
     current_center_amplitude = utils::maskLoad(current_center_amplitude, center_amplitude_, reset_mask);
     current_detuned_amplitude = utils::maskLoad(current_detuned_amplitude, detuned_amplitude_, reset_mask);
@@ -1667,6 +1842,7 @@ namespace vital {
     int num_noises = active_oscillators_ / 2;
     setAmplitude();
     setPhaseIncMults();
+    setNestedMix(reset_mask);
 
     // Each pair's gain glides to its target, so changing the unison count fades pairs in and out
     // instead of switching them mid-signal. New notes start at their targets.
@@ -1675,7 +1851,9 @@ namespace vital {
     poly_float gain_ends[kNumPolyPhase];
     for (int i = 0; i < kNumPolyPhase; ++i) {
       poly_float target = 0.0f;
-      if (i < num_noises)
+      if (i < num_noises && nested_mix_)
+        target = 1.0f;
+      else if (i < num_noises)
         target = i == 0 ? center_amplitude_ : detuned_amplitude_;
 
       poly_float start = utils::maskLoad(noise_gains_[i], target, reset_mask);
@@ -1717,8 +1895,28 @@ namespace vital {
         mono_float t = 2.0f * i / (std::max(2, num_noises) - 1.0f);
         poly_float pair_color = utils::clamp(color + color_spread * t, 0.0f, 1.0f);
         poly_float pair_focus = utils::clamp(focus + focus_spread * t, 0.0f, 1.0f);
-        noises_[i].addTo(audio_out, num_samples, pair_color, pair_focus, frequency * phase_inc_mults_[i],
-                         gain_starts[i], gain_ends[i]);
+        if (nested_mix_) {
+          // Nested: each pair reaches the output through its own gains (computeNestedMix).
+          poly_float pair_audio[kMaxBufferSize * kMaxOversample];
+          int count = std::min(num_samples, kMaxBufferSize * kMaxOversample);
+          utils::zeroBuffer(pair_audio, count);
+          noises_[i].addTo(pair_audio, count, pair_color, pair_focus, frequency * phase_inc_mults_[i],
+                           gain_starts[i], gain_ends[i]);
+          mono_float sample_inc = 1.0f / count;
+          poly_float own = from_mix_own_[i];
+          poly_float cross = from_mix_cross_[i];
+          poly_float own_delta = (mix_own_[i] - own) * sample_inc;
+          poly_float cross_delta = (mix_cross_[i] - cross) * sample_inc;
+          for (int s = 0; s < count; ++s) {
+            own += own_delta;
+            cross += cross_delta;
+            audio_out[s] += own * pair_audio[s] + cross * utils::swapStereo(pair_audio[s]);
+          }
+        }
+        else {
+          noises_[i].addTo(audio_out, num_samples, pair_color, pair_focus, frequency * phase_inc_mults_[i],
+                           gain_starts[i], gain_ends[i]);
+        }
       }
     }
 

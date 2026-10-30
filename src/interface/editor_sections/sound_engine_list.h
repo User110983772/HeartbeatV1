@@ -162,6 +162,7 @@ class SoundEngineList : public SynthSection, public GroupHeader::Listener, publi
     int getOscillatorHeight();
     // Rebuilds the list from the synth's engines, groups and order.
     void updateLayout();
+    void updateDrawerButton(int engine);
 
   private:
     // One entry per header, card and empty-group hint, top to bottom, for working out where a drag lands.

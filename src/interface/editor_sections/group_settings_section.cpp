@@ -31,8 +31,8 @@ namespace groups_page {
 
   // Drift and humanise share the first column, one above the other, as separate panels.
   enum Panel { kDriftPanel, kHumanizePanel, kVoicePanel, kUnisonPanel, kNumPanels };
-  enum Column { kDriftColumn, kVoiceColumn, kUnisonColumn, kNumColumns };
-  constexpr float kColumnWidths[kNumColumns] = { 0.36f, 0.20f, 0.44f };
+  enum Column { kDriftColumn, kUnisonColumn, kVoiceColumn, kNumColumns };
+  constexpr float kColumnWidths[kNumColumns] = { 0.36f, 0.44f, 0.20f };
   constexpr int kPanelColumns[kNumPanels] = { kDriftColumn, kDriftColumn, kVoiceColumn, kUnisonColumn };
 
   const char* const kPanelTitles[kNumPanels] = { "DRIFT", "HUMANISE", "VOICE", "UNISON" };
@@ -377,9 +377,7 @@ void GroupSettingsList::updateLayout() {
         std::string prefix = "osc_" + std::to_string(engine + 1) + "_";
         if (!synth->isEngineAdded(engine) || static_cast<int>(controls[prefix + "group"]->value()) != g)
           continue;
-        bool sample = static_cast<int>(controls[prefix + "source"]->value()) == vital::SynthOscillator::kSampleSource;
-        std::string name = (sample ? "SMP " : "OSC ") + std::to_string(engine + 1);
-        engines.push_back(name);
+        engines.push_back(synth->getEngineDisplayName(engine));
       }
 
       if (y > 0)

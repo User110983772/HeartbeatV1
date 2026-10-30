@@ -64,8 +64,7 @@ namespace vital {
     if (lfo_index < 0 || lfo_index >= kNumLfos || lfos_[lfo_index] == nullptr || !lfos_[lfo_index]->isOneShot())
       return 0;
 
-    poly_float phase = utils::decodePhaseAndVoice(input(kLfoPhases + lfo_index)->at(0)).first;
-    return poly_float::lessThan(phase, 0.9999f);
+    return poly_float::lessThan(input(kLfoProgress + lfo_index)->at(0), 0.9999f);
   }
 
   poly_mask OscillatorGroupMixer::fadeMask(int source_index, poly_mask released_mask, poly_mask kill_mask) const {

@@ -337,6 +337,8 @@ class SynthSlider : public OpenGlSlider, public TextEditor::Listener {
 
     void showPopup(bool primary);
     void hidePopup(bool primary);
+    // A hidden slider gets no mouse exit, so it takes down the bubble it showed.
+    void visibilityChanged() override;
     void setPopupPlacement(BubbleComponent::BubblePlacement placement) {
       popup_placement_ = placement;
     }
@@ -432,6 +434,7 @@ class SynthSlider : public OpenGlSlider, public TextEditor::Listener {
     bool sensitive_mode_;
     bool snap_to_value_;
     bool hovering_;
+    bool showing_popup_[2] = { false, false };
     bool has_parameter_assignment_;
     bool use_suffix_;
     float snap_value_;

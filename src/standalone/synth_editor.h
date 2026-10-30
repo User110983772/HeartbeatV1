@@ -46,6 +46,9 @@ class SynthEditor : public AudioAppComponent, public SynthBase, public SynthGuiI
     AudioDeviceManager* getAudioDeviceManager() override { return &deviceManager; }
 
     void timerCallback() override;
+    // Keys land here (this editor takes focus) or bubble up from a focused control; either way undo and redo
+    // reach the interface.
+    bool keyPressed(const KeyPress& key) override;
     
     void animate(bool animate);
 

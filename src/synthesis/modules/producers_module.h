@@ -43,6 +43,7 @@ namespace vital {
         kLegatoNote,
         // The global glide's current note, which a group's own glide replaces.
         kGlobalGlide,
+        kBeatsPerSecond,
         kNumInputs
       };
 

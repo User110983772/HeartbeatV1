@@ -17,6 +17,7 @@
 #pragma once
 
 #include "JuceHeader.h"
+#include "operators.h"
 #include "synth_section.h"
 
 class SynthSlider;
@@ -35,6 +36,12 @@ class VoiceSection : public SynthSection {
     void setStereoModeSelected(int selection);
 
   private:
+    // The mode menu's entry after the stereo modes.
+    static constexpr int kBypassSelection = vital::StereoEncoder::kNumStereoModes;
+    void showStereoMode();
+
+    int stereo_mode_ = 0;
+    bool stereo_bypass_ = false;
     std::unique_ptr<SynthSlider> polyphony_;
     std::unique_ptr<SynthSlider> velocity_track_;
     std::unique_ptr<SynthSlider> pitch_bend_range_;

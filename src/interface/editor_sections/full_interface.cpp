@@ -234,6 +234,10 @@ FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_inte
   open_gl_context_.setRenderer(this);
   open_gl_context_.setComponentPaintingEnabled(false);
   open_gl_context_.attachTo(*this);
+
+  // Global, so a release outside the interface (in a menu or other window the press opened) still ends the
+  // gesture; one left open would hold every later change back from undo.
+  Desktop::getInstance().addGlobalMouseListener(&undo_gesture_listener_);
 }
 
 FullInterface::FullInterface() : SynthSection("EMPTY"), open_gl_(open_gl_context_) {
@@ -249,10 +253,23 @@ FullInterface::FullInterface() : SynthSection("EMPTY"), open_gl_(open_gl_context
 
   reset();
   setOpaque(true);
+  Desktop::getInstance().addGlobalMouseListener(&undo_gesture_listener_);
+}
+
+void FullInterface::UndoGestureListener::mouseDown(const MouseEvent& e) {
+  if (SynthGuiInterface* parent = owner_->findParentComponentOfClass<SynthGuiInterface>())
+    parent->getSynth()->beginUndoGesture();
+}
+
+void FullInterface::UndoGestureListener::mouseUp(const MouseEvent& e) {
+  // Called after the component's own mouseUp, so a click that changes something on release is in the step.
+  if (SynthGuiInterface* parent = owner_->findParentComponentOfClass<SynthGuiInterface>())
+    parent->getSynth()->endUndoGesture();
 }
 
 FullInterface::~FullInterface() {
   UpdateMemory::getInstance()->decrementChecker();
+  Desktop::getInstance().removeGlobalMouseListener(&undo_gesture_listener_);
 
   open_gl_context_.detach();
   open_gl_context_.setRenderer(nullptr);
@@ -362,6 +379,22 @@ void FullInterface::repaintOpenGlBackground(OpenGlComponent* component) {
   if (!background_image_.isValid())
     return;
 
+  // Components in the voice tab's and GROUPS page's scrolling lists are drawn from the list's own background
+  // image, as in repaintChildBackground; painted here they'd be hidden behind it (a wavetable switched to 3D
+  // showed no frame stack until the whole list was redrawn). While all values are being set, the list is
+  // redrawn once at the end instead.
+  if (synthesis_interface_ && synthesis_interface_->isParentOf(component)) {
+    if (!setting_all_values_)
+      repaintSynthesisSection();
+    return;
+  }
+  GroupSettingsList* group_settings = master_controls_interface_ ? master_controls_interface_->getGroupSettingsList() : nullptr;
+  if (group_settings && group_settings->isParentOf(component)) {
+    if (!setting_all_values_)
+      group_settings->repaintBackground();
+    return;
+  }
+
   background_.lock();
   Graphics g(background_image_);
   paintOpenGlBackground(g, component);
@@ -407,11 +440,12 @@ bool FullInterface::keyPressed(const KeyPress& key) {
   SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
   if (parent == nullptr)
     return false;
+  // Used even with nothing to undo: passed on, the host would undo its own history for this plugin instead.
   SynthBase* synth = parent->getSynth();
-  if (!(undo ? synth->undoRemoval() : synth->redoRemoval()))
-    return false;
-  parent->updateFullGui();
-  parent->notifyFresh();
+  if (undo ? synth->undoRemoval() : synth->redoRemoval()) {
+    parent->updateFullGui();
+    parent->notifyFresh();
+  }
   return true;
 }
 

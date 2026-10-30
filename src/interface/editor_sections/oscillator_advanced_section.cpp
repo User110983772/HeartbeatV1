@@ -17,6 +17,8 @@
 #include "oscillator_advanced_section.h"
 
 #include "oscillator_section.h"
+#include "sample_section.h"
+#include "sample_source.h"
 #include "fonts.h"
 #include "bar_renderer.h"
 #include "synth_slider.h"
@@ -43,6 +45,13 @@ class OscillatorOptions : public SynthSection {
       smooth_interpolation_->setLookAndFeel(TextLookAndFeel::instance());
       smooth_interpolation_->setButtonText("HI-RES WAVETABLE");
 
+      // A sample engine's note tracking is its own switch.
+      sample_note_track_ = std::make_unique<SynthButton>("osc_" + number + "_sample_keytrack");
+      addButton(sample_note_track_.get());
+      sample_note_track_->setLookAndFeel(TextLookAndFeel::instance());
+      sample_note_track_->setButtonText("NOTE TRACK");
+      sample_note_track_->setVisible(false);
+
       follow_group_ = std::make_unique<SynthButton>("osc_" + number + "_group_unison");
       addButton(follow_group_.get());
       follow_group_->setLookAndFeel(TextLookAndFeel::instance());
@@ -63,9 +72,11 @@ class OscillatorOptions : public SynthSection {
 
       g.setColour(findColour(Skin::kTextComponentBackground, true));
       float rounding = findValue(Skin::kLabelBackgroundRounding);
-      g.fillRoundedRectangle(midi_track_->getBounds().toFloat(), rounding);
-      if (!noise_)
-        g.fillRoundedRectangle(smooth_interpolation_->getBounds().toFloat(), rounding);
+      for (Component* button : { (Component*)midi_track_.get(), (Component*)smooth_interpolation_.get(),
+                                 (Component*)sample_note_track_.get() }) {
+        if (button->isVisible())
+          g.fillRoundedRectangle(button->getBounds().toFloat(), rounding);
+      }
       g.fillRoundedRectangle(follow_group_->getBounds().toFloat(), rounding);
       drawTextComponentBackground(g, group_mode_->getBounds(), true);
     }
@@ -82,11 +93,16 @@ class OscillatorOptions : public SynthSection {
       int widget_margin = getWidgetMargin();
       int x = title_width + widget_margin;
       int width = getWidth() - x - widget_margin;
-      // Noise has no wavetable, so HI-RES WAVETABLE is gone and the other rows share its space evenly.
-      std::vector<Component*> rows = { midi_track_.get(), follow_group_.get(), group_mode_.get() };
-      if (!noise_)
+      // Noise and samples have no wavetable, so HI-RES WAVETABLE is gone and the other rows share its space
+      // evenly; samples use their own note tracking switch.
+      Component* note_track = sample_ ? (Component*)sample_note_track_.get() : (Component*)midi_track_.get();
+      std::vector<Component*> rows = { note_track, follow_group_.get(), group_mode_.get() };
+      bool hi_res = !noise_ && !sample_;
+      if (hi_res)
         rows.insert(rows.begin() + 1, smooth_interpolation_.get());
-      smooth_interpolation_->setVisible(!noise_);
+      smooth_interpolation_->setVisible(hi_res);
+      midi_track_->setVisible(!sample_);
+      sample_note_track_->setVisible(sample_);
 
       int count = static_cast<int>(rows.size());
       float row_height = (getHeight() - (count + 1) * widget_margin) / (1.0f * count);
@@ -105,10 +121,22 @@ class OscillatorOptions : public SynthSection {
       repaintBackground();
     }
 
+    void setSample(bool sample) {
+      if (sample == sample_)
+        return;
+      sample_ = sample;
+      resized();
+      repaintBackground();
+      updateGroupModeActive();
+    }
+
+    // The engine's power switch: the sample card's while the engine is a sample.
+    ToggleButton* activeToggle() const { return sample_ && sample_active_ ? sample_active_ : oscillator_active_; }
+
     // The mode only matters while the engine uses its group's unison; then its text is red like a switched on
     // button, otherwise dimmed.
     void updateGroupModeActive() {
-      bool engine_on = oscillator_active_ == nullptr || oscillator_active_->getToggleState();
+      bool engine_on = (activeToggle() == nullptr || activeToggle()->getToggleState()) && parentActive();
       bool group_unison = follow_group_->getToggleState();
       group_mode_->getProperties().set(TextLookAndFeel::kOnTextProperty, group_unison);
       group_mode_->setActive(group_unison && engine_on);
@@ -118,14 +146,14 @@ class OscillatorOptions : public SynthSection {
     void setAllValues(vital::control_map& controls) override {
       SynthSection::setAllValues(controls);
 
-      if (oscillator_active_)
-        setActive(oscillator_active_->getToggleState());
+      if (activeToggle())
+        setActive(activeToggle()->getToggleState() && parentActive());
       updateGroupModeActive();
     }
 
     void buttonClicked(Button* clicked_button) override {
-      if (clicked_button == oscillator_active_)
-        setActive(oscillator_active_->getToggleState());
+      if (clicked_button == oscillator_active_ || clicked_button == sample_active_)
+        setActive(activeToggle()->getToggleState() && parentActive());
       else
         SynthSection::buttonClicked(clicked_button);
       updateGroupModeActive();
@@ -134,13 +162,21 @@ class OscillatorOptions : public SynthSection {
     void passOscillatorSection(const OscillatorSection* oscillator) {
       oscillator_active_ = oscillator->activator();
       oscillator_active_->addListener(this);
-      setActive(oscillator_active_->getToggleState());
+      setActive(oscillator_active_->getToggleState() && parentActive());
       updateGroupModeActive();
+    }
+
+    void passSampleSection(const SampleSection* sample) {
+      sample_active_ = sample->activator();
+      sample_active_->addListener(this);
     }
 
   private:
     int index_;
     bool noise_ = false;
+    bool sample_ = false;
+    ToggleButton* sample_active_ = nullptr;
+    std::unique_ptr<SynthButton> sample_note_track_;
     ToggleButton* oscillator_active_;
 
     std::unique_ptr<SynthButton> midi_track_;
@@ -238,6 +274,44 @@ class SpreadVisualizer : public BarRenderer {
       focus_spread_slider_ = focus_spread;
     }
     void setNoise(bool noise) { noise_ = noise; }
+    void setSample(bool sample) { sample_ = sample; }
+    void setSampleSliders(const SynthSlider* voices, const SynthSlider* start, const SynthSlider* loop_start,
+                          const SynthSlider* loop_end, const SynthSlider* start_spread, const SynthSlider* loop_spread,
+                          const SynthSlider* loop_end_spread, const SampleSection* section) {
+      sample_section_ = section;
+      loop_end_spread_slider_ = loop_end_spread;
+      sample_voices_slider_ = voices;
+      start_slider_ = start;
+      loop_start_slider_ = loop_start;
+      loop_end_slider_ = loop_end;
+      start_spread_slider_ = start_spread;
+      loop_spread_slider_ = loop_spread;
+    }
+
+    // Samples: each voice's start (top row), loop start (middle) and loop end (bottom), as the sampler places them.
+    void setSamplePositions(int voices) {
+      float buffer = 2.0f * findValue(Skin::kWidgetMargin) / getWidth();
+      float mult = 2.0f - 2.0f * buffer;
+      float offset = -1.0f + buffer - 1.0f / getWidth();
+      int entries = voices / 2;
+      for (int i = 0; i < voices; i += 2) {
+        float t = entries > 1 ? (i / 2) / (entries - 1.0f) : 0.0f;
+        // Exactly as the sampler places them (bounds included).
+        vital::SampleSource::Placement placement =
+            sample_section_->placeVoice(t, start_spread_slider_->getValue(), loop_spread_slider_->getValue(),
+                                        loop_end_spread_slider_->getValue());
+        float voice_start = placement.voice_start;
+        float voice_loop_start = placement.loop_start;
+        float voice_loop_end = placement.loop_end;
+        // Row 0 is drawn at the bottom.
+        float values[kNumSpreads] = { voice_loop_end, voice_loop_start, voice_start };
+        for (int row = 0; row < kNumSpreads; ++row) {
+          float x = values[row] * mult + offset;
+          setX(row * vital::SynthOscillator::kMaxUnison + i, x);
+          setX(row * vital::SynthOscillator::kMaxUnison + i + 1, x);
+        }
+      }
+    }
 
     inline vital::poly_float getOutputsTotal(std::pair<vital::Output*, vital::Output*> outputs,
                                              vital::poly_float default_value, bool animate) {
@@ -255,15 +329,21 @@ class SpreadVisualizer : public BarRenderer {
     }
 
     void render(OpenGlWrapper& open_gl, bool animate) override {
-      if (voices_slider_ == nullptr)
+      bool sample = sample_ && sample_voices_slider_ && start_slider_ && start_spread_slider_ && sample_section_;
+      const SynthSlider* voices_slider = sample ? sample_voices_slider_ : voices_slider_;
+      if (voices_slider == nullptr)
         return;
 
-      int voices = getOutputsTotal(voices_outputs_, voices_slider_->getValue(), animate)[0];
-      voices = std::max(voices, 0);
+      // The bars hold kMaxUnison voices per row; a modulated count is kept within them (a count read past them
+      // wrote outside the bars).
+      float voices_value = getOutputsTotal(voices_outputs_, voices_slider->getValue(), animate)[0];
+      if (!std::isfinite(voices_value))
+        voices_value = voices_slider->getValue();
+      int voices = vital::utils::iclamp(static_cast<int>(voices_value), 0, vital::SynthOscillator::kMaxUnison);
       if (voices <= 2)
         return;
 
-      bool noise = noise_ && color_slider_ && focus_slider_ && focus_spread_slider_;
+      bool noise = !sample && noise_ && color_slider_ && focus_slider_ && focus_spread_slider_;
       vital::poly_float frame = getOutputsTotal(wave_frame_outputs_, wave_frame_slider_->getValue(), animate);
       vital::poly_float morph = noise ? getOutputsTotal(color_outputs_, color_slider_->getValue(), animate) :
                                         getOutputsTotal(spectral_morph_outputs_, spectral_morph_slider_->getValue(), animate);
@@ -299,7 +379,9 @@ class SpreadVisualizer : public BarRenderer {
       float offset = -1.0f + buffer - 1.0f / getWidth();
       float frame_scale = 1.0f / (vital::kNumOscillatorWaveFrames - 1.0f);
       voices += voices % 2;
-      for (int i = 0; i < voices; i += 2) {
+      if (sample)
+        setSamplePositions(voices);
+      for (int i = 0; i < voices && !sample; i += 2) {
         float t = 2.0f * i / (voices - 2.0f);
         vital::poly_float voice_frame = frame + frame_spread * t;
         voice_frame = vital::utils::clamp(voice_frame * frame_scale, 0.0f, 1.0f);
@@ -348,6 +430,15 @@ class SpreadVisualizer : public BarRenderer {
     std::pair<vital::Output*, vital::Output*> distortion_spread_outputs_;
 
     bool noise_;
+    bool sample_ = false;
+    const SynthSlider* sample_voices_slider_ = nullptr;
+    const SynthSlider* start_slider_ = nullptr;
+    const SynthSlider* loop_start_slider_ = nullptr;
+    const SynthSlider* loop_end_slider_ = nullptr;
+    const SynthSlider* start_spread_slider_ = nullptr;
+    const SynthSlider* loop_spread_slider_ = nullptr;
+    const SynthSlider* loop_end_spread_slider_ = nullptr;
+    const SampleSection* sample_section_ = nullptr;
     const SynthSlider* color_slider_;
     const SynthSlider* focus_slider_;
     const SynthSlider* focus_spread_slider_;
@@ -410,6 +501,20 @@ class OscillatorUnison : public SynthSection {
       focus_spread_->setVisible(false);
       noise_ = false;
 
+      // Samples: how far apart unison voices start, and how far their loop windows are offset.
+      start_spread_ = std::make_unique<SynthSlider>("osc_" + number + "_sample_start_spread");
+      addSlider(start_spread_.get());
+      start_spread_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+      start_spread_->setVisible(false);
+      loop_spread_ = std::make_unique<SynthSlider>("osc_" + number + "_sample_loop_spread");
+      addSlider(loop_spread_.get());
+      loop_spread_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+      loop_spread_->setVisible(false);
+      loop_end_spread_ = std::make_unique<SynthSlider>("osc_" + number + "_sample_loop_end_spread");
+      addSlider(loop_end_spread_.get());
+      loop_end_spread_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+      loop_end_spread_->setVisible(false);
+
       spread_visualizer_ = std::make_unique<SpreadVisualizer>(index, mono_modulations, poly_modulations);
       addOpenGlComponent(spread_visualizer_.get());
       spread_visualizer_->setTableSpreadSlider(frame_spread_.get());
@@ -432,6 +537,13 @@ class OscillatorUnison : public SynthSection {
       drawLabelForComponent(g, TRANS("STACK"), stack_style_.get(), true);
       drawLabelForComponent(g, TRANS("DETUNE RANGE"), detune_range_.get(), true);
       drawLabelForComponent(g, TRANS("UNISON BLEND"), blend_.get());
+      if (sample_) {
+        // A sample's STEREO is on its card.
+        drawLabelForComponent(g, TRANS("START SPREAD"), start_spread_.get());
+        drawLabelForComponent(g, TRANS("LOOP S SPREAD"), loop_spread_.get());
+        drawLabelForComponent(g, TRANS("LOOP E SPREAD"), loop_end_spread_.get());
+        return;
+      }
       drawLabelForComponent(g, TRANS("STEREO UNISON"), stereo_spread_.get());
       if (!noise_)
         drawLabelForComponent(g, TRANS("TABLE SPREAD"), frame_spread_.get());
@@ -473,20 +585,56 @@ class OscillatorUnison : public SynthSection {
       spread_visualizer_->setBounds(spreads_x, widget_margin, spreads_right - spreads_x, text_height);
       focus_spread_->setBounds(distortion_spread_->getBounds());
 
-      if (noise_) {
-        Rectangle<int> spreads(spreads_x, knob_y2, spreads_right - spreads_x, knob_section_height);
+      Rectangle<int> spreads(spreads_x, knob_y2, spreads_right - spreads_x, knob_section_height);
+      if (sample_)
+        placeKnobsInArea(spreads, { start_spread_.get(), loop_spread_.get(), loop_end_spread_.get() });
+      else if (noise_) {
         placeKnobsInArea(spreads, { spectral_morph_spread_.get(), focus_spread_.get() });
         distortion_spread_->setBounds(focus_spread_->getBounds());
       }
+    }
+
+    void setSample(bool sample) {
+      if (sample == sample_)
+        return;
+      sample_ = sample;
+      updateSpreadVisibility();
+      spread_visualizer_->setSample(sample);
+      resized();
+      repaintBackground();
+      checkActive();
+    }
+
+    void updateSpreadVisibility() {
+      frame_spread_->setVisible(!noise_ && !sample_);
+      distortion_spread_->setVisible(!noise_ && !sample_);
+      spectral_morph_spread_->setVisible(!sample_);
+      focus_spread_->setVisible(noise_ && !sample_);
+      start_spread_->setVisible(sample_);
+      loop_spread_->setVisible(sample_);
+      loop_end_spread_->setVisible(sample_);
+      stereo_spread_->setVisible(!sample_);
+    }
+
+    void passSampleSection(const SampleSection* sample) {
+      sample_voices_slider_ = sample->getVoicesSlider();
+      sample_active_ = sample->activator();
+      sample_active_->addListener(this);
+      sample_stretch_ = sample->getStretchButton();
+      sample_stretch_->addListener(this);
+      sample_loop_ = sample->getLoopButton();
+      sample_loop_->addListener(this);
+      sample_voices_slider_->addListener(this);
+      spread_visualizer_->setSampleSliders(sample_voices_slider_, sample->getStartSlider(), sample->getLoopStartSlider(),
+                                           sample->getLoopEndSlider(), start_spread_.get(), loop_spread_.get(),
+                                           loop_end_spread_.get(), sample);
     }
 
     void setNoise(bool noise) {
       if (noise == noise_)
         return;
       noise_ = noise;
-      distortion_spread_->setVisible(!noise);
-      frame_spread_->setVisible(!noise);
-      focus_spread_->setVisible(noise);
+      updateSpreadVisibility();
       spread_visualizer_->setNoise(noise);
       resized();
       repaintBackground();
@@ -509,19 +657,29 @@ class OscillatorUnison : public SynthSection {
     }
 
     void checkActive() {
-      if (voices_slider_ && oscillator_active_)
-        setActive(voices_slider_->getValue() > 1.0 && oscillator_active_->getToggleState());
+      // The sample card's voices and power switch while the engine is a sample.
+      SynthSlider* voices = sample_ && sample_voices_slider_ ? sample_voices_slider_ : voices_slider_;
+      ToggleButton* active = sample_ && sample_active_ ? sample_active_ : oscillator_active_;
+      if (voices && active)
+        setActive(voices->getValue() > 1.0 && active->getToggleState() && parentActive());
+      // Stretched, unison voices share the note's stretched sound, so they can't start or loop elsewhere.
+      bool stretched = sample_ && sample_stretch_ && sample_stretch_->getToggleState();
+      start_spread_->setActive(isActive() && !stretched);
+      bool looping = sample_loop_ == nullptr || sample_loop_->getToggleState();
+      loop_spread_->setActive(isActive() && !stretched && looping);
+      loop_end_spread_->setActive(isActive() && !stretched && looping);
     }
 
     void sliderValueChanged(Slider* changed_slider) override {
-      if (changed_slider == voices_slider_)
+      if (changed_slider == voices_slider_ || changed_slider == sample_voices_slider_)
         checkActive();
       else
         SynthSection::sliderValueChanged(changed_slider);
     }
 
     void buttonClicked(Button* clicked_button) override {
-      if (clicked_button == oscillator_active_)
+      if (clicked_button == oscillator_active_ || clicked_button == sample_active_ ||
+          clicked_button == sample_stretch_ || clicked_button == sample_loop_)
         checkActive();
       else
         SynthSection::buttonClicked(clicked_button);
@@ -546,10 +704,18 @@ class OscillatorUnison : public SynthSection {
     std::unique_ptr<SynthSlider> distortion_spread_;
     std::unique_ptr<SynthSlider> spectral_morph_spread_;
     std::unique_ptr<SynthSlider> focus_spread_;
+    std::unique_ptr<SynthSlider> start_spread_;
+    std::unique_ptr<SynthSlider> loop_spread_;
+    std::unique_ptr<SynthSlider> loop_end_spread_;
     bool noise_;
+    bool sample_ = false;
 
     ToggleButton* oscillator_active_;
     SynthSlider* voices_slider_;
+    ToggleButton* sample_active_ = nullptr;
+    SynthSlider* sample_voices_slider_ = nullptr;
+    ToggleButton* sample_stretch_ = nullptr;
+    ToggleButton* sample_loop_ = nullptr;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OscillatorUnison)
 };
@@ -580,6 +746,22 @@ void OscillatorAdvancedSection::resized() {
 void OscillatorAdvancedSection::setNoise(bool noise) {
   oscillator_options_->setNoise(noise);
   oscillator_unison_->setNoise(noise);
+}
+
+void OscillatorAdvancedSection::setGroupActive(bool active) {
+  setParentActive(active);
+  oscillator_options_->setParentActive(active);
+  oscillator_unison_->setParentActive(active);
+}
+
+void OscillatorAdvancedSection::setSample(bool sample) {
+  oscillator_options_->setSample(sample);
+  oscillator_unison_->setSample(sample);
+}
+
+void OscillatorAdvancedSection::passSampleSection(const SampleSection* sample) {
+  oscillator_options_->passSampleSection(sample);
+  oscillator_unison_->passSampleSection(sample);
 }
 
 void OscillatorAdvancedSection::passOscillatorSection(const OscillatorSection* oscillator) {

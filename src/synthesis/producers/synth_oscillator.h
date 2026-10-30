@@ -101,6 +101,9 @@ namespace vital {
         kGroupUnisonVoices,
         kGroupUnisonDetune,
         kGroupStackStyle,
+        // The group's blend and stereo: Combined scales the engine's by them, Nested gives each layer its own.
+        kGroupBlend,
+        kGroupStereoSpread,
         kNumInputs
       };
 
@@ -214,6 +217,14 @@ namespace vital {
 
         const mono_float* from_buffers[poly_float::kSize];
         const mono_float* to_buffers[poly_float::kSize];
+
+        // Nested group unison: each entry mixed into the output by its own gains (see computeNestedMix), from
+        // last block's values to this block's.
+        bool mixed = false;
+        poly_float own = 0.0f;
+        poly_float from_own = 0.0f;
+        poly_float cross = 0.0f;
+        poly_float from_cross = 0.0f;
       };
 
       static void setDistortionValues(DistortionType distortion_type, poly_float* values, int num_values, bool spread);
@@ -233,6 +244,24 @@ namespace vital {
                                          poly_float* detunings);
       static void computeUnisonAmplitudes(int unison, poly_float blend,
                                           poly_float* center_amplitude, poly_float* detuned_amplitude);
+      // Unison with the group's settings folded in (mode: 0 off, 1 + constants::GroupUnisonMode). Shared with the
+      // sample player. Returns the total voice count.
+      static int computeGroupedUnisonCount(int mode, int engine_voices, int group_voices,
+                                           int* engine_unison, int* group_unison);
+      static void computeGroupedDetunings(int mode, int unison, int engine_unison, int group_unison,
+                                          poly_float range, poly_float power,
+                                          poly_float engine_detune, int engine_stack,
+                                          poly_float group_detune, int group_stack, poly_float* detunings);
+      // Combined group unison is one set of voices, so the group's blend and stereo scale the engine's.
+      static poly_float combinedUnisonValue(int mode, poly_float engine_value, poly_float group_value);
+      // Nested: how each entry (in computeGroupedDetunings' order) reaches the output, its level and place set by
+      // both layers. A lane's voice adds own * value to its channel and its partner lane's cross to the other:
+      // out = own * value + cross * swapStereo(value). The group's blend weighs the group voices and the engine's
+      // the voices around each; the group's stereo spreads the group voices apart and the engine's spreads each
+      // engine cluster around its group voice, within the room left.
+      static void computeNestedMix(int engine_unison, int group_unison, poly_float engine_blend,
+                                   poly_float group_blend, poly_float engine_stereo, poly_float group_stereo,
+                                   poly_float* own, poly_float* cross);
 
       SynthOscillator(Wavetable* wavetable);
 
@@ -296,6 +325,9 @@ namespace vital {
                                     FourierTransform*, float, int, const poly_float*)>
       void setFourierWaveBuffers(poly_float phase_inc, int index, bool formant_shift);
       void stereoBlend(poly_float* audio_out, int num_samples, poly_mask reset_mask);
+      // Sets nested_mix_ and the per-entry mix for this block (Nested group unison only).
+      void setNestedMix(poly_mask reset_mask);
+      poly_float stereoSpread();
       void levelOutput(poly_float* audio_out, const poly_float* raw_out, int buffer_size, poly_mask reset_mask);
       void convertVoiceChannels(int buffer_size, poly_float* audio_out, poly_mask active_mask);
       force_inline float getPhaseIncAdjustment() {
@@ -337,6 +369,12 @@ namespace vital {
       // One generator per unison pair; each lane is one voice's left (sharp) or right (flat) unison voice.
       NoiseSource noises_[kNumPolyPhase];
       poly_float noise_gains_[kNumPolyPhase];
+      // Nested group unison mixing per entry, this block's and last block's.
+      bool nested_mix_ = false;
+      poly_float mix_own_[kNumPolyPhase];
+      poly_float mix_cross_[kNumPolyPhase];
+      poly_float from_mix_own_[kNumPolyPhase];
+      poly_float from_mix_cross_[kNumPolyPhase];
 
       int transpose_quantize_;
       poly_float last_quantized_transpose_;

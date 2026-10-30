@@ -55,6 +55,7 @@ namespace vital {
     lfo_->useOutput(output(kValue), SynthLfo::kValue);
     lfo_->useOutput(output(kOscPhase), SynthLfo::kOscPhase);
     lfo_->useOutput(output(kOscFrequency), SynthLfo::kOscFrequency);
+    lfo_->useOutput(output(kOscProgress), SynthLfo::kOscProgress);
     lfo_->plug(frequency, SynthLfo::kFrequency);
     lfo_->plug(phase, SynthLfo::kPhase);
     lfo_->plug(stereo_phase, SynthLfo::kStereoPhase);

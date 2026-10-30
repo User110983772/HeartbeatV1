@@ -274,6 +274,8 @@ namespace vital {
     poly_float current_cos_mult = cos_mult_;
     poly_float current_sin_mult = sin_mult_;
     poly_float encoding = utils::clamp(input(kEncodingValue)->at(0), 0.0f, 1.0f) * decoding_mult_ * (2.0f * kPi);
+    if (bypassed())
+      encoding = 0.0f;
     cos_mult_ = utils::cos(encoding);
     sin_mult_ = utils::sin(encoding);
     mono_float delta_tick = 1.0f / num_samples;
@@ -295,9 +297,16 @@ namespace vital {
     poly_float current_cos_mult = cos_mult_;
     poly_float current_sin_mult = sin_mult_;
     poly_float encoding = utils::clamp(input(kEncodingValue)->at(0), 0.0f, 1.0f);
+    if (bypassed())
+      encoding = 1.0f;
     poly_float phase = (poly_float(1.0f) - encoding) * (0.25f * kPi);
     cos_mult_ = utils::cos(phase);
     sin_mult_ = utils::sin(phase);
+    // Scaled so the two add to 1: centred sound keeps its level at any width (unscaled, folding to mono made it
+    // up to 3 dB louder than full width or bypass); only the stereo difference narrows.
+    poly_float normalize = poly_float(1.0f) / (cos_mult_ + sin_mult_);
+    cos_mult_ *= normalize;
+    sin_mult_ *= normalize;
     mono_float delta_tick = 1.0f / num_samples;
     poly_float delta_cos = (cos_mult_ - current_cos_mult) * delta_tick;
     poly_float delta_sin = (sin_mult_ - current_sin_mult) * delta_tick;

@@ -104,6 +104,21 @@ void SynthBase::valueChangedInternal(const std::string& name, vital::mono_float 
     recordControlChange(name, controls_[name]->value(), value);
   valueChanged(name, value);
   setValueNotifyHost(name, value);
+  if (value != 0.0f && (name.find("_sample_stretch") != std::string::npos ||
+                        name.find("_sample_tempo_sync") != std::string::npos || name.find("_source") != std::string::npos))
+    prepareSampleStretch();
+}
+
+void SynthBase::prepareSampleStretch() {
+  stretch_prepare_posted_ = false;
+  for (int i = 0; i < vital::kNumOscillators; ++i) {
+    std::string prefix = "osc_" + std::to_string(i + 1) + "_";
+    bool sample = controls_[prefix + "source"]->value() == vital::SynthOscillator::kSampleSource;
+    bool wanted = controls_[prefix + "sample_stretch"]->value() || controls_[prefix + "sample_tempo_sync"]->value();
+    vital::Sample* engine_sample = engine_->getSample(i);
+    if ((sample && wanted) || engine_sample->stretchRequested())
+      engine_sample->prepareStretch();
+  }
 }
 
 void SynthBase::valueChangedThroughMidi(const std::string& name, vital::mono_float value) {
@@ -601,6 +616,26 @@ int SynthBase::getGroupDisplayNumber(int group) const {
   return 0;
 }
 
+std::string SynthBase::getEngineDisplayName(int engine) {
+  auto prefix = [](int e) { return "osc_" + std::to_string(e + 1) + "_"; };
+  auto isSample = [&](int e) {
+    return static_cast<int>(controls_[prefix(e) + "source"]->value()) == vital::SynthOscillator::kSampleSource;
+  };
+  auto groupOf = [&](int e) { return static_cast<int>(controls_[prefix(e) + "group"]->value()); };
+
+  bool sample = isSample(engine);
+  int group = groupOf(engine);
+  int number = 0;
+  for (int e : getEngineOrder()) {
+    if (!engines_added_[e] || groupOf(e) != group || isSample(e) != sample)
+      continue;
+    number++;
+    if (e == engine)
+      break;
+  }
+  return (sample ? "SMP" : "OSC") + std::to_string(std::max(1, number));
+}
+
 std::string SynthBase::removalName(const RemovalSnapshot& removal) {
   if (removal.is_patch)
     return "Load " + removal.loaded_name;
@@ -648,6 +683,29 @@ void SynthBase::recordControlChange(const std::string& name, vital::mono_float o
   if (recording_suspended_ || old_value == new_value || name == "pitch_wheel" || name == "mod_wheel")
     return;
 
+  // A mouse press that changes a value as it lands (an XY pad jumping to the click) does so before the
+  // interface's press listener starts the gesture, so the change starts it here; the listener's release ends it.
+  // One started here ends by itself if a later change finds the button up (a press the listener never saw, in a
+  // popup window).
+  bool mouse_down = MessageManager::existsAndIsCurrentThread() &&
+                    ModifierKeys::currentModifiers.isAnyMouseButtonDown();
+  if (gesture_active_ && implicit_gesture_ && !mouse_down)
+    endUndoGesture();
+  if (!gesture_active_ && mouse_down) {
+    beginUndoGesture();
+    implicit_gesture_ = true;
+  }
+
+  if (gesture_active_) {
+    if (gesture_step_.old_values.count(name) == 0)
+      gesture_step_.old_values[name] = old_value;
+    if (gesture_host_controls_.insert(name).second)
+      beginChangeGesture(name);
+    gesture_step_.new_values[name] = new_value;
+    return;
+  }
+
+  // Outside a gesture (the mouse wheel, typed values, keys): a quick run of changes to one control merges.
   double now = Time::getMillisecondCounterHiRes();
   if (!undo_removals_.empty() && undo_removals_.back().is_controls) {
     RemovalSnapshot& last = undo_removals_.back();
@@ -672,6 +730,59 @@ void SynthBase::recordControlChange(const std::string& name, vital::mono_float o
   step.display_number = 0;
   step.group_position = 0;
   pushUndoStep(step);
+}
+
+void SynthBase::beginUndoGesture() {
+  if (gesture_active_)
+    return;
+  gesture_active_ = true;
+  implicit_gesture_ = false;
+  gesture_step_ = RemovalSnapshot();
+}
+
+void SynthBase::endUndoGesture() {
+  if (!gesture_active_)
+    return;
+  gesture_active_ = false;
+  implicit_gesture_ = false;
+  for (const std::string& name : gesture_host_controls_)
+    endChangeGesture(name);
+  gesture_host_controls_.clear();
+
+  // Controls that ended where they started (dragged and brought back, or clicked without moving) aren't a change.
+  RemovalSnapshot step;
+  for (const auto& value : gesture_step_.new_values) {
+    vital::mono_float old_value = gesture_step_.old_values[value.first];
+    if (old_value != value.second) {
+      step.old_values[value.first] = old_value;
+      step.new_values[value.first] = value.second;
+    }
+  }
+  if (step.new_values.empty())
+    return;
+  step.is_controls = true;
+  // Older than any merge window, so a following wheel or typed change starts its own step.
+  step.time = 0.0;
+  step.is_group = false;
+  step.id = -1;
+  step.display_number = 0;
+  step.group_position = 0;
+  pushUndoStep(step);
+}
+
+void SynthBase::setModulationSettings(int index, vital::mono_float amount, bool bipolar, bool stereo, bool bypass) {
+  std::string number = std::to_string(index + 1);
+  std::pair<std::string, vital::mono_float> settings[] = {
+    { "modulation_" + number + "_amount", amount },
+    { "modulation_" + number + "_bipolar", bipolar ? 1.0f : 0.0f },
+    { "modulation_" + number + "_stereo", stereo ? 1.0f : 0.0f },
+    { "modulation_" + number + "_bypass", bypass ? 1.0f : 0.0f }
+  };
+  for (const auto& setting : settings) {
+    if (controls_.count(setting.first))
+      recordControlChange(setting.first, controls_[setting.first]->value(), setting.second);
+    valueChanged(setting.first, setting.second);
+  }
 }
 
 SynthBase::ModulationSnapshot SynthBase::captureConnection(const std::string& source, const std::string& destination) {
@@ -844,6 +955,9 @@ std::string SynthBase::getRedoRemovalName() {
 }
 
 bool SynthBase::undoRemoval() {
+  // A gesture still open (a press whose release never reached the interface, e.g. one that opened a menu) is a
+  // step of its own, and the newest: commit it first, or undo would skip past it to an older step.
+  endUndoGesture();
   if (undo_removals_.empty())
     return false;
 
@@ -877,6 +991,7 @@ bool SynthBase::undoRemoval() {
 }
 
 bool SynthBase::redoRemoval() {
+  endUndoGesture();
   if (redo_removals_.empty())
     return false;
 
@@ -1265,6 +1380,7 @@ bool SynthBase::loadFromJson(const json& data) {
   engine_->allSoundsOff();
   try {
     bool result = LoadSave::jsonToState(this, save_info_, data);
+    prepareSampleStretch();
     pauseProcessing(false);
     return result;
   }
@@ -1508,6 +1624,22 @@ void SynthBase::processAudio(AudioSampleBuffer* buffer, int channels, int sample
 
   engine_->process(samples);
   writeAudio(buffer, channels, samples, offset);
+  requestStretchPreparation();
+}
+
+void SynthBase::requestStretchPreparation() {
+  // A sample engine switched to STRETCH by automation (on this thread) has no pool yet: build it on the message
+  // thread, once.
+  if (stretch_prepare_posted_.load())
+    return;
+  for (int i = 0; i < vital::kNumOscillators; ++i) {
+    vital::Sample* engine_sample = engine_->getSample(i);
+    if (engine_sample->stretchRequested() && !engine_sample->stretchPrepared()) {
+      stretch_prepare_posted_ = true;
+      (new PrepareStretchCallback(self_reference_))->post();
+      return;
+    }
+  }
 }
 
 void SynthBase::processAudioWithInput(AudioSampleBuffer* buffer, const vital::poly_float* input_buffer,

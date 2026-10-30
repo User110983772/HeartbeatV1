@@ -417,7 +417,7 @@ SoundEngineList::SoundEngineList(Authentication* auth, const vital::output_map& 
     oscillators_[i]->addListener(this);
     oscillators_[i]->setVisible(false);
 
-    samples_[i] = std::make_unique<SampleSection>(String("SMP ") + String(i + 1), i);
+    samples_[i] = std::make_unique<SampleSection>(String("SMP") + String(i + 1), i, mono_modulations, poly_modulations);
     container_->addSubSection(samples_[i].get());
     samples_[i]->addListener(this);
     samples_[i]->setVisible(false);
@@ -431,6 +431,7 @@ SoundEngineList::SoundEngineList(Authentication* auth, const vital::output_map& 
     advanced_[i] = std::make_unique<OscillatorAdvancedSection>(i + 1, mono_modulations, poly_modulations);
     container_->addSubSection(advanced_[i].get());
     advanced_[i]->passOscillatorSection(oscillators_[i].get());
+    advanced_[i]->passSampleSection(samples_[i].get());
     advanced_[i]->setVisible(false);
 
     drawer_buttons_[i] = std::make_unique<OpenGlShapeButton>("engine_drawer");
@@ -443,6 +444,12 @@ SoundEngineList::SoundEngineList(Authentication* auth, const vital::output_map& 
     drawer_buttons_[i]->setTooltip(TRANS("Advanced: options and unison"));
     drawer_buttons_[i]->setVisible(false);
     drawer_open_[i] = false;
+
+    // The drawer chevron dims with its engine's power button (and its group's, through the layout).
+    for (SynthSection* card : { (SynthSection*)oscillators_[i].get(), (SynthSection*)samples_[i].get() }) {
+      if (card->activator())
+        card->activator()->addListener(this);
+    }
   }
 
   add_group_ = std::make_unique<OpenGlToggleButton>("add_group");
@@ -551,7 +558,8 @@ void SoundEngineList::updateLayout() {
   int width = viewport_.getWidth();
   int header_height = getTitleWidth() + findValue(Skin::kWidgetMargin);
   int oscillator_height = getOscillatorHeight();
-  int sample_height = getKnobSectionHeight();
+  // Sample cards are as tall as wavetable cards.
+  int sample_height = oscillator_height;
   int title_width = getTitleWidth();
   bool can_add = synth->getNumEnginesAdded() < vital::kNumOscillators;
 
@@ -611,14 +619,20 @@ void SoundEngineList::updateLayout() {
       int height = sample ? sample_height : oscillator_height;
       card->setBounds(0, y, width, height);
       card->setVisible(true);
+      // Named by position: per type, within the group, from the top.
+      String name = synth->getEngineDisplayName(engine);
+      if (card->getName() != name) {
+        card->setName(name);
+        card->repaintBackground();
+      }
       int index = 0;
       while (engines[index] != engine)
         index++;
 
       int remove_size = title_width * 0.6f;
       int inset = (title_width - remove_size) / 2;
-      bool drawer = !sample && drawer_open_[engine];
-      if (!sample) {
+      bool drawer = drawer_open_[engine];
+      {
         Path arrow = drawerChevron();
         if (drawer)
           arrow.applyTransform(AffineTransform::rotation(MathConstants<float>::pi, 0.5f, 0.5f));
@@ -632,15 +646,22 @@ void SoundEngineList::updateLayout() {
       }
       if (drawer) {
         float source = synth->getControls()[enginePrefix(engine) + "source"]->value();
+        advanced_[engine]->setSample(sample);
         advanced_[engine]->setNoise(static_cast<int>(source) == vital::SynthOscillator::kNoiseSource);
         advanced_[engine]->setBounds(0, y + height + padding, width, oscillator_height);
         advanced_[engine]->setVisible(true);
       }
       rows_.push_back({ Row::kCard, g, engine, index, engineBounds(engine) });
-      for (Listener* listener : listeners_)
+      // The drawer first, then the card: a control on both (a sample's STEREO) is the card's.
+      for (Listener* listener : listeners_) {
+        if (drawer)
+          listener->soundEngineCardShown(advanced_[engine].get());
         listener->soundEngineCardShown(card);
+      }
       // Engines in a switched off group are dimmed like switched off engines.
       bool engine_on = synth->getControls()[enginePrefix(engine) + "on"]->value() != 0.0f;
+      card->setParentActive(group_on);
+      advanced_[engine]->setGroupActive(group_on);
       card->setActive(engine_on && group_on);
       // An open drawer dims with its engine and group. Back on, it re-applies its own rules (unison knobs that
       // need more than one voice, the group unison mode).
@@ -654,13 +675,14 @@ void SoundEngineList::updateLayout() {
         advanced_[engine]->setActive(false);
       if (SynthButton* power = dynamic_cast<SynthButton*>(card->activator()))
         power->getGlComponent()->setDimmed(!group_on);
+      updateDrawerButton(engine);
 
       // The remove button shows on hover, just under the engine's power button.
       remove_buttons_[engine]->setBounds(inset, y + title_width, remove_size, remove_size);
       // The engine's name centres between the power button and the drawer chevron (or the bottom of the strip
       // for samples); the remove button, shown on hover, stays clear of it.
       int name_top = title_width;
-      int name_bottom = sample ? inset : y + height - drawer_buttons_[engine]->getY();
+      int name_bottom = y + height - drawer_buttons_[engine]->getY();
       card->setSidewaysHeadingInsets(name_top, name_bottom);
       remove_buttons_[engine]->setVisible(engine == hovered_engine_);
       y += height + padding;
@@ -759,6 +781,10 @@ void SoundEngineList::buttonClicked(Button* clicked_button) {
   }
 
   for (int i = 0; i < vital::kNumOscillators; ++i) {
+    if (clicked_button == oscillators_[i]->activator() || clicked_button == samples_[i]->activator()) {
+      updateDrawerButton(i);
+      return;
+    }
     if (clicked_button == drawer_buttons_[i].get()) {
       // Clicking flips the button's toggle state; keep it on so the chevron stays red both ways.
       drawer_buttons_[i]->setToggleState(true, dontSendNotification);
@@ -775,6 +801,17 @@ void SoundEngineList::buttonClicked(Button* clicked_button) {
   }
 
   SynthSection::buttonClicked(clicked_button);
+}
+
+void SoundEngineList::updateDrawerButton(int engine) {
+  // Red while its engine and group are on, grey (like other switched off controls) otherwise.
+  SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
+  if (parent == nullptr)
+    return;
+  vital::control_map& controls = parent->getSynth()->getControls();
+  bool engine_on = controls[enginePrefix(engine) + "on"]->value() != 0.0f;
+  bool group_on = controls["group_" + std::to_string(engineGroup(engine) + 1) + "_on"]->value() != 0.0f;
+  drawer_buttons_[engine]->useOnColors(engine_on && group_on);
 }
 
 void SoundEngineList::showRemoveButton(int engine) {

@@ -25,6 +25,8 @@ class OscillatorOptions;
 class OscillatorSection;
 class OscillatorUnison;
 
+class SampleSection;
+
 class OscillatorAdvancedSection : public SynthSection {
   public:
     OscillatorAdvancedSection(int index, const vital::output_map& mono_modulations,
@@ -36,6 +38,11 @@ class OscillatorAdvancedSection : public SynthSection {
     void passOscillatorSection(const OscillatorSection* oscillator);
     // Noise engines spread color and focus instead of spectral morph and distortion.
     void setNoise(bool noise);
+    // Sample engines: their own note tracking and power switch, and start and loop spreads.
+    void setSample(bool sample);
+    // The engine's group switch: while it's off, the engine's own switch can't brighten the drawer.
+    void setGroupActive(bool active);
+    void passSampleSection(const SampleSection* sample);
 
   private:
     std::unique_ptr<OscillatorOptions> oscillator_options_;

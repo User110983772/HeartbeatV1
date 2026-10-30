@@ -282,6 +282,10 @@ class SynthSection : public Component, public Slider::Listener,
 
     virtual void setActive(bool active);
     bool isActive() const { return active_; }
+    // Off when something above this section (an engine's group) is switched off: its own power switch then
+    // can't brighten it.
+    void setParentActive(bool active) { parent_active_ = active; }
+    bool parentActive() const { return parent_active_; }
     virtual void animate(bool animate);
     virtual void setAllValues(vital::control_map& controls);
     virtual void setValue(const std::string& name, vital::mono_float value, NotificationType notification);
@@ -368,6 +372,7 @@ class SynthSection : public Component, public Slider::Listener,
     Skin::SectionOverride skin_override_;
     float size_ratio_;
     bool active_;
+    bool parent_active_ = true;
     bool sideways_heading_;
     int sideways_heading_top_inset_ = 0;
     int sideways_heading_bottom_inset_ = 0;

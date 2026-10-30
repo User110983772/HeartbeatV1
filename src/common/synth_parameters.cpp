@@ -126,6 +126,9 @@ namespace vital {
       ValueDetails::kLinear, false, "%", "Stereo Routing", nullptr },
     { "stereo_mode", 0x000605, 0.0, 1.0, 0.0, 0.0, 1.0,
       ValueDetails::kIndexed, false, "", "Stereo Mode", strings::kStereoModeNames },
+    // Leaves the width to the engines and effects: the SPREAD/ROTATE stage passes audio through.
+    { "stereo_bypass", 0x010009, 0.0, 1.0, 0.0, 0.0, 1.0,
+      ValueDetails::kIndexed, false, "", "Stereo Bypass", strings::kOffOnNames },
     { "portamento_time", 0x000000, -10.0, 4.0, -10.0, 0.0, 1.0,
       ValueDetails::kExponential, false, " secs", "Portamento Time", nullptr },
     { "portamento_slope", 0x000000, -8.0, 8.0, 0.0, 0.0, 1.0,
@@ -497,7 +500,7 @@ namespace vital {
       ValueDetails::kLinear, false, "%", "Frequency Morph Spread", nullptr },
     { "destination", 0x010008, 0.0, constants::kNumEngineOutputs - 1, constants::kEngineToGroup, 0.0, 1.0,
       ValueDetails::kIndexed, false, "", "Output", strings::kEngineOutputNames },
-    { "view_2d", 0x000402, 0.0, 2.0, 1.0, 0.0, 1.0,
+    { "view_2d", 0x000402, 0.0, 2.0, 0.0, 0.0, 1.0,
       ValueDetails::kIndexed, false, "", "View 2D", strings::kOffOnNames },
     // Newer than every Vital parameter so it sorts last and existing host parameter indices are kept.
     { "source", 0x010007, 0.0, SynthOscillator::kNumSources - 1, 0.0, 0.0, 1.0,
@@ -509,7 +512,7 @@ namespace vital {
     { "group", 0x010008, 0.0, kNumOscillatorGroups - 1, 0.0, 0.0, 1.0,
       ValueDetails::kIndexed, false, "", "Group", strings::kGroupNames },
     // Used when the sound engine's source is Sample; the other settings are shared with oscillators.
-    { "sample_keytrack", 0x010008, 0.0, 1.0, 0.0, 0.0, 1.0,
+    { "sample_keytrack", 0x010008, 0.0, 1.0, 1.0, 0.0, 1.0,
       ValueDetails::kIndexed, false, "", "Sample Keytrack", strings::kOffOnNames },
     { "sample_loop", 0x010008, 0.0, 1.0, 1.0, 0.0, 1.0,
       ValueDetails::kIndexed, false, "", "Sample Loop", strings::kOffOnNames },
@@ -520,6 +523,35 @@ namespace vital {
       ValueDetails::kIndexed, false, "", "Group Unison", strings::kOffOnNames },
     { "group_unison_mode", 0x010009, 0.0, constants::kNumGroupUnisonModes - 1, 0.0, 0.0, 1.0,
       ValueDetails::kIndexed, false, "", "Group Unison Mode", strings::kGroupUnisonModeNames },
+    // Sample engines: where notes start, the loop, its crossfade (a fraction of half the loop), reverse, and how
+    // far apart unison voices start and loop.
+    { "sample_start", 0x010009, 0.0, 1.0, 0.0, 0.0, 100.0,
+      ValueDetails::kLinear, false, "%", "Sample Start", nullptr },
+    { "sample_loop_start", 0x010009, 0.0, 1.0, 0.0, 0.0, 100.0,
+      ValueDetails::kLinear, false, "%", "Sample Loop Start", nullptr },
+    { "sample_loop_end", 0x010009, 0.0, 1.0, 1.0, 0.0, 100.0,
+      ValueDetails::kLinear, false, "%", "Sample Loop End", nullptr },
+    { "sample_crossfade", 0x010009, 0.0, 1.0, 0.05, 0.0, 100.0,
+      ValueDetails::kLinear, false, "%", "Sample Crossfade", nullptr },
+    { "sample_reverse", 0x010009, 0.0, 1.0, 0.0, 0.0, 1.0,
+      ValueDetails::kIndexed, false, "", "Sample Reverse", strings::kOffOnNames },
+    { "sample_start_spread", 0x010009, 0.0, 1.0, 0.0, 0.0, 100.0,
+      ValueDetails::kLinear, false, "%", "Sample Start Spread", nullptr },
+    // How far later the outer unison voices' loop start and loop end are.
+    { "sample_loop_spread", 0x010009, 0.0, 1.0, 0.0, 0.0, 100.0,
+      ValueDetails::kLinear, false, "%", "Sample Loop Start Spread", nullptr },
+    { "sample_loop_end_spread", 0x010009, 0.0, 1.0, 0.0, 0.0, 100.0,
+      ValueDetails::kLinear, false, "%", "Sample Loop End Spread", nullptr },
+    // Where notes end (a fraction of the sample); with REVERSE the region plays END to START.
+    { "sample_end", 0x010009, 0.0, 1.0, 1.0, 0.0, 100.0,
+      ValueDetails::kLinear, false, "%", "Sample End", nullptr },
+    // STRETCH keeps the length when pitching; SYNC also locks it to the host tempo, given the sample's BPM.
+    { "sample_stretch", 0x010009, 0.0, 1.0, 0.0, 0.0, 1.0,
+      ValueDetails::kIndexed, false, "", "Sample Stretch", strings::kOffOnNames },
+    { "sample_tempo_sync", 0x010009, 0.0, 1.0, 0.0, 0.0, 1.0,
+      ValueDetails::kIndexed, false, "", "Sample Tempo Sync", strings::kOffOnNames },
+    { "sample_bpm", 0x010009, 20.0, 300.0, 120.0, 0.0, 1.0,
+      ValueDetails::kLinear, false, " BPM", "Sample BPM", nullptr },
     // Noise: how far the unison voices' focus rises above the Focus knob (Vital's spreads run the same way).
     { "noise_focus_spread", 0x010009, 0.0, 0.5, 0.0, 0.0, 200.0,
       ValueDetails::kLinear, false, "%", "Noise Focus Spread", nullptr },

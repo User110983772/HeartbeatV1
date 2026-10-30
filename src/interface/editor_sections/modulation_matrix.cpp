@@ -50,6 +50,9 @@ namespace {
   };
 
   const std::string kNoConnectionString = "-";
+  // Engines sit indented under their group in the destination menu.
+  const std::string kEngineMenuIndent = "    ";
+
   const SubMenu kDestinationSubMenuPrefixes[] = {
     { "", "" },
     { "osc_1_", "Sound Engine 1", true },
@@ -307,6 +310,20 @@ String ModulationSelector::getTextFromValue(double value) {
     if (slot > 0 && number > 0) {
       String rest = name.fromFirstOccurrenceOf("group_" + String(slot) + "_", false, false);
       return "Group " + String(number) + " " + ModulationMatrix::getMenuSourceDisplayName(rest);
+    }
+  }
+  // Engines too are named as the list shows them, with their group when there's more than one.
+  if (parent && name.startsWith("osc_")) {
+    SynthBase* synth = parent->getSynth();
+    int engine = name.fromFirstOccurrenceOf("osc_", false, false).getIntValue() - 1;
+    if (engine >= 0 && engine < vital::kNumOscillators && vital::Parameters::isParameter(name.toStdString())) {
+      String text = synth->getEngineDisplayName(engine) + " " +
+                    vital::Parameters::getDetails(name.toStdString()).local_description;
+      if (synth->getNumGroupsShown() > 1) {
+        int group = static_cast<int>(synth->getControls()["osc_" + std::to_string(engine + 1) + "_group"]->value());
+        text = "G" + String(synth->getGroupDisplayNumber(group)) + " " + text;
+      }
+      return text;
     }
   }
   return ModulationMatrix::getMenuSourceDisplayName(name);
@@ -976,13 +993,13 @@ void ModulationMatrix::rebuildDestinationMenu() {
       continue;
     }
 
-    // Only the sound engines that have been added, and a menu for each shown group.
-    if (synth && prefix.rfind("osc_", 0) == 0) {
-      int engine = std::stoi(prefix.substr(4)) - 1;
-      if (!synth->isEngineAdded(engine))
-        continue;
-    }
+    // As the sound engine list shows them: each shown group, then its added engines indented under it, named
+    // per type within the group from the top ("OSC1", "SMP1").
+    if (synth && prefix.rfind("osc_", 0) == 0)
+      continue;
     if (synth && prefix == "group_") {
+      vital::EngineOrder order = synth->getEngineOrder();
+      vital::control_map& controls = synth->getControls();
       for (int g : synth->getGroupOrder()) {
         if (!synth->isGroupShown(g))
           continue;
@@ -990,6 +1007,13 @@ void ModulationMatrix::rebuildDestinationMenu() {
         std::string number = std::to_string(synth->getGroupDisplayNumber(g));
         destination_popup_items_.addItem(createSubMenuForParameterPrefix("Group " + number, "group_" + slot + "_",
                                                                          destination_strings_, true));
+        for (int engine : order) {
+          std::string engine_prefix = "osc_" + std::to_string(engine + 1) + "_";
+          if (!synth->isEngineAdded(engine) || static_cast<int>(controls[engine_prefix + "group"]->value()) != g)
+            continue;
+          destination_popup_items_.addItem(createSubMenuForParameterPrefix(
+              kEngineMenuIndent + synth->getEngineDisplayName(engine), engine_prefix, destination_strings_, true));
+        }
       }
       continue;
     }

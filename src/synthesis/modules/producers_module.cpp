@@ -46,6 +46,7 @@ namespace vital {
       oscillators_[i]->useInput(input(kMidi), OscillatorModule::kMidi);
       oscillators_[i]->useInput(input(kActiveVoices), OscillatorModule::kActiveVoices);
       oscillators_[i]->useInput(input(kNoteCount), OscillatorModule::kNoteCount);
+      oscillators_[i]->useInput(input(kBeatsPerSecond), OscillatorModule::kBeatsPerSecond);
     }
 
     for (int g = 0; g < kNumOscillatorGroups; ++g) {

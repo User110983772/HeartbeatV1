@@ -22,21 +22,6 @@
 namespace vital {
 
   namespace {
-    // The larger of the engine's and group's value while the engine uses its group's unison, else the engine's.
-    class WiderWhenOn : public Processor {
-      public:
-        enum { kOn, kOwn, kGroup, kNumInputs };
-
-        WiderWhenOn() : Processor(kNumInputs, 1, true) { }
-        Processor* clone() const override { return new WiderWhenOn(*this); }
-
-        void process(int num_samples) override {
-          poly_float own = input(kOwn)->at(0);
-          bool on = input(kOn)->at(0)[0] != 0.0f;
-          output()->buffer[0] = on ? utils::max(own, input(kGroup)->at(0)) : own;
-        }
-    };
-
     // 0 while the engine ignores its group's unison, otherwise 1 + its constants::GroupUnisonMode.
     class GroupUnisonMode : public Processor {
       public:
@@ -143,16 +128,6 @@ namespace vital {
     unison_mode->plug(group_unison_mode, GroupUnisonMode::kMode);
     addProcessor(unison_mode);
 
-    auto wider = [&](const Output* own, int group_input) {
-      WiderWhenOn* select = new WiderWhenOn();
-      select->plug(group_unison, WiderWhenOn::kOn);
-      select->plug(own, WiderWhenOn::kOwn);
-      select->useInput(input(group_input), WiderWhenOn::kGroup);
-      addProcessor(select);
-      return select->output();
-    };
-    blend = wider(blend, kGroupUnisonBlend);
-    stereo_spread = wider(stereo_spread, kGroupStereoSpread);
 
     AddOffset* engine_midi = new AddOffset();
     engine_midi->useInput(input(kMidi), 0);
@@ -182,6 +157,8 @@ namespace vital {
     oscillator_->useInput(input(kGroupUnisonVoices), SynthOscillator::kGroupUnisonVoices);
     oscillator_->useInput(input(kGroupUnisonDetune), SynthOscillator::kGroupUnisonDetune);
     oscillator_->useInput(input(kGroupStackStyle), SynthOscillator::kGroupStackStyle);
+    oscillator_->useInput(input(kGroupUnisonBlend), SynthOscillator::kGroupBlend);
+    oscillator_->useInput(input(kGroupStereoSpread), SynthOscillator::kGroupStereoSpread);
     oscillator_->plug(unison_detune, SynthOscillator::kUnisonDetune);
     oscillator_->plug(unison_voices, SynthOscillator::kUnisonVoices);
     oscillator_->plug(phase, SynthOscillator::kPhase);
@@ -219,6 +196,33 @@ namespace vital {
     sampler_->plug(tune, SampleSource::kTune);
     sampler_->plug(amplitude, SampleSource::kLevel);
     sampler_->plug(pan, SampleSource::kPan);
+    sampler_->plug(createPolyModControl(prefix_ + "_sample_start"), SampleSource::kStart);
+    sampler_->plug(createPolyModControl(prefix_ + "_sample_loop_start"), SampleSource::kLoopStart);
+    sampler_->plug(createPolyModControl(prefix_ + "_sample_loop_end"), SampleSource::kLoopEnd);
+    sampler_->plug(createPolyModControl(prefix_ + "_sample_crossfade"), SampleSource::kCrossfade);
+    sampler_->plug(createBaseControl(prefix_ + "_sample_reverse"), SampleSource::kReverse);
+    sampler_->plug(createPolyModControl(prefix_ + "_sample_start_spread"), SampleSource::kStartSpread);
+    sampler_->plug(createPolyModControl(prefix_ + "_sample_loop_spread"), SampleSource::kLoopSpread);
+    sampler_->plug(createPolyModControl(prefix_ + "_sample_end"), SampleSource::kEnd);
+    sampler_->plug(createPolyModControl(prefix_ + "_sample_loop_end_spread"), SampleSource::kLoopEndSpread);
+    sampler_->plug(createBaseControl(prefix_ + "_sample_stretch"), SampleSource::kStretch);
+    sampler_->plug(createBaseControl(prefix_ + "_sample_tempo_sync"), SampleSource::kTempoSync);
+    sampler_->plug(createBaseControl(prefix_ + "_sample_bpm"), SampleSource::kSampleBpm);
+    sampler_->useInput(input(kBeatsPerSecond), SampleSource::kBeatsPerSecond);
+    // Unison, shared with the oscillator's settings and the group's, as the oscillator gets them.
+    sampler_->plug(unison_voices, SampleSource::kUnisonVoices);
+    sampler_->plug(unison_detune, SampleSource::kUnisonDetune);
+    sampler_->plug(detune_power, SampleSource::kDetunePower);
+    sampler_->plug(detune_range, SampleSource::kDetuneRange);
+    sampler_->plug(blend, SampleSource::kBlend);
+    sampler_->plug(stereo_spread, SampleSource::kStereoSpread);
+    sampler_->plug(stack_style, SampleSource::kStackStyle);
+    sampler_->plug(unison_mode, SampleSource::kGroupUnisonMode);
+    sampler_->useInput(input(kGroupUnisonVoices), SampleSource::kGroupUnisonVoices);
+    sampler_->useInput(input(kGroupUnisonDetune), SampleSource::kGroupUnisonDetune);
+    sampler_->useInput(input(kGroupStackStyle), SampleSource::kGroupStackStyle);
+    sampler_->useInput(input(kGroupUnisonBlend), SampleSource::kGroupBlend);
+    sampler_->useInput(input(kGroupStereoSpread), SampleSource::kGroupStereoSpread);
     sampler_->useOutput(output(kRaw), SampleSource::kRaw);
     sampler_->useOutput(output(kLevelled), SampleSource::kLevelled);
 

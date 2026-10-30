@@ -31,6 +31,9 @@ class SynthEditor : public AudioProcessorEditor, public SynthGuiInterface {
     void setScaleFactor(float newScale) override;
 
     void updateFullGui() override;
+    // With nothing focused (the focused control was hidden, or the window has just opened) keys come here rather
+    // than to the interface: undo and redo still reach it.
+    bool keyPressed(const KeyPress& key) override { return gui_ && gui_->keyPressed(key); }
 
   private:
     SynthPlugin& synth_;

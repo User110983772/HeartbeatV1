@@ -140,10 +140,7 @@ void SynthGuiInterface::setModulationValues(const std::string& source, const std
   float stereo_amount = stereo ? 1.0f : 0.0f;
   float bypass_amount = bypass ? 1.0f : 0.0f;
 
-  synth_->valueChanged(amount_name, amount);
-  synth_->valueChanged(bipolar_name, bipolar_amount);
-  synth_->valueChanged(stereo_name, stereo_amount);
-  synth_->valueChanged(bypass_name, bypass_amount);
+  synth_->setModulationSettings(connection_index, amount, bipolar, stereo, bypass);
   gui_->setValue(amount_name, amount, NotificationType::dontSendNotification);
   gui_->setValue(bipolar_name, bipolar_amount, NotificationType::dontSendNotification);
   gui_->setValue(stereo_name, stereo_amount, NotificationType::dontSendNotification);

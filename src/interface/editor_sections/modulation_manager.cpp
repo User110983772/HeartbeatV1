@@ -222,9 +222,13 @@ void ModulationAmountKnob::mouseUp(const MouseEvent& e) {
     if (source.isMouse() && source.canDoUnboundedMovement()) {
       source.showMouseCursor(MouseCursor::NormalCursor);
       source.enableUnboundedMouseMovement(false);
-      if (getScreenBounds().contains(e.getScreenPosition()))
-        editing_ = false;
       source.setScreenPosition(mouse_down_position_.toFloat());
+    }
+    // The drag is over wherever the mouse was released; left set, the overlay could never hide again.
+    if (editing_) {
+      editing_ = false;
+      for (SliderListener* listener : slider_listeners_)
+        listener->endModulationEdit(this);
     }
   }
 }
@@ -1245,6 +1249,9 @@ void ModulationManager::hoverEnded(SynthSlider* slider) {
 }
 
 void ModulationManager::menuFinished(SynthSlider* slider) {
+  // A typed amount re-shows the overlay after the hover has ended.
+  if (!slider->isMouseOver(true))
+    hideModulationAmountOverlay();
   if (current_modulator_ && current_modulator_->isVisible())
     current_modulator_->grabKeyboardFocus();
 }
@@ -1362,6 +1369,8 @@ void ModulationManager::beginModulationEdit(SynthSlider* slider) {
 
 void ModulationManager::endModulationEdit(SynthSlider* slider) {
   changing_hover_modulation_ = false;
+  if (!slider->isMouseOver(true))
+    hideModulationAmountOverlay();
 }
 
 void ModulationManager::sliderValueChanged(Slider* slider) {
