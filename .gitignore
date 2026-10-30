@@ -33,3 +33,7 @@ build
 Debug
 Profile
 Release
+
+# Installer builds
+installer/out/
+installer/windows/vc_redist.x64.exe

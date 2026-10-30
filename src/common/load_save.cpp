@@ -2005,20 +2005,33 @@ File LoadSave::getDataDirectory() {
   return directory;
 }
 
+File LoadSave::getFactoryDirectory() {
+#ifdef LINUX
+  return File("/usr/share/heartbeat");
+#elif defined(__APPLE__)
+  return File("/Library/Application Support/Heartbeat");
+#else
+  return File::getSpecialLocation(File::commonApplicationDataDirectory).getChildFile("Heartbeat");
+#endif
+}
+
 std::vector<File> LoadSave::getDirectories(const String& folder_name) {
-  File data_dir = getDataDirectory();
   std::vector<File> directories;
 
-  if (!data_dir.exists() || !data_dir.isDirectory())
-    return directories;
+  // The user's data folder (their own content and packs they've added), then the installed factory packs.
+  File data_dir = getDataDirectory();
+  for (const File& root : { data_dir, getFactoryDirectory() }) {
+    if (!root.exists() || !root.isDirectory() || (&root != &data_dir && root == data_dir))
+      continue;
 
-  Array<File> sub_folders;
-  sub_folders.add(data_dir);
-  data_dir.findChildFiles(sub_folders, File::findDirectories, false);
-  for (const File& sub_folder : sub_folders) {
-    File directory = sub_folder.getChildFile(folder_name);
-    if (directory.exists() && directory.isDirectory())
-      directories.push_back(directory);
+    Array<File> sub_folders;
+    sub_folders.add(root);
+    root.findChildFiles(sub_folders, File::findDirectories, false);
+    for (const File& sub_folder : sub_folders) {
+      File directory = sub_folder.getChildFile(folder_name);
+      if (directory.exists() && directory.isDirectory())
+        directories.push_back(directory);
+    }
   }
 
   return directories;

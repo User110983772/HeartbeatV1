@@ -90,7 +90,20 @@ namespace strings {
     "24dB",
     "Notch Blend",
     "Notch Spread",
-    "B/P/N"
+    "B/P/N",
+    // The parameter's range runs to 9 (styles differ per model); hosts ask for every value's text.
+    "Style 6",
+    "Style 7",
+    "Style 8",
+    "Style 9",
+    "Style 10"
+  };
+
+  // view_spectrogram is a toggle with a range up to 2; the host may ask for any of its values' text.
+  const std::string kSpectrogramViewNames[] = {
+    "Off",
+    "On",
+    "On"
   };
 
   const std::string kDiodeStyleNames[] = {

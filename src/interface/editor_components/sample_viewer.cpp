@@ -20,6 +20,9 @@
 #include "synth_gui_interface.h"
 #include "synth_section.h"
 
+// Passed by reference (std::min), so C++14 needs the definition.
+constexpr float SampleViewer::kMaxZoom;
+
 SampleViewer::SampleViewer(int engine) : OpenGlLineRenderer(kResolution), bottom_(kResolution),
                                          dragging_overlay_(Shaders::kColorFragment),
                                          loop_quad_(1, Shaders::kColorFragment), fade_quads_(2, Shaders::kColorFragment),

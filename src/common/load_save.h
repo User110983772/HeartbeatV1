@@ -154,6 +154,8 @@ class LoadSave {
     static std::vector<std::string> getAdditionalFolders(const std::string& name);
 
     static File getDataDirectory();
+    // Where the installers put the factory packs for every user of the machine (read only).
+    static File getFactoryDirectory();
     static std::vector<File> getDirectories(const String& folder_name);
     static std::vector<File> getPresetDirectories();
     static std::vector<File> getWavetableDirectories();

@@ -328,7 +328,7 @@ namespace vital {
     { "mpe_enabled", 0x000501, 0.0, 1.0, 0.0, 0.0, 1.0,
       ValueDetails::kIndexed, false, "", "MPE Enabled", strings::kOffOnNames },
     { "view_spectrogram", 0x000803, 0.0, 2.0, 0.0, 0.0, 1.0,
-      ValueDetails::kIndexed, false, "", "View Spectrogram", strings::kOffOnNames },
+      ValueDetails::kIndexed, false, "", "View Spectrogram", strings::kSpectrogramViewNames },
   };
 
   const ValueDetails ValueDetailsLookup::env_parameter_list[] = {
@@ -501,7 +501,7 @@ namespace vital {
     { "destination", 0x010008, 0.0, constants::kNumEngineOutputs - 1, constants::kEngineToGroup, 0.0, 1.0,
       ValueDetails::kIndexed, false, "", "Output", strings::kEngineOutputNames },
     { "view_2d", 0x000402, 0.0, 2.0, 0.0, 0.0, 1.0,
-      ValueDetails::kIndexed, false, "", "View 2D", strings::kOffOnNames },
+      ValueDetails::kIndexed, false, "", "View 2D", strings::kWavetableDimensionNames },
     // Newer than every Vital parameter so it sorts last and existing host parameter indices are kept.
     { "source", 0x010007, 0.0, SynthOscillator::kNumSources - 1, 0.0, 0.0, 1.0,
       ValueDetails::kIndexed, false, "", "Source", strings::kOscillatorSourceNames },
