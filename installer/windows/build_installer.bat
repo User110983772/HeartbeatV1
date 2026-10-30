@@ -23,6 +23,10 @@ for /f "usebackq delims=" %%P in (`"%VSWHERE%" -latest -requires Microsoft.Compo
 set "MSBUILD=%VSDIR%\MSBuild\Current\Bin\MSBuild.exe"
 
 if /i "%~1"=="nobuild" goto :package
+rem The VST3 links Heartbeat.lib from the shared-code project; only the .sln records that dependency.
+echo === Building the shared code
+"%MSBUILD%" "%REPO%\plugin\builds\vs17\Heartbeat_SharedCode.vcxproj" /m /nologo /v:minimal /p:Configuration=Release /p:Platform=x64 /p:SolutionDir="%REPO%\plugin\builds\vs17\\"
+if errorlevel 1 goto :fail
 echo === Building the VST3 plugin
 "%MSBUILD%" "%REPO%\plugin\builds\vs17\Heartbeat_VST3.vcxproj" /m /nologo /v:minimal /p:Configuration=Release /p:Platform=x64 /p:SolutionDir="%REPO%\plugin\builds\vs17\\" /p:PostBuildEventUseInBuild=false
 if errorlevel 1 goto :fail
