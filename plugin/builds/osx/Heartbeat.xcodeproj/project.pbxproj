@@ -97,14 +97,6 @@
 			isa = PBXBuildFile;
 			fileRef = 3C1A95D89CB618E9A37A9294;
 		};
-		8DC6219EA578316B2CBA0073 = {
-			isa = PBXBuildFile;
-			fileRef = 8A11B4CA69336C14305849C4;
-		};
-		A333608940CD3FA99BBE013C = {
-			isa = PBXBuildFile;
-			fileRef = 709AE41EBB7E9C3A885F145E;
-		};
 		F1F06DFDCA979F051B4D02F3 = {
 			isa = PBXBuildFile;
 			fileRef = 1B836FADA62864313EC46BD8;
@@ -1878,13 +1870,6 @@
 			path = "../../../src/interface/editor_sections/wavetable_edit_section.h";
 			sourceTree = "SOURCE_ROOT";
 		};
-		709AE41EBB7E9C3A885F145E = {
-			isa = PBXFileReference;
-			lastKnownFileType = wrapper.framework;
-			name = "firebase_auth.framework";
-			path = "firebase_auth.framework";
-			sourceTree = "<group>";
-		};
 		72CC97CF88F56266F8345136 = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.cpp.objcpp;
@@ -2213,13 +2198,6 @@
 			name = "synth_plugin.cpp";
 			path = "../../../src/plugin/synth_plugin.cpp";
 			sourceTree = "SOURCE_ROOT";
-		};
-		8A11B4CA69336C14305849C4 = {
-			isa = PBXFileReference;
-			lastKnownFileType = wrapper.framework;
-			name = firebase.framework;
-			path = firebase.framework;
-			sourceTree = "<group>";
 		};
 		8A64548A7630C61B722E69B8 = {
 			isa = PBXFileReference;
@@ -4657,8 +4635,6 @@
 				68D22FCF2C186C1EDBE5160C,
 				B0DA14108374A9AAEC2BF280,
 				3C1A95D89CB618E9A37A9294,
-				8A11B4CA69336C14305849C4,
-				709AE41EBB7E9C3A885F145E,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -4777,7 +4753,7 @@
 					"_DEBUG=1",
 					"DEBUG=1",
 					"JUCE_OPENGL3=1",
-					"REQUIRE_AUTH=1",
+					"REQUIRE_AUTH=1", "NO_AUTH=1",
 					"JUCER_XCODE_MAC_E4F0A9CA=1",
 					"JUCE_APP_VERSION=1.0.6",
 					"JUCE_APP_VERSION_HEX=0x10006",
@@ -4884,7 +4860,7 @@
 					"_NDEBUG=1",
 					"NDEBUG=1",
 					"JUCE_OPENGL3=1",
-					"REQUIRE_AUTH=1",
+					"REQUIRE_AUTH=1", "NO_AUTH=1",
 					"JUCER_XCODE_MAC_E4F0A9CA=1",
 					"JUCE_APP_VERSION=1.0.6",
 					"JUCE_APP_VERSION_HEX=0x10006",
@@ -4992,7 +4968,7 @@
 					"_DEBUG=1",
 					"DEBUG=1",
 					"JUCE_OPENGL3=1",
-					"REQUIRE_AUTH=1",
+					"REQUIRE_AUTH=1", "NO_AUTH=1",
 					"JUCER_XCODE_MAC_E4F0A9CA=1",
 					"JUCE_APP_VERSION=1.0.6",
 					"JUCE_APP_VERSION_HEX=0x10006",
@@ -5099,7 +5075,7 @@
 					"_NDEBUG=1",
 					"NDEBUG=1",
 					"JUCE_OPENGL3=1",
-					"REQUIRE_AUTH=1",
+					"REQUIRE_AUTH=1", "NO_AUTH=1",
 					"JUCER_XCODE_MAC_E4F0A9CA=1",
 					"JUCE_APP_VERSION=1.0.6",
 					"JUCE_APP_VERSION_HEX=0x10006",
@@ -5207,7 +5183,7 @@
 					"_DEBUG=1",
 					"DEBUG=1",
 					"JUCE_OPENGL3=1",
-					"REQUIRE_AUTH=1",
+					"REQUIRE_AUTH=1", "NO_AUTH=1",
 					"JUCER_XCODE_MAC_E4F0A9CA=1",
 					"JUCE_APP_VERSION=1.0.6",
 					"JUCE_APP_VERSION_HEX=0x10006",
@@ -5315,7 +5291,7 @@
 					"_NDEBUG=1",
 					"NDEBUG=1",
 					"JUCE_OPENGL3=1",
-					"REQUIRE_AUTH=1",
+					"REQUIRE_AUTH=1", "NO_AUTH=1",
 					"JUCER_XCODE_MAC_E4F0A9CA=1",
 					"JUCE_APP_VERSION=1.0.6",
 					"JUCE_APP_VERSION_HEX=0x10006",
@@ -5422,7 +5398,7 @@
 					"_DEBUG=1",
 					"DEBUG=1",
 					"JUCE_OPENGL3=1",
-					"REQUIRE_AUTH=1",
+					"REQUIRE_AUTH=1", "NO_AUTH=1",
 					"JUCER_XCODE_MAC_E4F0A9CA=1",
 					"JUCE_APP_VERSION=1.0.6",
 					"JUCE_APP_VERSION_HEX=0x10006",
@@ -5523,7 +5499,7 @@
 					"_NDEBUG=1",
 					"NDEBUG=1",
 					"JUCE_OPENGL3=1",
-					"REQUIRE_AUTH=1",
+					"REQUIRE_AUTH=1", "NO_AUTH=1",
 					"JUCER_XCODE_MAC_E4F0A9CA=1",
 					"JUCE_APP_VERSION=1.0.6",
 					"JUCE_APP_VERSION_HEX=0x10006",
@@ -5625,7 +5601,7 @@
 					"_DEBUG=1",
 					"DEBUG=1",
 					"JUCE_OPENGL3=1",
-					"REQUIRE_AUTH=1",
+					"REQUIRE_AUTH=1", "NO_AUTH=1",
 					"JUCER_XCODE_MAC_E4F0A9CA=1",
 					"JUCE_APP_VERSION=1.0.6",
 					"JUCE_APP_VERSION_HEX=0x10006",
@@ -5726,7 +5702,7 @@
 					"_NDEBUG=1",
 					"NDEBUG=1",
 					"JUCE_OPENGL3=1",
-					"REQUIRE_AUTH=1",
+					"REQUIRE_AUTH=1", "NO_AUTH=1",
 					"JUCER_XCODE_MAC_E4F0A9CA=1",
 					"JUCE_APP_VERSION=1.0.6",
 					"JUCE_APP_VERSION_HEX=0x10006",
@@ -5828,7 +5804,7 @@
 					"_DEBUG=1",
 					"DEBUG=1",
 					"JUCE_OPENGL3=1",
-					"REQUIRE_AUTH=1",
+					"REQUIRE_AUTH=1", "NO_AUTH=1",
 					"JUCER_XCODE_MAC_E4F0A9CA=1",
 					"JUCE_APP_VERSION=1.0.6",
 					"JUCE_APP_VERSION_HEX=0x10006",
@@ -5929,7 +5905,7 @@
 					"_NDEBUG=1",
 					"NDEBUG=1",
 					"JUCE_OPENGL3=1",
-					"REQUIRE_AUTH=1",
+					"REQUIRE_AUTH=1", "NO_AUTH=1",
 					"JUCER_XCODE_MAC_E4F0A9CA=1",
 					"JUCE_APP_VERSION=1.0.6",
 					"JUCE_APP_VERSION_HEX=0x10006",
@@ -6194,8 +6170,6 @@
 				5F627A2B5995867F80A90648,
 				959F77C3EB027A8A7595DF8B,
 				A9DA2A286FC8B95313E267C8,
-				8DC6219EA578316B2CBA0073,
-				A333608940CD3FA99BBE013C,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6270,8 +6244,6 @@
 				5F627A2B5995867F80A90648,
 				959F77C3EB027A8A7595DF8B,
 				A9DA2A286FC8B95313E267C8,
-				8DC6219EA578316B2CBA0073,
-				A333608940CD3FA99BBE013C,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6356,8 +6328,6 @@
 				5F627A2B5995867F80A90648,
 				959F77C3EB027A8A7595DF8B,
 				A9DA2A286FC8B95313E267C8,
-				8DC6219EA578316B2CBA0073,
-				A333608940CD3FA99BBE013C,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6435,8 +6405,6 @@
 				5F627A2B5995867F80A90648,
 				959F77C3EB027A8A7595DF8B,
 				A9DA2A286FC8B95313E267C8,
-				8DC6219EA578316B2CBA0073,
-				A333608940CD3FA99BBE013C,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6511,8 +6479,6 @@
 				5F627A2B5995867F80A90648,
 				959F77C3EB027A8A7595DF8B,
 				A9DA2A286FC8B95313E267C8,
-				8DC6219EA578316B2CBA0073,
-				A333608940CD3FA99BBE013C,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

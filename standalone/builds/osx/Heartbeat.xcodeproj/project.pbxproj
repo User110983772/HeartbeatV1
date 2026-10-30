@@ -69,14 +69,6 @@
 			isa = PBXBuildFile;
 			fileRef = 80007F18ABD98ABBD848A1B0;
 		};
-		00FDFAD49D61AA2E390CC2A9 = {
-			isa = PBXBuildFile;
-			fileRef = B753F97C03AA730029208A9B;
-		};
-		E6A9F391A73E5E60A5419F40 = {
-			isa = PBXBuildFile;
-			fileRef = 13045D2BCAB18DB4D925427F;
-		};
 		1D38713E044E4966AD971F06 = {
 			isa = PBXBuildFile;
 			fileRef = C4C772D9C3F472259A2210E3;
@@ -378,13 +370,6 @@
 			name = "wavetable_overlay_factory.cpp";
 			path = "../../../src/interface/wavetable/wavetable_overlay_factory.cpp";
 			sourceTree = "SOURCE_ROOT";
-		};
-		13045D2BCAB18DB4D925427F = {
-			isa = PBXFileReference;
-			lastKnownFileType = wrapper.framework;
-			name = "firebase_auth.framework";
-			path = "firebase_auth.framework";
-			sourceTree = "<group>";
 		};
 		13600B2D92B3A5BD77EF5052 = {
 			isa = PBXFileReference;
@@ -2752,13 +2737,6 @@
 			path = "../../../src/common/wavetable/phase_modifier.cpp";
 			sourceTree = "SOURCE_ROOT";
 		};
-		B753F97C03AA730029208A9B = {
-			isa = PBXFileReference;
-			lastKnownFileType = wrapper.framework;
-			name = firebase.framework;
-			path = firebase.framework;
-			sourceTree = "<group>";
-		};
 		B7B32E5CBAAAB218D7529B40 = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.c.h;
@@ -4476,8 +4454,6 @@
 				EA170B8B6946E4F4B51585CC,
 				5512D324B24E8DBD9047DF81,
 				80007F18ABD98ABBD848A1B0,
-				B753F97C03AA730029208A9B,
-				13045D2BCAB18DB4D925427F,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -4525,7 +4501,7 @@
 					"_DEBUG=1",
 					"DEBUG=1",
 					"JUCE_OPENGL3=1",
-					"REQUIRE_AUTH=1",
+					"REQUIRE_AUTH=1", "NO_AUTH=1",
 					"JUCER_XCODE_MAC_E4F0A9CA=1",
 					"JUCE_APP_VERSION=1.0.6",
 					"JUCE_APP_VERSION_HEX=0x10006",
@@ -4621,7 +4597,7 @@
 					"_NDEBUG=1",
 					"NDEBUG=1",
 					"JUCE_OPENGL3=1",
-					"REQUIRE_AUTH=1",
+					"REQUIRE_AUTH=1", "NO_AUTH=1",
 					"JUCER_XCODE_MAC_E4F0A9CA=1",
 					"JUCE_APP_VERSION=1.0.6",
 					"JUCE_APP_VERSION_HEX=0x10006",
@@ -4866,8 +4842,6 @@
 				CBDEF0B7ACD825C1ACFC3687,
 				C186DE2DF11004A59FDFD649,
 				0BAC551B7F686E037E0C22A2,
-				00FDFAD49D61AA2E390CC2A9,
-				E6A9F391A73E5E60A5419F40,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

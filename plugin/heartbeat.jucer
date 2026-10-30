@@ -842,7 +842,7 @@
       </MODULEPATHS>
     </LINUX_MAKE>
     <XCODE_MAC targetFolder="builds/osx" vst3Folder="../third_party/VST3_SDK"
-               rtasFolder="~/SDKs/PT_80_SDK" aaxFolder="~/srcs/AAX" extraDefs="JUCE_OPENGL3=1&#10;REQUIRE_AUTH=1"
+               rtasFolder="~/SDKs/PT_80_SDK" aaxFolder="~/srcs/AAX" extraDefs="JUCE_OPENGL3=1&#10;REQUIRE_AUTH=1&#10;NO_AUTH=1"
                customPList="&lt;plist&gt;&#10;  &lt;dict&gt;&#10;    &lt;key&gt;NSAppTransportSecurity&lt;/key&gt;&#10;    &lt;dict&gt;&#10;      &lt;key&gt;NSExceptionDomains&lt;/key&gt;&#10;      &lt;dict&gt;&#10;        &lt;key&gt;tytel.org&lt;/key&gt;&#10;        &lt;dict&gt;&#10;          &lt;key&gt;NSIncludeSubDomains&lt;/key&gt;&#10;          &lt;false/&gt;&#10;          &lt;key&gt;NSTemporaryExceptionAllowsInsecureHTTPLoads&lt;/key&gt;&#10;          &lt;true/&gt;&#10;          &lt;key&gt;NSTemporaryExceptionMinimumTLSVersion&lt;/key&gt;&#10;          &lt;string&gt;TLSv1.1&lt;/string&gt;&#10;        &lt;/dict&gt;&#10;      &lt;/dict&gt;&#10;    &lt;/dict&gt;&#10;  &lt;/dict&gt;&#10;&lt;/plist&gt;"
                extraLinkerFlags="" bigIcon="XC7smo" postbuildCommand="if [ -f ~/Library/Audio/Plug-Ins/Components/Heartbeat.component ]; then&#10;  auval -v aumu Hbt1 Hrtb&#10;fi"
                hardenedRuntime="1" externalLibraries="gssapi_krb5" extraFrameworks="Security,GSS"
