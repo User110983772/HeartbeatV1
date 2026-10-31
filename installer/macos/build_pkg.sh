@@ -38,7 +38,7 @@ mkdir -p "$work/pkgs"
 stage vst3 "$vst3" "/Library/Audio/Plug-Ins/VST3"
 stage au "$au" "/Library/Audio/Plug-Ins/Components"
 stage app "$app" "/Applications"
-"$repo/installer/stage_content.sh" "$work/content"
+bash "$repo/installer/stage_content.sh" "$work/content"
 pkgbuild --root "$work/content" --install-location "/Library/Application Support/Heartbeat" \
          --identifier com.heartbeat.content --version "$version" "$work/pkgs/content.pkg"
 

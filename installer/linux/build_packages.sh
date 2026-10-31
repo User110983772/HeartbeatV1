@@ -27,7 +27,7 @@ cp -R "$vst3" "$root/usr/lib/vst3/"
 cp -R "$lv2" "$root/usr/lib/lv2/"
 install -Dm644 standalone/heartbeat.desktop "$root/usr/share/applications/heartbeat.desktop"
 install -Dm644 LICENSE "$root/usr/share/doc/heartbeat/copyright"
-"$repo/installer/stage_content.sh" "$root/usr/share/heartbeat"
+bash "$repo/installer/stage_content.sh" "$root/usr/share/heartbeat"
 find "$root" -type d -exec chmod 755 {} +
 find "$root/usr/share/heartbeat" -type f -exec chmod 644 {} +
 

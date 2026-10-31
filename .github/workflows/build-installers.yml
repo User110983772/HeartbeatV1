@@ -31,7 +31,7 @@ jobs:
             libgl1-mesa-dev libx11-dev libxext-dev libxinerama-dev libxrandr-dev libxcursor-dev \
             libxcomposite-dev libxrender-dev libsecret-1-dev libglib2.0-dev
       - name: Build and package
-        run: installer/linux/build_packages.sh
+        run: bash installer/linux/build_packages.sh
       - uses: actions/upload-artifact@v4
         with:
           name: heartbeat-linux
@@ -46,7 +46,7 @@ jobs:
           curl -fsSL -o "$RUNNER_TEMP/content.zip" "${{ vars.FACTORY_CONTENT_URL }}"
           unzip -q "$RUNNER_TEMP/content.zip" -d "$GITHUB_WORKSPACE/.."
       - name: Build and package
-        run: installer/macos/build_pkg.sh
+        run: bash installer/macos/build_pkg.sh
       - uses: actions/upload-artifact@v4
         with:
           name: heartbeat-macos
