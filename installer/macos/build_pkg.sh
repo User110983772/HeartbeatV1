@@ -13,8 +13,10 @@ repo="$(cd "$here/../.." && pwd)"
 out="$repo/installer/out"
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
+# DEPLOYMENT_LOCATION=NO: the projects' plugin copy step installs into ~/Library with DSTROOT=/, which Xcode 14+
+# rejects as a dependency cycle; the bundles are collected from build/Release instead.
 xcode_flags=(-configuration Release CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=NO ARCHS="arm64 x86_64"
-             MACOSX_DEPLOYMENT_TARGET=10.13)
+             MACOSX_DEPLOYMENT_TARGET=10.13 DEPLOYMENT_LOCATION=NO)
 
 cd "$repo"
 if [ -z "${NOBUILD:-}" ]; then
